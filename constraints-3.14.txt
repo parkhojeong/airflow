@@ -1,6 +1,6 @@
 
 #
-# This constraints file was automatically generated on 2026-03-29T20:43:31.059522
+# This constraints file was automatically generated on 2026-03-30T08:12:03.687179
 # via `uv pip install --resolution highest` for the "v3-2-test" branch of Airflow.
 # This variant of constraints install uses the HEAD of the branch version for 'apache-airflow' but installs
 # the providers from PIP-released packages at the moment of the constraint generation.
@@ -187,6 +187,7 @@ apache-airflow-providers-zendesk==4.11.1
 apispec==6.10.0
 apprise==1.9.9
 argcomplete==3.6.3
+arro3-core==0.8.0
 asana==5.2.3
 asgiref==3.11.1
 asn1crypto==1.5.1
@@ -197,6 +198,8 @@ asyncssh==2.22.0
 atlasclient==1.0.0
 atlassian-python-api==4.0.7
 attrs==26.1.0
+aws-embedded-metrics==3.4.0
+awswrangler==3.15.1
 azure-batch==14.2.0
 azure-common==1.1.28
 azure-core==1.39.0
@@ -266,6 +269,7 @@ db-dtypes==1.5.0
 debugpy==1.8.20
 decorator==5.2.1
 defusedxml==0.7.1
+deltalake==1.5.0
 deprecation==2.1.0
 dill==0.4.1
 distro==1.9.0
@@ -273,6 +277,7 @@ dnspython==2.8.0
 docker==7.1.0
 docopt==0.6.2
 docstring_parser==0.17.0
+duckdb==1.5.1
 durationpy==0.10
 ecdsa==0.19.1
 elastic-transport==8.17.1
@@ -467,9 +472,9 @@ nbconvert==7.17.0
 nbformat==5.10.4
 neo4j==6.1.0
 nest-asyncio==1.6.0
-numpy==2.4.3
+numpy==2.2.6
 oauthlib==3.3.1
-openai==2.29.0
+openai==2.30.0
 openlineage-integration-common==1.45.0
 openlineage-python==1.45.0
 openlineage_sql==1.45.0
@@ -529,16 +534,16 @@ pure-sasl==0.6.2
 pure_eval==0.2.3
 py4j==0.10.9.9
 pyOpenSSL==25.1.0
-pyarrow==23.0.1
+pyarrow==22.0.0
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pybreaker==1.4.1
 pycountry==26.2.16
 pycparser==3.0
 pycryptodome==3.23.0
-pydantic-ai-slim==1.71.0
+pydantic-ai-slim==1.72.0
 pydantic-extra-types==2.11.1
-pydantic-graph==1.71.0
+pydantic-graph==1.72.0
 pydantic-settings==2.13.1
 pydantic==2.12.5
 pydantic_core==2.41.5
@@ -573,7 +578,7 @@ pytokens==0.4.1
 pytz==2026.1.post1
 pywinrm==0.5.0
 pyzmq==27.1.0
-qdrant-client==1.17.1
+qdrant-client==1.16.1
 reactivex==4.1.0
 redis==6.4.0
 redshift-connector==2.1.7
@@ -594,7 +599,7 @@ rsa==4.9.1
 ruamel.yaml==0.19.1
 s3fs==2026.2.0
 s3transfer==0.16.0
-sagemaker_studio==1.0.25
+sagemaker_studio==1.1.10
 scikit-learn==1.8.0
 scipy==1.17.1
 scramp==1.4.8
@@ -620,6 +625,7 @@ sqlalchemy-bigquery==1.16.0
 sqlalchemy-spanner==1.17.3
 sqlalchemy_drill==1.1.10
 sqlean.py==3.50.4.5
+sqlglot==30.0.3
 sqlparse==0.5.5
 sshtunnel==0.4.0
 stack-data==0.6.3
