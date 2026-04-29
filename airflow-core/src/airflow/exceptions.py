@@ -50,7 +50,7 @@ except ModuleNotFoundError:
         """Raise when a requested object is not found."""
 
     class AirflowTimetableInvalid(AirflowException):  # type: ignore[no-redef]
-        """Raise when a DAG has an invalid timetable."""
+        """Raise when a Dag has an invalid timetable."""
 
     class TaskNotFound(AirflowException):  # type: ignore[no-redef]
         """Raise when a Task is not available in the system."""
@@ -101,7 +101,7 @@ class AirflowInternalRuntimeError(BaseException):
 
 
 class AirflowDagDuplicatedIdException(AirflowException):
-    """Raise when a DAG's ID is already used by another DAG."""
+    """Raise when a Dag's ID is already used by another Dag."""
 
     def __init__(self, dag_id: str, incoming: str, existing: str) -> None:
         super().__init__(dag_id, incoming, existing)
@@ -110,11 +110,11 @@ class AirflowDagDuplicatedIdException(AirflowException):
         self.existing = existing
 
     def __str__(self) -> str:
-        return f"Ignoring DAG {self.dag_id} from {self.incoming} - also found in {self.existing}"
+        return f"Ignoring Dag {self.dag_id} from {self.incoming} - also found in {self.existing}"
 
 
 class AirflowClusterPolicyViolation(AirflowException):
-    """Raise when there is a violation of a Cluster Policy in DAG definition."""
+    """Raise when there is a violation of a Cluster Policy in Dag definition."""
 
 
 class AirflowClusterPolicySkipDag(AirflowException):
@@ -126,22 +126,22 @@ class AirflowClusterPolicyError(AirflowException):
 
 
 class DagNotFound(AirflowNotFoundException):
-    """Raise when a DAG is not available in the system."""
+    """Raise when a Dag is not available in the system."""
 
 
 class DagCodeNotFound(AirflowNotFoundException):
-    """Raise when a DAG code is not available in the system."""
+    """Raise when a Dag code is not available in the system."""
 
 
 class DagRunNotFound(AirflowNotFoundException):
-    """Raise when a DAG Run is not available in the system."""
+    """Raise when a Dag Run is not available in the system."""
 
 
 class DagRunAlreadyExists(AirflowBadRequest):
-    """Raise when creating a DAG run for DAG which already has DAG run entry."""
+    """Raise when creating a Dag run for Dag which already has Dag run entry."""
 
     def __init__(self, dag_run: DagRun) -> None:
-        super().__init__(f"A DAG Run already exists for DAG {dag_run.dag_id} with run id {dag_run.run_id}")
+        super().__init__(f"A Dag Run already exists for Dag {dag_run.dag_id} with run id {dag_run.run_id}")
         self.dag_run = dag_run
 
     def serialize(self):

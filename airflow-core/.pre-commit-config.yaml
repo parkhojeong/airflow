@@ -77,8 +77,8 @@ repos:
         entry: ../scripts/ci/prek/check_extra_packages_ref.py
       - id: check-no-providers-in-core-examples
         language: pygrep
-        name: No providers imports in core example DAGs
-        description: The core example DAGs have no dependencies other than standard provider or core Airflow
+        name: No providers imports in core example Dags
+        description: The core example Dags have no dependencies other than standard provider or core Airflow
         entry: "^\\s*from airflow\\.providers.(?!standard.)"
         pass_filenames: true
         files: ^src/airflow/example_dags/.*\.py$

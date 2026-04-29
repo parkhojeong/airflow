@@ -140,7 +140,7 @@ def get_session():
     return Session
 
 
-# The JSON library to use for DAG Serialization and De-Serialization
+# The JSON library to use for Dag Serialization and De-Serialization
 json = json_lib
 
 # Display alerts on the dashboard
