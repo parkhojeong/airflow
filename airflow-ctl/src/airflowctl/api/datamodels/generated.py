@@ -280,7 +280,7 @@ class DAGPatchBody(BaseModel):
 
 class DAGRunClearBody(BaseModel):
     """
-    Dag Run serializer for clear endpoint body.
+    DAG Run serializer for clear endpoint body.
     """
 
     model_config = ConfigDict(
@@ -291,7 +291,7 @@ class DAGRunClearBody(BaseModel):
     only_new: Annotated[
         bool | None,
         Field(
-            description="Only queue newly added tasks in the latest Dag version without clearing existing tasks.",
+            description="Only queue newly added tasks in the latest DAG version without clearing existing tasks.",
             title="Only New",
         ),
     ] = False
@@ -306,7 +306,7 @@ class DAGRunClearBody(BaseModel):
 
 class DAGRunPatchStates(str, Enum):
     """
-    Enum for Dag Run states when updating a Dag Run.
+    Enum for DAG Run states when updating a DAG Run.
     """
 
     QUEUED = "queued"
@@ -316,7 +316,7 @@ class DAGRunPatchStates(str, Enum):
 
 class DAGSourceResponse(BaseModel):
     """
-    Dag Source serializer for responses.
+    DAG Source serializer for responses.
     """
 
     content: Annotated[str | None, Field(title="Content")] = None
@@ -327,7 +327,7 @@ class DAGSourceResponse(BaseModel):
 
 class DAGTagCollectionResponse(BaseModel):
     """
-    Dag Tags Collection serializer for responses.
+    DAG Tags Collection serializer for responses.
     """
 
     tags: Annotated[list[str], Field(title="Tags")]
@@ -409,7 +409,7 @@ class DagRunType(str, Enum):
 
 class DagScheduleAssetReference(BaseModel):
     """
-    Dag schedule reference serializer for assets.
+    DAG schedule reference serializer for assets.
     """
 
     model_config = ConfigDict(
@@ -431,7 +431,7 @@ class DagStatsStateResponse(BaseModel):
 
 class DagTagResponse(BaseModel):
     """
-    Dag Tag serializer for responses.
+    DAG Tag serializer for responses.
     """
 
     name: Annotated[str, Field(title="Name")]
@@ -456,7 +456,7 @@ class DagVersionResponse(BaseModel):
 
 class DagWarningType(str, Enum):
     """
-    Enum for Dag warning types.
+    Enum for DAG warning types.
 
     This is the set of allowable values for the ``warning_type`` field
     in the DagWarning model.
@@ -919,7 +919,7 @@ class TimeDelta(BaseModel):
 
 class TriggerDAGRunPostBody(BaseModel):
     """
-    Trigger Dag Run Serializer for POST body.
+    Trigger DAG Run Serializer for POST body.
     """
 
     model_config = ConfigDict(
@@ -1376,7 +1376,7 @@ class ConnectionCollectionResponse(BaseModel):
 
 class DAGDetailsResponse(BaseModel):
     """
-    Specific serializer for Dag Details responses.
+    Specific serializer for DAG Details responses.
     """
 
     dag_id: Annotated[str, Field(title="Dag Id")]
@@ -1428,7 +1428,7 @@ class DAGDetailsResponse(BaseModel):
     is_favorite: Annotated[bool | None, Field(title="Is Favorite")] = False
     active_runs_count: Annotated[int | None, Field(title="Active Runs Count")] = 0
     is_backfillable: Annotated[
-        bool, Field(description="Whether this Dag's schedule supports backfilling.", title="Is Backfillable")
+        bool, Field(description="Whether this DAG's schedule supports backfilling.", title="Is Backfillable")
     ]
     file_token: Annotated[str, Field(description="Return file token.", title="File Token")]
     concurrency: Annotated[
@@ -1445,7 +1445,7 @@ class DAGDetailsResponse(BaseModel):
 
 class DAGResponse(BaseModel):
     """
-    Dag serializer for responses.
+    DAG serializer for responses.
     """
 
     dag_id: Annotated[str, Field(title="Dag Id")]
@@ -1481,14 +1481,14 @@ class DAGResponse(BaseModel):
     allowed_run_types: Annotated[list[DagRunType] | None, Field(title="Allowed Run Types")] = None
     owners: Annotated[list[str], Field(title="Owners")]
     is_backfillable: Annotated[
-        bool, Field(description="Whether this Dag's schedule supports backfilling.", title="Is Backfillable")
+        bool, Field(description="Whether this DAG's schedule supports backfilling.", title="Is Backfillable")
     ]
     file_token: Annotated[str, Field(description="Return file token.", title="File Token")]
 
 
 class DAGRunPatchBody(BaseModel):
     """
-    Dag Run Serializer for PATCH requests.
+    DAG Run Serializer for PATCH requests.
     """
 
     model_config = ConfigDict(
@@ -1500,7 +1500,7 @@ class DAGRunPatchBody(BaseModel):
 
 class DAGRunResponse(BaseModel):
     """
-    Dag Run serializer for responses.
+    DAG Run serializer for responses.
     """
 
     dag_run_id: Annotated[str, Field(title="Dag Run Id")]
@@ -1528,7 +1528,7 @@ class DAGRunResponse(BaseModel):
 
 class DAGRunsBatchBody(BaseModel):
     """
-    List Dag Runs body for batch endpoint.
+    List DAG Runs body for batch endpoint.
     """
 
     model_config = ConfigDict(
@@ -1564,7 +1564,7 @@ class DAGRunsBatchBody(BaseModel):
 
 class DAGVersionCollectionResponse(BaseModel):
     """
-    Dag Version Collection serializer for responses.
+    DAG Version Collection serializer for responses.
     """
 
     dag_versions: Annotated[list[DagVersionResponse], Field(title="Dag Versions")]
@@ -1573,7 +1573,7 @@ class DAGVersionCollectionResponse(BaseModel):
 
 class DAGWarningResponse(BaseModel):
     """
-    Dag Warning serializer for responses.
+    DAG Warning serializer for responses.
     """
 
     dag_id: Annotated[str, Field(title="Dag Id")]
@@ -1585,7 +1585,7 @@ class DAGWarningResponse(BaseModel):
 
 class DagStatsResponse(BaseModel):
     """
-    Dag Stats serializer for responses.
+    DAG Stats serializer for responses.
     """
 
     dag_id: Annotated[str, Field(title="Dag Id")]
@@ -1969,7 +1969,7 @@ class ClearTaskInstanceCollectionResponse(BaseModel):
 
 class DAGCollectionResponse(BaseModel):
     """
-    Dag Collection serializer for responses.
+    DAG Collection serializer for responses.
     """
 
     dags: Annotated[list[DAGResponse], Field(title="Dags")]
