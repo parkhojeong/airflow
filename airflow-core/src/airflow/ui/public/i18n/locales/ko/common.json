@@ -193,6 +193,12 @@
     },
     "tooltip": "{{hotkey}}를 눌러 {{direction}}로 스크롤"
   },
+  "search": {
+    "advanced": {
+      "description": "Match anywhere in the value (substring search). Slower on large deployments because it can't use the default B-tree index. See the docs section on custom metadata indexes for details.",
+      "title": "Match anywhere"
+    }
+  },
   "security": {
     "actions": "작업",
     "permissions": "권한",
