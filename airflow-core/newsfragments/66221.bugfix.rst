@@ -1,0 +1,1 @@
+Fix manual text selection and copy from the Rendered Templates tab so pasted content preserves the expected line structure.
