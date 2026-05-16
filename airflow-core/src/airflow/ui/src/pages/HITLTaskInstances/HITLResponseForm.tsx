@@ -34,6 +34,7 @@ type HITLResponseFormProps = {
   readonly hitlDetail: {
     task_instance: TaskInstanceHistoryResponse;
   } & Omit<HITLDetailHistory, "task_instance">;
+  readonly namespace?: string;
 };
 
 const isHighlightOption = (
@@ -54,11 +55,11 @@ const isHighlightOption = (
   return isSelected ?? isDefault ?? !Boolean(hitlDetail.defaults);
 };
 
-export const HITLResponseForm = ({ hitlDetail }: HITLResponseFormProps) => {
+export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLResponseFormProps) => {
   const { t: translate } = useTranslation("hitl");
   const [errors, setErrors] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { paramsDict } = useParamStore("hitl");
+  const { paramsDict } = useParamStore(namespace);
   const [searchParams] = useSearchParams();
   const { preloadedHITLOptions } = getPreloadHITLFormData(searchParams, hitlDetail);
 
@@ -125,7 +126,7 @@ export const HITLResponseForm = ({ hitlDetail }: HITLResponseFormProps) => {
           }}
           isHITL
           key={hitlDetail.subject}
-          namespace="hitl"
+          namespace={namespace}
           setError={setErrors}
         />
       </Accordion.Root>
