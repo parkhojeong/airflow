@@ -16,91 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Badge, Box, Heading, HStack, VStack } from "@chakra-ui/react";
+import { Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
-
-import Time from "src/components/Time";
-import { Tooltip } from "src/components/ui";
-import { getRelativeTime } from "src/utils/datetimeUtils";
-
-type NotificationAccent = "fg.error" | "fg.info";
-
-type NotificationCardProps = {
-  readonly accent: NotificationAccent;
-  readonly "aria-label"?: string;
-  readonly children: ReactNode;
-  readonly meta?: ReactNode;
-  readonly selected?: boolean;
-  readonly title?: ReactNode;
-};
-
-export const NotificationCard = ({
-  accent,
-  "aria-label": ariaLabel,
-  children,
-  meta,
-  selected = false,
-  title,
-}: NotificationCardProps) => (
-  <Box
-    _focusVisible={{
-      outline: "2px solid",
-      outlineColor: accent,
-      outlineOffset: "2px",
-    }}
-    appearance="none"
-    aria-label={ariaLabel}
-    bg="bg"
-    borderColor={selected ? accent : "border"}
-    borderRadius="md"
-    borderWidth={1}
-    color="inherit"
-    font="inherit"
-    overflow="hidden"
-    p={0}
-    textAlign="start"
-    width="100%"
-  >
-    <VStack alignItems="stretch" gap={2} minW={0} width="100%">
-      {title === undefined && meta === undefined ? undefined : (
-        <HStack alignItems="flex-start" gap={2} justifyContent="space-between" minW={0} width="100%">
-          {title === undefined ? (
-            <Box flex={1} minW={0} />
-          ) : (
-            <Box flex={1} fontWeight="semibold" lineClamp={2} minW={0}>
-              {title}
-            </Box>
-          )}
-          {meta}
-        </HStack>
-      )}
-      {children}
-    </VStack>
-  </Box>
-);
-
-export const RelativeTimePill = ({ datetime }: { readonly datetime: string }) => {
-  const relative = getRelativeTime(datetime);
-
-  if (relative === "") {
-    return undefined;
-  }
-
-  return (
-    <Tooltip content={<Time datetime={datetime} />}>
-      <Badge flexShrink={0} variant="subtle">
-        {relative}
-      </Badge>
-    </Tooltip>
-  );
-};
 
 export const NotificationSectionHeading = ({
   children,
 }: {
   readonly children: ReactNode;
 }) => (
-  <HStack gap={2} justifyContent="flex-start">
-    <Heading size="sm">{children}</Heading>
-  </HStack>
+  <VStack
+    alignItems="stretch"
+    borderBottomColor="border"
+    borderBottomWidth={1}
+    gap={1}
+    mx={-2}
+    pb={2}
+    px={2}
+  >
+    <HStack gap={2} justifyContent="flex-start">
+      <Heading size="sm">{children}</Heading>
+    </HStack>
+  </VStack>
 );

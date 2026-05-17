@@ -56,6 +56,7 @@ export const useUpdateHITLDetail = ({
       [useDagRunServiceGetDagRunsKey],
       [useTaskInstanceServiceGetTaskInstancesKey, { dagId, dagRunId }],
       [useTaskInstanceServiceGetTaskInstanceKey, { dagId, dagRunId, mapIndex, taskId }],
+      [useTaskInstanceServiceGetHitlDetailsKey],
       [useTaskInstanceServiceGetHitlDetailsKey, { dagIdPrefixPattern: dagId, dagRunId }],
       [useTaskInstanceServiceGetHitlDetailKey, { dagId, dagRunId }],
       UseGanttServiceGetGanttDataKeyFn({ dagId, runId: dagRunId }),

@@ -28,12 +28,42 @@ import { NotificationsModal } from "./NotificationsModal";
 
 const MAX_BADGE_COUNT = 99;
 const NOTIFICATION_LIMIT = 10;
+const NOTIFICATION_SUMMARY_LIMIT = 1;
 
 export const NotificationsButton = () => {
   const { onClose, onOpen, open } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
 
-  const { data: hitlData } = useTaskInstanceServiceGetHitlDetails(
+  const { data: hitlSummaryData } = useTaskInstanceServiceGetHitlDetails(
+    {
+      dagId: "~",
+      dagRunId: "~",
+      limit: NOTIFICATION_SUMMARY_LIMIT,
+      orderBy: ["created_at"],
+      responseReceived: false,
+      state: ["deferred"],
+    },
+    undefined,
+    { refetchInterval },
+  );
+
+  const { data: deadlineSummaryData } = useDeadlinesServiceGetDeadlines(
+    {
+      dagId: "~",
+      dagRunId: "~",
+      limit: NOTIFICATION_SUMMARY_LIMIT,
+      missed: true,
+      orderBy: ["-deadline_time"],
+    },
+    undefined,
+    { refetchInterval },
+  );
+
+  const {
+    data: hitlData,
+    isError: isHitlError,
+    isLoading: isHitlLoading,
+  } = useTaskInstanceServiceGetHitlDetails(
     {
       dagId: "~",
       dagRunId: "~",
@@ -43,10 +73,14 @@ export const NotificationsButton = () => {
       state: ["deferred"],
     },
     undefined,
-    { refetchInterval },
+    { enabled: open, refetchInterval },
   );
 
-  const { data: deadlineData } = useDeadlinesServiceGetDeadlines(
+  const {
+    data: deadlineData,
+    isError: isDeadlineError,
+    isLoading: isDeadlineLoading,
+  } = useDeadlinesServiceGetDeadlines(
     {
       dagId: "~",
       dagRunId: "~",
@@ -55,11 +89,11 @@ export const NotificationsButton = () => {
       orderBy: ["-deadline_time"],
     },
     undefined,
-    { refetchInterval },
+    { enabled: open, refetchInterval },
   );
 
-  const deadlineTotalEntries = deadlineData?.total_entries ?? 0;
-  const hitlTotalEntries = hitlData?.total_entries ?? 0;
+  const deadlineTotalEntries = deadlineSummaryData?.total_entries ?? 0;
+  const hitlTotalEntries = hitlSummaryData?.total_entries ?? 0;
   const notificationCount = hitlTotalEntries + deadlineTotalEntries;
   const displayCount = notificationCount > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : notificationCount;
 
@@ -89,7 +123,18 @@ export const NotificationsButton = () => {
           ) : undefined}
         </Box>
       </Tooltip>
-      <NotificationsModal deadlineData={deadlineData} hitlData={hitlData} onClose={onClose} open={open} />
+      <NotificationsModal
+        deadlineData={deadlineData}
+        deadlineIsError={isDeadlineError}
+        deadlineIsLoading={isDeadlineLoading}
+        deadlineTotal={deadlineTotalEntries}
+        hitlData={hitlData}
+        hitlIsError={isHitlError}
+        hitlIsLoading={isHitlLoading}
+        hitlTotal={hitlTotalEntries}
+        onClose={onClose}
+        open={open}
+      />
     </>
   );
 };
