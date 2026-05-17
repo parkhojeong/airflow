@@ -16,35 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Accordion, Box, Grid, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
-import { useState, type ReactNode } from "react";
+import { Box, Grid, HStack, Skeleton, Text, VStack } from "@chakra-ui/react";
+import { useState, type ComponentProps, type MouseEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { StateBadge } from "src/components/StateBadge";
+import Time from "src/components/Time";
+import { Accordion, RouterLink } from "src/components/ui";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
-import { getRelativeTime } from "src/utils/datetimeUtils";
+import { DEFAULT_DATETIME_FORMAT } from "src/utils/datetimeUtils";
 import { getHITLState } from "src/utils/hitl";
+import { getTaskInstanceLink } from "src/utils/links";
 
 import { HITLTaskInstanceLink } from "./HITLTaskInstanceLink";
 import { NotificationCard } from "./NotificationCard";
 
-const ASSIGNED_LABEL = "Assigned to";
-const ATTEMPT_LABEL = "Attempt";
 const DAG_LABEL = "Dag";
 const DAG_RUN_LABEL = "Dag run";
-const EMPTY_VALUE = "-";
 const MAP_LABEL = "Map";
-const TASK_LABEL = "Task";
+const ASSIGNED_LABEL = "Assigned to";
+const ATTEMPT_LABEL = "Attempt";
 const OPEN_TASK_LABEL = "Open task";
 const REQUESTED_LABEL = "Requested";
+const SUBJECT_LABEL = "Subject";
+const TASK_PREFIX = "Task:";
 
 const formatTaskId = (taskInstance: HITLDetail["task_instance"]) => {
   const mapSuffix = taskInstance.map_index >= 0 ? `[${taskInstance.map_index}]` : "";
 
   return `${taskInstance.task_id}${mapSuffix}`;
 };
+
+const formatDisplayName = (displayName: string | null | undefined, id: string) =>
+  displayName !== null && displayName !== undefined && displayName !== "" && displayName !== id
+    ? `${displayName} (${id})`
+    : id;
 
 const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   if (users === undefined || users.length === 0) {
@@ -54,15 +61,13 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   return users.map((user) => user.name).join(", ");
 };
 
-const formatDisplayName = (displayName: string | null | undefined, id: string) =>
-  displayName !== null && displayName !== undefined && displayName !== "" && displayName !== id
-    ? `${displayName} (${id})`
-    : id;
-
 type SummaryMetaItem = {
   readonly label: string;
-  readonly value: number | string;
+  readonly to: string;
+  readonly value: string;
 };
+
+const stopAccordionToggle = (event: MouseEvent) => event.stopPropagation();
 
 const SummaryMetaGrid = ({
   items,
@@ -73,12 +78,12 @@ const SummaryMetaGrid = ({
 }) => (
   <Grid gap={1} minW={0} templateColumns={templateColumns}>
     {items.map((item) => (
-      <Text color="fg.muted" fontSize="xs" key={item.label} truncate>
+      <RouterLink fontSize="xs" key={item.label} onClick={stopAccordionToggle} to={item.to} truncate>
         {item.label}
-      </Text>
+      </RouterLink>
     ))}
     {items.map((item) => (
-      <Text fontSize="sm" key={`${item.label}-value`} truncate>
+      <Text fontSize="sm" fontWeight="medium" key={`${item.label}-value`} truncate>
         {item.value}
       </Text>
     ))}
@@ -96,12 +101,6 @@ const MetaRow = ({ label, value }: { readonly label: string; readonly value: Rea
   </HStack>
 );
 
-const formatRequestedTime = (datetime: string) => {
-  const relative = getRelativeTime(datetime);
-
-  return relative === "" ? EMPTY_VALUE : relative;
-};
-
 const HITLNotificationSummary = ({
   detail,
   showRunContext,
@@ -109,57 +108,71 @@ const HITLNotificationSummary = ({
   readonly detail: HITLDetail;
   readonly showRunContext: boolean;
 }) => {
-  const { t: translate } = useTranslation("hitl");
-  const assignees = formatAssignees(detail.assigned_users);
-  const hitlState = getHITLState(translate, detail);
   const dagName = formatDisplayName(detail.task_instance.dag_display_name, detail.task_instance.dag_id);
   const taskName = formatDisplayName(
     detail.task_instance.task_display_name,
     formatTaskId(detail.task_instance),
   );
-  const mappedIndex =
-    detail.task_instance.rendered_map_index ??
-    (detail.task_instance.map_index >= 0 ? detail.task_instance.map_index : undefined);
 
   return (
     <VStack alignItems="stretch" gap={2} minW={0}>
-      <HStack alignItems="flex-start" gap={2} justifyContent="space-between" minW={0}>
-        <VStack alignItems="flex-start" gap={1} minW={0}>
-          <StateBadge flexShrink={0} fontSize="2xs" px={1.5} py={0.5} state={detail.task_instance.state}>
-            {hitlState}
-          </StateBadge>
-        </VStack>
-      </HStack>
-      <VStack alignItems="stretch" gap={1} minW={0}>
+      {showRunContext ? (
         <SummaryMetaGrid
-          items={
-            showRunContext
-              ? [
-                  { label: DAG_LABEL, value: dagName },
-                  { label: DAG_RUN_LABEL, value: detail.task_instance.dag_run_id },
-                  { label: TASK_LABEL, value: taskName },
-                  { label: MAP_LABEL, value: mappedIndex ?? EMPTY_VALUE },
-                  { label: ATTEMPT_LABEL, value: detail.task_instance.try_number },
-                  { label: REQUESTED_LABEL, value: formatRequestedTime(detail.created_at) },
-                ]
-              : [
-                  { label: TASK_LABEL, value: taskName },
-                  { label: MAP_LABEL, value: mappedIndex ?? EMPTY_VALUE },
-                  { label: ATTEMPT_LABEL, value: detail.task_instance.try_number },
-                  { label: REQUESTED_LABEL, value: formatRequestedTime(detail.created_at) },
-                ]
-          }
-          templateColumns={
-            showRunContext
-              ? "minmax(0, 1fr) minmax(0, 1.35fr) minmax(0, 1fr) 3.5rem 4.5rem 5.5rem"
-              : "minmax(0, 1fr) 3.5rem 4.5rem 5.5rem"
-          }
+          items={[
+            { label: DAG_LABEL, to: `/dags/${detail.task_instance.dag_id}`, value: dagName },
+            {
+              label: DAG_RUN_LABEL,
+              to: `/dags/${detail.task_instance.dag_id}/runs/${detail.task_instance.dag_run_id}`,
+              value: detail.task_instance.dag_run_id,
+            },
+          ]}
+          templateColumns="minmax(0, 1fr) minmax(0, 1.35fr)"
         />
-        {assignees === undefined ? undefined : <MetaRow label={ASSIGNED_LABEL} value={assignees} />}
-      </VStack>
+      ) : undefined}
+      <Text fontSize="sm" fontWeight="medium" truncate>
+        {taskName}
+      </Text>
     </VStack>
   );
 };
+
+const HITLNotificationDetails = ({
+  assignees,
+  detail,
+  hitlDetail,
+  isLoading,
+  mappedIndex,
+}: {
+  readonly assignees?: string;
+  readonly detail: HITLDetail;
+  readonly hitlDetail?: ComponentProps<typeof HITLResponseForm>["hitlDetail"];
+  readonly isLoading: boolean;
+  readonly mappedIndex?: number | string;
+}) => (
+  <VStack alignItems="stretch" gap={2}>
+    <VStack alignItems="stretch" gap={1.5} minW={0}>
+      <MetaRow label={SUBJECT_LABEL} value={detail.subject} />
+      {assignees === undefined ? undefined : <MetaRow label={ASSIGNED_LABEL} value={assignees} />}
+      <MetaRow
+        label={REQUESTED_LABEL}
+        value={<Time datetime={detail.created_at} format={DEFAULT_DATETIME_FORMAT} />}
+      />
+      <MetaRow label={ATTEMPT_LABEL} value={detail.task_instance.try_number} />
+      {mappedIndex === undefined ? undefined : <MetaRow label={MAP_LABEL} value={mappedIndex} />}
+    </VStack>
+    <Box>
+      <HITLTaskInstanceLink taskInstance={detail.task_instance}>{OPEN_TASK_LABEL}</HITLTaskInstanceLink>
+    </Box>
+    {isLoading || hitlDetail === undefined ? (
+      <VStack alignItems="stretch">
+        <Skeleton height="48px" />
+        <Skeleton height="120px" />
+      </VStack>
+    ) : (
+      <HITLResponseForm hitlDetail={hitlDetail} namespace={`hitl:${detail.task_instance.id}`} />
+    )}
+  </VStack>
+);
 
 export const HITLNotificationCard = ({
   detail,
@@ -173,6 +186,7 @@ export const HITLNotificationCard = ({
   const [openItems, setOpenItems] = useState<Array<string>>([]);
   const isOpen = openItems.includes(accordionValue);
   const hitlState = getHITLState(translate, detail);
+  const assignees = formatAssignees(detail.assigned_users);
   const { data: hitlDetail, isLoading } = useTaskInstanceServiceGetHitlDetailTryDetail(
     {
       dagId: detail.task_instance.dag_id,
@@ -190,44 +204,54 @@ export const HITLNotificationCard = ({
     (detail.task_instance.map_index >= 0 ? detail.task_instance.map_index : undefined);
 
   return (
-    <NotificationCard accent="fg.info" aria-label={`${hitlState}: ${detail.subject}`}>
-      <Accordion.Root
-        collapsible
-        onValueChange={(event) => setOpenItems(event.value)}
-        value={openItems}
-        variant="plain"
+    <HStack alignItems="flex-start" gap={2} width="100%">
+      <RouterLink
+        flexShrink={0}
+        fontSize="sm"
+        pt={3}
+        to={`${getTaskInstanceLink(detail.task_instance)}/required_actions`}
       >
-        <Accordion.Item value={accordionValue}>
-          <Accordion.ItemTrigger alignItems="flex-start" cursor="pointer" p={0}>
-            <Box flex={1} minW={0}>
-              <HITLNotificationSummary detail={detail} showRunContext={showRunContext} />
-            </Box>
-            <Accordion.ItemIndicator />
-          </Accordion.ItemTrigger>
-          <Accordion.ItemContent>
-            <Accordion.ItemBody px={0} py={3}>
-              <VStack alignItems="stretch" gap={2}>
-                <VStack alignItems="stretch" gap={1} minW={0}>
-                  {mappedIndex === undefined ? undefined : <MetaRow label={MAP_LABEL} value={mappedIndex} />}
-                </VStack>
-                <Box>
-                  <HITLTaskInstanceLink taskInstance={detail.task_instance}>
-                    {OPEN_TASK_LABEL}
-                  </HITLTaskInstanceLink>
+        {TASK_PREFIX}
+      </RouterLink>
+      <Box flex={1} minW={0}>
+        <NotificationCard accent="fg.info" aria-label={`${hitlState}: ${detail.subject}`}>
+          <Accordion.Root
+            collapsible
+            onValueChange={(event) => setOpenItems(event.value)}
+            value={openItems}
+            variant="plain"
+            width="100%"
+          >
+            <Accordion.Item value={accordionValue} width="100%">
+              <Accordion.ItemTrigger
+                _hover={{ bg: "bg.muted" }}
+                alignItems="center"
+                borderRadius="sm"
+                cursor="pointer"
+                gap={3}
+                px={3}
+                py={3}
+                width="100%"
+              >
+                <Box flex={1} minW={0}>
+                  <HITLNotificationSummary detail={detail} showRunContext={showRunContext} />
                 </Box>
-                {isLoading || hitlDetail === undefined ? (
-                  <VStack alignItems="stretch">
-                    <Skeleton height="48px" />
-                    <Skeleton height="120px" />
-                  </VStack>
-                ) : (
-                  <HITLResponseForm hitlDetail={hitlDetail} namespace={`hitl:${detail.task_instance.id}`} />
-                )}
-              </VStack>
-            </Accordion.ItemBody>
-          </Accordion.ItemContent>
-        </Accordion.Item>
-      </Accordion.Root>
-    </NotificationCard>
+              </Accordion.ItemTrigger>
+              <Accordion.ItemContent width="100%">
+                <Accordion.ItemBody borderTopColor="border" borderTopWidth={1} px={3} py={3}>
+                  <HITLNotificationDetails
+                    assignees={assignees}
+                    detail={detail}
+                    hitlDetail={hitlDetail}
+                    isLoading={isLoading}
+                    mappedIndex={mappedIndex}
+                  />
+                </Accordion.ItemBody>
+              </Accordion.ItemContent>
+            </Accordion.Item>
+          </Accordion.Root>
+        </NotificationCard>
+      </Box>
+    </HStack>
   );
 };

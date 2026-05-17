@@ -16,14 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Heading } from "@chakra-ui/react";
+import { Heading, HStack } from "@chakra-ui/react";
+import { useState } from "react";
 
 import type { DeadlineCollectionResponse, HITLDetailCollection } from "openapi/requests/types.gen";
-import { Dialog } from "src/components/ui";
+import { ButtonGroupToggle, Dialog, type ButtonGroupOption } from "src/components/ui";
 
-import { NotificationsList } from "./NotificationsList";
+import { type NotificationFilter, NotificationsList } from "./NotificationsList";
 
 const NOTIFICATIONS_LABEL = "Notifications";
+const ALL_LABEL = "All";
+const HITL_LABEL = "HITL";
+const DEADLINES_LABEL = "Deadlines";
 
 type NotificationsModalProps = {
   readonly deadlineData?: DeadlineCollectionResponse;
@@ -32,16 +36,41 @@ type NotificationsModalProps = {
   readonly open: boolean;
 };
 
-export const NotificationsModal = ({ deadlineData, hitlData, onClose, open }: NotificationsModalProps) => (
-  <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
-    <Dialog.Content backdrop maxW="1280px" p={4} width="96vw">
-      <Dialog.Header>
-        <Heading size="md">{NOTIFICATIONS_LABEL}</Heading>
-      </Dialog.Header>
-      <Dialog.CloseTrigger />
-      <Dialog.Body>
-        <NotificationsList deadlineData={deadlineData} hitlData={hitlData} />
-      </Dialog.Body>
-    </Dialog.Content>
-  </Dialog.Root>
-);
+export const NotificationsModal = ({ deadlineData, hitlData, onClose, open }: NotificationsModalProps) => {
+  const [notificationFilter, setNotificationFilter] = useState<NotificationFilter>("all");
+  const hitlTotal = hitlData?.total_entries ?? 0;
+  const deadlineTotal = deadlineData?.total_entries ?? 0;
+  const notificationTotal = hitlTotal + deadlineTotal;
+  const filterOptions: Array<ButtonGroupOption<NotificationFilter>> = [
+    { label: `${ALL_LABEL} (${notificationTotal})`, value: "all" },
+    { label: `${HITL_LABEL} (${hitlTotal})`, value: "hitl" },
+    { label: `${DEADLINES_LABEL} (${deadlineTotal})`, value: "deadline" },
+  ];
+
+  return (
+    <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
+      <Dialog.Content backdrop maxW="832px" p={4} width={{ base: "96vw", lg: "57vw" }}>
+        <Dialog.Header>
+          <HStack flexWrap="wrap" gap={4}>
+            <Heading flexShrink={0} size="md">
+              {NOTIFICATIONS_LABEL}
+            </Heading>
+            <ButtonGroupToggle<NotificationFilter>
+              onChange={setNotificationFilter}
+              options={filterOptions}
+              value={notificationFilter}
+            />
+          </HStack>
+        </Dialog.Header>
+        <Dialog.CloseTrigger />
+        <Dialog.Body>
+          <NotificationsList
+            deadlineData={deadlineData}
+            hitlData={hitlData}
+            notificationFilter={notificationFilter}
+          />
+        </Dialog.Body>
+      </Dialog.Content>
+    </Dialog.Root>
+  );
+};

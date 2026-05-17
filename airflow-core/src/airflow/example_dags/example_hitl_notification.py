@@ -26,6 +26,7 @@ with DAG(
     dag_id="example_hitl_notification",
     dag_display_name="HITL notification example",
     start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
+    max_active_runs=5,
     schedule=None,
     catchup=False,
     tags=["example", "HITL"],

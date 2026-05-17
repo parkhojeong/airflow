@@ -16,9 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Badge, Box, HStack, Link, Text, VStack } from "@chakra-ui/react";
+import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import { type ReactNode, useMemo } from "react";
-import { Link as RouterLink } from "react-router-dom";
 
 import type {
   DeadlineCollectionResponse,
@@ -26,6 +25,7 @@ import type {
   HITLDetail,
   HITLDetailCollection,
 } from "openapi/requests/types.gen";
+import { RouterLink } from "src/components/ui";
 
 import { DeadlineNotificationCard } from "./DeadlineNotificationCard";
 import { HITLNotificationCard } from "./HITLNotificationCard";
@@ -39,9 +39,12 @@ const VIEW_ALL_LABEL = "View all required actions";
 const DAG_LABEL = "Dag";
 const DAG_RUN_LABEL = "Dag run";
 
+export type NotificationFilter = "all" | "deadline" | "hitl";
+
 type NotificationsListProps = {
   readonly deadlineData?: DeadlineCollectionResponse;
   readonly hitlData?: HITLDetailCollection;
+  readonly notificationFilter: NotificationFilter;
 };
 
 type NotificationRunGroup<T> = {
@@ -108,46 +111,55 @@ const NotificationDagGroup = <T,>({
   readonly children: ReactNode;
   readonly group: NotificationDagGroup<T>;
 }) => (
-  <VStack alignItems="stretch" gap={2} width="100%">
+  <VStack
+    alignItems="stretch"
+    bg="bg.subtle"
+    borderColor="border"
+    borderRadius="md"
+    borderWidth={1}
+    gap={2}
+    p={3}
+    width="100%"
+  >
     <HStack gap={2} minW={0}>
-      <Text color="fg.muted" flexShrink={0} fontSize="xs">
+      <RouterLink flexShrink={0} fontSize="xs" to={`/dags/${group.dagId}`}>
         {DAG_LABEL}
-      </Text>
+      </RouterLink>
       <Text fontSize="sm" fontWeight="semibold" truncate>
         {getDisplayName(group.dagDisplayName, group.dagId)}
       </Text>
-      <Badge flexShrink={0} variant="subtle">
-        {group.items.length}
-      </Badge>
     </HStack>
-    <Box ps={3}>{children}</Box>
+    <Box>{children}</Box>
   </VStack>
 );
 
 const NotificationRunGroup = <T,>({
   children,
+  dagId,
   group,
 }: {
   readonly children: ReactNode;
+  readonly dagId: string;
   readonly group: NotificationRunGroup<T>;
 }) => (
-  <VStack alignItems="stretch" gap={1.5} width="100%">
+  <VStack alignItems="stretch" gap={1.5} ps={3} width="100%">
     <HStack gap={2} minW={0}>
-      <Text color="fg.muted" flexShrink={0} fontSize="xs">
+      <RouterLink flexShrink={0} fontSize="xs" to={`/dags/${dagId}/runs/${group.dagRunId}`}>
         {DAG_RUN_LABEL}
-      </Text>
+      </RouterLink>
       <Text fontSize="sm" truncate>
         {group.dagRunId}
       </Text>
-      <Badge flexShrink={0} variant="subtle">
-        {group.items.length}
-      </Badge>
     </HStack>
-    <Box ps={3}>{children}</Box>
+    <Box ps={5}>{children}</Box>
   </VStack>
 );
 
-export const NotificationsList = ({ deadlineData, hitlData }: NotificationsListProps) => {
+export const NotificationsList = ({
+  deadlineData,
+  hitlData,
+  notificationFilter,
+}: NotificationsListProps) => {
   const deadlines = useMemo(() => deadlineData?.deadlines ?? [], [deadlineData?.deadlines]);
   const hitlDetails = useMemo(() => hitlData?.hitl_details ?? [], [hitlData?.hitl_details]);
   const deadlineGroups = useMemo(
@@ -174,76 +186,78 @@ export const NotificationsList = ({ deadlineData, hitlData }: NotificationsListP
   const deadlineTotal = deadlineData?.total_entries ?? 0;
   const overflowCount =
     Math.max(0, hitlTotal - hitlDetails.length) + Math.max(0, deadlineTotal - deadlines.length);
+  const showHitl = notificationFilter === "all" || notificationFilter === "hitl";
+  const showDeadlines = notificationFilter === "all" || notificationFilter === "deadline";
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <VStack alignItems="stretch" gap={3} width="100%">
-        <NotificationSectionHeading count={hitlTotal}>
-          {PENDING_HITL_ACTIONS_LABEL}
-        </NotificationSectionHeading>
-        {hitlDetails.length > 0 ? (
-          <VStack alignItems="stretch" gap={2} width="100%">
-            {hitlGroups.map((dagGroup) => (
-              <NotificationDagGroup group={dagGroup} key={dagGroup.dagId}>
-                <VStack alignItems="stretch" gap={2} width="100%">
-                  {dagGroup.runGroups.map((runGroup) => (
-                    <NotificationRunGroup group={runGroup} key={runGroup.dagRunId}>
-                      <VStack alignItems="stretch" gap={2} width="100%">
-                        {runGroup.items.map((detail) => (
-                          <HITLNotificationCard
-                            detail={detail}
-                            key={detail.task_instance.id}
-                            showRunContext={false}
-                          />
-                        ))}
-                      </VStack>
-                    </NotificationRunGroup>
-                  ))}
-                </VStack>
-              </NotificationDagGroup>
-            ))}
-          </VStack>
-        ) : (
-          <Text color="fg.muted" fontSize="sm">
-            {NO_REQUIRED_ACTIONS_LABEL}
-          </Text>
-        )}
-      </VStack>
-      <VStack alignItems="stretch" gap={2} width="100%">
-        <NotificationSectionHeading count={deadlineTotal}>{DEADLINE_ALERTS_LABEL}</NotificationSectionHeading>
-        {deadlines.length > 0 ? (
-          <VStack alignItems="stretch" gap={2} width="100%">
-            {deadlineGroups.map((dagGroup) => (
-              <NotificationDagGroup group={dagGroup} key={dagGroup.dagId}>
-                <VStack alignItems="stretch" gap={2} width="100%">
-                  {dagGroup.runGroups.map((runGroup) => (
-                    <NotificationRunGroup group={runGroup} key={runGroup.dagRunId}>
-                      <VStack alignItems="stretch" gap={2} width="100%">
-                        {runGroup.items.map((deadline) => (
-                          <DeadlineNotificationCard
-                            deadline={deadline}
-                            key={deadline.id}
-                            showRunContext={false}
-                          />
-                        ))}
-                      </VStack>
-                    </NotificationRunGroup>
-                  ))}
-                </VStack>
-              </NotificationDagGroup>
-            ))}
-          </VStack>
-        ) : (
-          <Text color="fg.muted" fontSize="sm">
-            {NO_MISSED_DEADLINES_LABEL}
-          </Text>
-        )}
-      </VStack>
+      {showHitl ? (
+        <VStack alignItems="stretch" gap={3} width="100%">
+          <NotificationSectionHeading>{PENDING_HITL_ACTIONS_LABEL}</NotificationSectionHeading>
+          {hitlDetails.length > 0 ? (
+            <VStack alignItems="stretch" gap={2} width="100%">
+              {hitlGroups.map((dagGroup) => (
+                <NotificationDagGroup group={dagGroup} key={dagGroup.dagId}>
+                  <VStack alignItems="stretch" gap={2} width="100%">
+                    {dagGroup.runGroups.map((runGroup) => (
+                      <NotificationRunGroup dagId={dagGroup.dagId} group={runGroup} key={runGroup.dagRunId}>
+                        <VStack alignItems="stretch" gap={2} width="100%">
+                          {runGroup.items.map((detail) => (
+                            <HITLNotificationCard
+                              detail={detail}
+                              key={detail.task_instance.id}
+                              showRunContext={false}
+                            />
+                          ))}
+                        </VStack>
+                      </NotificationRunGroup>
+                    ))}
+                  </VStack>
+                </NotificationDagGroup>
+              ))}
+            </VStack>
+          ) : (
+            <Text color="fg.muted" fontSize="sm">
+              {NO_REQUIRED_ACTIONS_LABEL}
+            </Text>
+          )}
+        </VStack>
+      ) : undefined}
+      {showDeadlines ? (
+        <VStack alignItems="stretch" gap={2} width="100%">
+          <NotificationSectionHeading>{DEADLINE_ALERTS_LABEL}</NotificationSectionHeading>
+          {deadlines.length > 0 ? (
+            <VStack alignItems="stretch" gap={2} width="100%">
+              {deadlineGroups.map((dagGroup) => (
+                <NotificationDagGroup group={dagGroup} key={dagGroup.dagId}>
+                  <VStack alignItems="stretch" gap={2} width="100%">
+                    {dagGroup.runGroups.map((runGroup) => (
+                      <NotificationRunGroup dagId={dagGroup.dagId} group={runGroup} key={runGroup.dagRunId}>
+                        <VStack alignItems="stretch" gap={2} width="100%">
+                          {runGroup.items.map((deadline) => (
+                            <DeadlineNotificationCard
+                              deadline={deadline}
+                              key={deadline.id}
+                              showRunContext={false}
+                            />
+                          ))}
+                        </VStack>
+                      </NotificationRunGroup>
+                    ))}
+                  </VStack>
+                </NotificationDagGroup>
+              ))}
+            </VStack>
+          ) : (
+            <Text color="fg.muted" fontSize="sm">
+              {NO_MISSED_DEADLINES_LABEL}
+            </Text>
+          )}
+        </VStack>
+      ) : undefined}
       {overflowCount > 0 ? (
         <HStack justifyContent="flex-end">
-          <Link asChild color="fg.info" fontSize="sm">
-            <RouterLink to="/required_actions">{`${VIEW_ALL_LABEL} (+${overflowCount} more)`}</RouterLink>
-          </Link>
+          <RouterLink fontSize="sm" to="/required_actions">{`${VIEW_ALL_LABEL} (+${overflowCount} more)`}</RouterLink>
         </HStack>
       ) : undefined}
     </VStack>

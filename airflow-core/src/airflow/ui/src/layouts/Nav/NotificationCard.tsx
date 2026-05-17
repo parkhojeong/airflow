@@ -50,17 +50,14 @@ export const NotificationCard = ({
     }}
     appearance="none"
     aria-label={ariaLabel}
-    bg="bg.subtle"
+    bg="bg"
     borderColor={selected ? accent : "border"}
-    borderInlineStartColor={accent}
-    borderInlineStartWidth={3}
     borderRadius="md"
     borderWidth={1}
     color="inherit"
     font="inherit"
     overflow="hidden"
-    px={3}
-    py={3}
+    p={0}
     textAlign="start"
     width="100%"
   >
@@ -100,13 +97,10 @@ export const RelativeTimePill = ({ datetime }: { readonly datetime: string }) =>
 
 export const NotificationSectionHeading = ({
   children,
-  count,
 }: {
   readonly children: ReactNode;
-  readonly count: number;
 }) => (
   <HStack gap={2} justifyContent="flex-start">
     <Heading size="sm">{children}</Heading>
-    <Badge variant="subtle">{`${count} ${count === 1 ? "item" : "items"}`}</Badge>
   </HStack>
 );
