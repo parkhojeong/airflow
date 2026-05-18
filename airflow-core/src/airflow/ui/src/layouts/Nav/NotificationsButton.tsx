@@ -127,11 +127,9 @@ export const NotificationsButton = () => {
         deadlineData={deadlineData}
         deadlineIsError={isDeadlineError}
         deadlineIsLoading={isDeadlineLoading}
-        deadlineTotal={deadlineTotalEntries}
         hitlData={hitlData}
         hitlIsError={isHitlError}
         hitlIsLoading={isHitlLoading}
-        hitlTotal={hitlTotalEntries}
         onClose={onClose}
         open={open}
       />

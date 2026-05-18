@@ -17,15 +17,15 @@
  * under the License.
  */
 import { Box, HStack, Separator, Skeleton, Text, VStack } from "@chakra-ui/react";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
-import Time from "src/components/Time";
 import { RouterLink } from "src/components/ui";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
-import { DEFAULT_DATETIME_FORMAT, getRelativeTime } from "src/utils/datetimeUtils";
 import { getTaskInstanceLink } from "src/utils/links";
+
+import { formatNotificationDetailTime } from "./NotificationsList";
 
 const ASSIGNEE_LABEL = "Assignee:";
 const ATTEMPT_LABEL = "Attempt:";
@@ -51,12 +51,6 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   }
 
   return users.map((user) => user.name).join(", ");
-};
-
-const formatRelative = (datetime: string) => {
-  const relative = getRelativeTime(datetime);
-
-  return relative === "" ? undefined : relative;
 };
 
 const MetaLine = ({ label, value }: { readonly label: string; readonly value: ReactNode }) => (
@@ -89,18 +83,14 @@ export const HITLNotificationCard = ({
   });
 
   const dagName = formatDisplayName(detail.task_instance.dag_display_name, detail.task_instance.dag_id);
-  const taskName = formatDisplayName(detail.task_instance.task_display_name, formatTaskId(detail.task_instance));
+  const taskName = formatDisplayName(
+    detail.task_instance.task_display_name,
+    formatTaskId(detail.task_instance),
+  );
   const mappedIndex =
     detail.task_instance.rendered_map_index ??
     (detail.task_instance.map_index >= 0 ? detail.task_instance.map_index : undefined);
-  const relative = formatRelative(detail.created_at);
-  const responseReceived = hitlDetail?.response_received === true;
-
-  useEffect(() => {
-    if (responseReceived) {
-      onResponded?.();
-    }
-  }, [onResponded, responseReceived]);
+  const requestedTime = formatNotificationDetailTime(detail.created_at);
 
   return (
     <VStack alignItems="stretch" gap={3} width="100%">
@@ -113,7 +103,11 @@ export const HITLNotificationCard = ({
         </VStack>
       ) : (
         <Box mt={-4}>
-          <HITLResponseForm hitlDetail={hitlDetail} namespace={`hitl:${detail.task_instance.id}`} />
+          <HITLResponseForm
+            hitlDetail={hitlDetail}
+            namespace={`hitl:${detail.task_instance.id}`}
+            onResponded={onResponded}
+          />
         </Box>
       )}
 
@@ -123,7 +117,12 @@ export const HITLNotificationCard = ({
         <MetaLine
           label={DAG_LABEL}
           value={
-            <RouterLink fontSize="sm" onClick={onNavigate} to={`/dags/${detail.task_instance.dag_id}`} truncate>
+            <RouterLink
+              fontSize="sm"
+              onClick={onNavigate}
+              to={`/dags/${detail.task_instance.dag_id}`}
+              truncate
+            >
               {dagName}
             </RouterLink>
           }
@@ -158,17 +157,12 @@ export const HITLNotificationCard = ({
           <MetaLine label={ASSIGNEE_LABEL} value={<Text truncate>{assignees}</Text>} />
         )}
         <MetaLine label={ATTEMPT_LABEL} value={<Text>{detail.task_instance.try_number}</Text>} />
-        {mappedIndex === undefined ? undefined : <MetaLine label={MAP_LABEL} value={<Text>{mappedIndex}</Text>} />}
+        {mappedIndex === undefined ? undefined : (
+          <MetaLine label={MAP_LABEL} value={<Text>{mappedIndex}</Text>} />
+        )}
         <MetaLine
           label={REQUESTED_LABEL}
-          value={
-            <>
-              {relative === undefined ? undefined : <Text>{relative}</Text>}
-              <Text color="fg.subtle">(</Text>
-              <Time datetime={detail.created_at} format={DEFAULT_DATETIME_FORMAT} />
-              <Text color="fg.subtle">)</Text>
-            </>
-          }
+          value={requestedTime === undefined ? undefined : <Text>{requestedTime}</Text>}
         />
       </VStack>
     </VStack>

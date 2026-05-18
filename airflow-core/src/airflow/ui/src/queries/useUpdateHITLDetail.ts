@@ -40,17 +40,19 @@ export const useUpdateHITLDetail = ({
   dagId,
   dagRunId,
   mapIndex,
+  onSuccess,
   taskId,
 }: {
   dagId: string;
   dagRunId: string;
   mapIndex: number | undefined;
+  onSuccess?: () => void;
   taskId: string;
 }) => {
   const queryClient = useQueryClient();
   const [error, setError] = useState<unknown>(undefined);
   const { t: translate } = useTranslation("hitl");
-  const onSuccess = async () => {
+  const handleSuccess = async () => {
     const queryKeys = [
       UseDagRunServiceGetDagRunKeyFn({ dagId, dagRunId }),
       [useDagRunServiceGetDagRunsKey],
@@ -72,6 +74,7 @@ export const useUpdateHITLDetail = ({
       title: translate("response.success", { taskId }),
       type: "success",
     });
+    onSuccess?.();
   };
 
   const onError = (apiError: unknown) => {
@@ -80,7 +83,7 @@ export const useUpdateHITLDetail = ({
 
   const { isPending, mutate } = useTaskInstanceServiceUpdateHitlDetail({
     onError,
-    onSuccess,
+    onSuccess: handleSuccess,
   });
 
   const updateHITLResponse = (updateHITLResponseRequestBody: HITLResponseParams) => {

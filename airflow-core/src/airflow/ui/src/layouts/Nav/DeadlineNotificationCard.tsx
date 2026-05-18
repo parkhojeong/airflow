@@ -20,9 +20,9 @@ import { Heading, HStack, Text, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 import type { DeadlineResponse } from "openapi/requests/types.gen";
-import Time from "src/components/Time";
 import { RouterLink } from "src/components/ui";
-import { getRelativeTime } from "src/utils/datetimeUtils";
+
+import { formatNotificationDetailTime } from "./NotificationsList";
 
 const DAG_LABEL = "Dag:";
 const DAG_RUN_LABEL = "DagRun:";
@@ -41,12 +41,6 @@ const MetaLine = ({ label, value }: { readonly label: string; readonly value: Re
   </HStack>
 );
 
-const formatMissedTime = (datetime: string) => {
-  const relative = getRelativeTime(datetime);
-
-  return relative === "" ? "-" : relative;
-};
-
 export const DeadlineNotificationCard = ({
   deadline,
   onNavigate,
@@ -55,12 +49,18 @@ export const DeadlineNotificationCard = ({
   readonly onNavigate?: () => void;
 }) => {
   const title = deadline.alert_name ?? MISSED_DEADLINE_LABEL;
-  const missed = formatMissedTime(deadline.deadline_time);
+  const missed = formatNotificationDetailTime(deadline.deadline_time);
 
   return (
     <VStack alignItems="stretch" gap={3} width="100%">
       <VStack alignItems="stretch" gap={1} width="100%">
-        <Text color="fg.muted" fontSize="xs" fontWeight="semibold" letterSpacing="wide" textTransform="uppercase">
+        <Text
+          color="fg.muted"
+          fontSize="xs"
+          fontWeight="semibold"
+          letterSpacing="wide"
+          textTransform="uppercase"
+        >
           {TYPE_LABEL}
         </Text>
         <Heading size="md">{title}</Heading>
@@ -87,17 +87,7 @@ export const DeadlineNotificationCard = ({
             </RouterLink>
           }
         />
-        <MetaLine
-          label={MISSED_LABEL}
-          value={
-            <>
-              <Text>{missed}</Text>
-              <Text color="fg.subtle">(</Text>
-              <Time datetime={deadline.deadline_time} />
-              <Text color="fg.subtle">)</Text>
-            </>
-          }
-        />
+        <MetaLine label={MISSED_LABEL} value={<Text>{missed ?? "-"}</Text>} />
       </VStack>
     </VStack>
   );

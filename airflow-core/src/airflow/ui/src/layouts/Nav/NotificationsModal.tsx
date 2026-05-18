@@ -16,45 +16,204 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Heading, HStack, Text, VStack } from "@chakra-ui/react";
-import { useCallback, useMemo, useState } from "react";
+import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
+import { useCallback, useState } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { DeadlineCollectionResponse, HITLDetailCollection } from "openapi/requests/types.gen";
-import { ButtonGroupToggle, Dialog, type ButtonGroupOption } from "src/components/ui";
+import { Dialog, Tooltip } from "src/components/ui";
 
 import { DeadlineNotificationCard } from "./DeadlineNotificationCard";
 import { HITLNotificationCard } from "./HITLNotificationCard";
 import {
   getNotificationKey,
-  type NotificationFilter,
+  getNotificationsInDisplayOrder,
   NotificationsList,
   type SelectedNotification,
 } from "./NotificationsList";
 
 const NOTIFICATIONS_LABEL = "Notifications";
-const ALL_LABEL = "All";
-const HITL_LABEL = "HITL";
-const DEADLINES_LABEL = "Deadlines";
 const EMPTY_DETAIL_LABEL = "Select a notification to see details";
+const LOADING_NOTIFICATIONS_LABEL = "Loading notifications...";
+const NEXT_NOTIFICATION_LABEL = "Next";
+const PREVIOUS_NOTIFICATION_LABEL = "Prev";
 
 type NotificationsModalProps = {
   readonly deadlineData?: DeadlineCollectionResponse;
   readonly deadlineIsError: boolean;
   readonly deadlineIsLoading: boolean;
-  readonly deadlineTotal: number;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
-  readonly hitlTotal: number;
   readonly onClose: () => void;
   readonly open: boolean;
 };
 
+const isSelectedNotificationStillInFetchedData = ({
+  deadlineData,
+  deadlineIsLoading,
+  hitlData,
+  hitlIsLoading,
+  selectedNotification,
+}: {
+  readonly deadlineData?: DeadlineCollectionResponse;
+  readonly deadlineIsLoading: boolean;
+  readonly hitlData?: HITLDetailCollection;
+  readonly hitlIsLoading: boolean;
+  readonly selectedNotification?: SelectedNotification;
+}) => {
+  if (selectedNotification === undefined) {
+    return false;
+  }
+
+  const selectedNotificationKey = getNotificationKey(selectedNotification);
+
+  if (selectedNotification.type === "hitl") {
+    if (hitlIsLoading) {
+      return true;
+    }
+
+    return (
+      hitlData?.hitl_details.some(
+        (hitlDetail) => getNotificationKey({ item: hitlDetail, type: "hitl" }) === selectedNotificationKey,
+      ) === true
+    );
+  }
+
+  if (deadlineIsLoading) {
+    return true;
+  }
+
+  return (
+    deadlineData?.deadlines.some(
+      (deadline) => getNotificationKey({ item: deadline, type: "deadline" }) === selectedNotificationKey,
+    ) === true
+  );
+};
+
+const getNotifications = ({
+  deadlineData,
+  hitlData,
+}: {
+  readonly deadlineData?: DeadlineCollectionResponse;
+  readonly hitlData?: HITLDetailCollection;
+}) =>
+  getNotificationsInDisplayOrder({
+    deadlines: deadlineData?.deadlines ?? [],
+    hitlDetails: hitlData?.hitl_details ?? [],
+  });
+
+const getNextNotification = ({
+  notifications,
+  selectedNotificationKey,
+}: {
+  readonly notifications: Array<SelectedNotification>;
+  readonly selectedNotificationKey?: string;
+}) => {
+  if (selectedNotificationKey === undefined) {
+    return notifications[0];
+  }
+
+  const selectedNotificationIndex = notifications.findIndex(
+    (notification) => getNotificationKey(notification) === selectedNotificationKey,
+  );
+
+  if (selectedNotificationIndex === -1) {
+    return notifications[0];
+  }
+
+  return notifications[selectedNotificationIndex + 1];
+};
+
+const getPreviousNotification = ({
+  notifications,
+  selectedNotificationKey,
+}: {
+  readonly notifications: Array<SelectedNotification>;
+  readonly selectedNotificationKey?: string;
+}) => {
+  if (selectedNotificationKey === undefined) {
+    return notifications.at(-1);
+  }
+
+  const selectedNotificationIndex = notifications.findIndex(
+    (notification) => getNotificationKey(notification) === selectedNotificationKey,
+  );
+
+  if (selectedNotificationIndex === -1) {
+    return notifications.at(-1);
+  }
+
+  return notifications[selectedNotificationIndex - 1];
+};
+
+const getNextNotificationAfterResponse = ({
+  notifications,
+  selectedNotificationKey,
+}: {
+  readonly notifications: Array<SelectedNotification>;
+  readonly selectedNotificationKey?: string;
+}) => {
+  const selectedNotificationIndex = notifications.findIndex(
+    (notification) => getNotificationKey(notification) === selectedNotificationKey,
+  );
+  const remainingNotifications = notifications.filter(
+    (notification) => getNotificationKey(notification) !== selectedNotificationKey,
+  );
+
+  if (selectedNotificationIndex === -1) {
+    return remainingNotifications[0];
+  }
+
+  return remainingNotifications[selectedNotificationIndex] ?? remainingNotifications[0];
+};
+
+const NotificationNavigation = ({
+  canNavigateNotifications,
+  hasNextNotification,
+  hasPreviousNotification,
+  onNext,
+  onPrevious,
+}: {
+  readonly canNavigateNotifications: boolean;
+  readonly hasNextNotification: boolean;
+  readonly hasPreviousNotification: boolean;
+  readonly onNext: () => void;
+  readonly onPrevious: () => void;
+}) => (
+  <HStack gap={1}>
+    <Tooltip content={PREVIOUS_NOTIFICATION_LABEL}>
+      <IconButton
+        aria-label={PREVIOUS_NOTIFICATION_LABEL}
+        disabled={!canNavigateNotifications || !hasPreviousNotification}
+        onClick={onPrevious}
+        size="xs"
+        variant="ghost"
+      >
+        <FiChevronLeft />
+      </IconButton>
+    </Tooltip>
+    <Tooltip content={NEXT_NOTIFICATION_LABEL}>
+      <IconButton
+        aria-label={NEXT_NOTIFICATION_LABEL}
+        disabled={!canNavigateNotifications || !hasNextNotification}
+        onClick={onNext}
+        size="xs"
+        variant="ghost"
+      >
+        <FiChevronRight />
+      </IconButton>
+    </Tooltip>
+  </HStack>
+);
+
 const NotificationDetailPane = ({
+  isLoading,
   onNavigate,
   onResponded,
   selected,
 }: {
+  readonly isLoading: boolean;
   readonly onNavigate: () => void;
   readonly onResponded: () => void;
   readonly selected?: SelectedNotification;
@@ -63,7 +222,7 @@ const NotificationDetailPane = ({
     return (
       <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
         <Text color="fg.muted" fontSize="sm">
-          {EMPTY_DETAIL_LABEL}
+          {isLoading ? LOADING_NOTIFICATIONS_LABEL : EMPTY_DETAIL_LABEL}
         </Text>
       </VStack>
     );
@@ -80,61 +239,60 @@ const NotificationDetailPane = ({
     );
   }
 
-  return (
-    <DeadlineNotificationCard
-      deadline={selected.item}
-      key={selected.item.id}
-      onNavigate={onNavigate}
-    />
-  );
+  return <DeadlineNotificationCard deadline={selected.item} key={selected.item.id} onNavigate={onNavigate} />;
 };
 
 export const NotificationsModal = ({
   deadlineData,
   deadlineIsError,
   deadlineIsLoading,
-  deadlineTotal,
   hitlData,
   hitlIsError,
   hitlIsLoading,
-  hitlTotal,
   onClose,
   open,
 }: NotificationsModalProps) => {
-  const [notificationFilter, setNotificationFilter] = useState<NotificationFilter>("all");
   const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
+  const effectiveDeadlineIsLoading = open && deadlineData === undefined && !deadlineIsError;
+  const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
+  const notifications = getNotifications({ deadlineData, hitlData });
 
-  const notificationTotal = hitlTotal + deadlineTotal;
-  const filterOptions: Array<ButtonGroupOption<NotificationFilter>> = [
-    { label: `${ALL_LABEL} (${notificationTotal})`, value: "all" },
-    { label: `${HITL_LABEL} (${hitlTotal})`, value: "hitl" },
-    { label: `${DEADLINES_LABEL} (${deadlineTotal})`, value: "deadline" },
-  ];
-
-  const selectedKey = useMemo(
-    () => (selected === undefined ? undefined : getNotificationKey(selected)),
-    [selected],
+  const selectedNotificationKey = selected === undefined ? undefined : getNotificationKey(selected);
+  const selectedNotificationIndex = notifications.findIndex(
+    (notification) => getNotificationKey(notification) === selectedNotificationKey,
   );
+  const hasNextNotification =
+    selectedNotificationIndex === -1
+      ? notifications.length > 0
+      : selectedNotificationIndex < notifications.length - 1;
+  const hasPreviousNotification =
+    selectedNotificationIndex === -1 ? notifications.length > 0 : selectedNotificationIndex > 0;
+  const visibleSelectedNotification = isSelectedNotificationStillInFetchedData({
+    deadlineData,
+    deadlineIsLoading: deadlineIsLoading || effectiveDeadlineIsLoading,
+    hitlData,
+    hitlIsLoading: hitlIsLoading || effectiveHitlIsLoading,
+    selectedNotification: selected,
+  })
+    ? selected
+    : undefined;
 
-  const handleResponded = () => {
-    const nextHitl = hitlData?.hitl_details.find(
-      (item) => `hitl:${item.task_instance.id}` !== selectedKey,
+  const selectNextNotification = () => {
+    setSelected(
+      getNextNotificationAfterResponse({
+        notifications,
+        selectedNotificationKey,
+      }),
     );
-
-    if (nextHitl !== undefined) {
-      setSelected({ item: nextHitl, type: "hitl" });
-
-      return;
-    }
-    const nextDeadline = deadlineData?.deadlines.find((item) => `deadline:${item.id}` !== selectedKey);
-
-    setSelected(nextDeadline === undefined ? undefined : { item: nextDeadline, type: "deadline" });
   };
 
-  const handleFilterChange = useCallback((next: NotificationFilter) => {
-    setNotificationFilter(next);
-    setSelected(undefined);
-  }, []);
+  const handleNextNotification = () => {
+    setSelected(getNextNotification({ notifications, selectedNotificationKey }));
+  };
+
+  const handlePreviousNotification = () => {
+    setSelected(getPreviousNotification({ notifications, selectedNotificationKey }));
+  };
 
   const handleSelect = useCallback((next: SelectedNotification) => {
     setSelected((current) =>
@@ -147,52 +305,70 @@ export const NotificationsModal = ({
       <Dialog.Content
         backdrop
         height={{ base: "92vh", lg: "960px" }}
-        maxW="1100px"
+        maxW="1440px"
         p={4}
-        width={{ base: "96vw", lg: "75vw" }}
+        width={{ base: "96vw", lg: "90vw" }}
       >
         <Dialog.Header>
-          <HStack flexWrap="wrap" gap={4}>
+          <HStack justifyContent="space-between" pr={8} width="100%">
             <Heading flexShrink={0} size="md">
               {NOTIFICATIONS_LABEL}
             </Heading>
-            <ButtonGroupToggle<NotificationFilter>
-              onChange={handleFilterChange}
-              options={filterOptions}
-              value={notificationFilter}
+            <NotificationNavigation
+              canNavigateNotifications={notifications.length > 0}
+              hasNextNotification={hasNextNotification}
+              hasPreviousNotification={hasPreviousNotification}
+              onNext={handleNextNotification}
+              onPrevious={handlePreviousNotification}
             />
           </HStack>
         </Dialog.Header>
         <Dialog.CloseTrigger />
         <Dialog.Body>
-          <HStack alignItems="stretch" gap={4} height="100%" width="100%">
+          <HStack alignItems="stretch" gap={0} height="100%" width="100%">
             <Box
-              borderColor="border"
-              borderRadius="md"
-              borderWidth={1}
               flexShrink={0}
               height="100%"
+              overflowX="visible"
               overflowY="auto"
-              p={2}
-              width={{ base: "50%", md: "480px" }}
+              pl={2}
+              position="relative"
+              pr={8}
+              py={2}
+              width={{ base: "50%", md: "768px" }}
+              zIndex={2}
             >
               <NotificationsList
                 deadlineData={deadlineData}
                 deadlineIsError={deadlineIsError}
-                deadlineIsLoading={deadlineIsLoading}
+                deadlineIsLoading={deadlineIsLoading || effectiveDeadlineIsLoading}
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
-                hitlIsLoading={hitlIsLoading}
-                notificationFilter={notificationFilter}
+                hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
                 onSelect={handleSelect}
-                selectedKey={selectedKey}
+                selectedKey={selectedNotificationKey}
               />
             </Box>
-            <Box flex={1} height="100%" minW={0} overflowY="auto">
+            <Box
+              bg="bg"
+              borderColor="border"
+              borderRadius="md"
+              borderWidth={1}
+              flex={1}
+              height="100%"
+              minW={0}
+              overflowY="auto"
+              p={3}
+              position="relative"
+              zIndex={1}
+            >
               <NotificationDetailPane
+                isLoading={
+                  hitlIsLoading || deadlineIsLoading || effectiveHitlIsLoading || effectiveDeadlineIsLoading
+                }
                 onNavigate={onClose}
-                onResponded={handleResponded}
-                selected={selected}
+                onResponded={selectNextNotification}
+                selected={visibleSelectedNotification}
               />
             </Box>
           </HStack>

@@ -35,6 +35,7 @@ type HITLResponseFormProps = {
     task_instance: TaskInstanceHistoryResponse;
   } & Omit<HITLDetailHistory, "task_instance">;
   readonly namespace?: string;
+  readonly onResponded?: () => void;
 };
 
 const isHighlightOption = (
@@ -55,10 +56,10 @@ const isHighlightOption = (
   return isSelected ?? isDefault ?? !Boolean(hitlDetail.defaults);
 };
 
-export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLResponseFormProps) => {
+export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }: HITLResponseFormProps) => {
   const { t: translate } = useTranslation("hitl");
   const [errors, setErrors] = useState<boolean>(false);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submittedOption, setSubmittedOption] = useState<string | undefined>(undefined);
   const { paramsDict } = useParamStore(namespace);
   const [searchParams] = useSearchParams();
   const { preloadedHITLOptions } = getPreloadHITLFormData(searchParams, hitlDetail);
@@ -73,19 +74,20 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLRespons
 
   const isPending = isHITLPending(hitlDetail.task_instance.state);
 
-  const { updateHITLResponse } = useUpdateHITLDetail({
+  const { isPending: isResponsePending, updateHITLResponse } = useUpdateHITLDetail({
     dagId: hitlDetail.task_instance.dag_id,
     dagRunId: hitlDetail.task_instance.dag_run_id,
     mapIndex: hitlDetail.task_instance.map_index,
+    onSuccess: onResponded,
     taskId: hitlDetail.task_instance.task_id,
   });
 
   const handleSubmit = (option?: string) => {
-    if (errors || isSubmitting) {
+    if (errors || isResponsePending) {
       return;
     }
 
-    setIsSubmitting(true);
+    setSubmittedOption(option);
 
     try {
       const formData = getHITLFormData(paramsDict, option);
@@ -93,9 +95,8 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLRespons
       updateHITLResponse(formData);
     } catch {
       setErrors(true);
+      setSubmittedOption(undefined);
     }
-
-    setIsSubmitting(false);
   };
 
   return (
@@ -118,7 +119,7 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLRespons
         variant="enclosed"
       >
         <FlexibleForm
-          disabled={!isPending || hitlDetail.response_received}
+          disabled={!isPending || isResponsePending || hitlDetail.response_received}
           flexFormDescription={hitlDetail.body ?? undefined}
           flexibleFormDefaultSection={hitlDetail.subject}
           initialParamsDict={{
@@ -139,8 +140,9 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLRespons
               <Button
                 colorPalette={isHighlightOption(option, hitlDetail, preloadedHITLOptions) ? "brand" : "gray"}
                 data-testid={`hitl-option-${option}`}
-                disabled={errors || isSubmitting || !isPending || hitlDetail.response_received}
+                disabled={errors || isResponsePending || !isPending || hitlDetail.response_received}
                 key={option}
+                loading={Boolean(isResponsePending && submittedOption === option)}
                 onClick={() => handleSubmit(option)}
                 variant={isHighlightOption(option, hitlDetail, preloadedHITLOptions) ? "solid" : "subtle"}
               >
@@ -149,11 +151,13 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl" }: HITLRespons
             ))
           ) : hitlDetail.response_received ? undefined : (
             <Button
-              disabled={errors || isSubmitting || !isPending}
-              loading={isSubmitting}
+              colorPalette="brand"
+              disabled={errors || isResponsePending || !isPending}
+              loading={isResponsePending}
               onClick={() => handleSubmit()}
             >
-              <FiSend /> {translate("response.respond")}
+              <FiSend />{" "}
+              {isResponsePending ? translate("response.submitting") : translate("response.respond")}
             </Button>
           )}
         </HStack>
