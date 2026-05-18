@@ -52,9 +52,11 @@ type NotificationsModalProps = {
 
 const NotificationDetailPane = ({
   onNavigate,
+  onResponded,
   selected,
 }: {
   readonly onNavigate: () => void;
+  readonly onResponded: () => void;
   readonly selected?: SelectedNotification;
 }) => {
   if (selected === undefined) {
@@ -73,6 +75,7 @@ const NotificationDetailPane = ({
         detail={selected.item}
         key={selected.item.task_instance.id}
         onNavigate={onNavigate}
+        onResponded={onResponded}
       />
     );
   }
@@ -113,6 +116,21 @@ export const NotificationsModal = ({
     [selected],
   );
 
+  const handleResponded = () => {
+    const nextHitl = hitlData?.hitl_details.find(
+      (item) => `hitl:${item.task_instance.id}` !== selectedKey,
+    );
+
+    if (nextHitl !== undefined) {
+      setSelected({ item: nextHitl, type: "hitl" });
+
+      return;
+    }
+    const nextDeadline = deadlineData?.deadlines.find((item) => `deadline:${item.id}` !== selectedKey);
+
+    setSelected(nextDeadline === undefined ? undefined : { item: nextDeadline, type: "deadline" });
+  };
+
   const handleFilterChange = useCallback((next: NotificationFilter) => {
     setNotificationFilter(next);
     setSelected(undefined);
@@ -135,7 +153,7 @@ export const NotificationsModal = ({
       >
         <Dialog.Header>
           <HStack flexWrap="wrap" gap={4}>
-            <Heading flexShr이 nk={0} size="md">
+            <Heading flexShrink={0} size="md">
               {NOTIFICATIONS_LABEL}
             </Heading>
             <ButtonGroupToggle<NotificationFilter>
@@ -171,7 +189,11 @@ export const NotificationsModal = ({
               />
             </Box>
             <Box flex={1} height="100%" minW={0} overflowY="auto">
-              <NotificationDetailPane onNavigate={onClose} selected={selected} />
+              <NotificationDetailPane
+                onNavigate={onClose}
+                onResponded={handleResponded}
+                selected={selected}
+              />
             </Box>
           </HStack>
         </Dialog.Body>

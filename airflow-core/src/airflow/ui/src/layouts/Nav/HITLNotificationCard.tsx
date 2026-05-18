@@ -17,7 +17,7 @@
  * under the License.
  */
 import { Box, HStack, Separator, Skeleton, Text, VStack } from "@chakra-ui/react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
@@ -73,9 +73,11 @@ const MetaLine = ({ label, value }: { readonly label: string; readonly value: Re
 export const HITLNotificationCard = ({
   detail,
   onNavigate,
+  onResponded,
 }: {
   readonly detail: HITLDetail;
   readonly onNavigate?: () => void;
+  readonly onResponded?: () => void;
 }) => {
   const assignees = formatAssignees(detail.assigned_users);
   const { data: hitlDetail, isLoading } = useTaskInstanceServiceGetHitlDetailTryDetail({
@@ -92,6 +94,13 @@ export const HITLNotificationCard = ({
     detail.task_instance.rendered_map_index ??
     (detail.task_instance.map_index >= 0 ? detail.task_instance.map_index : undefined);
   const relative = formatRelative(detail.created_at);
+  const responseReceived = hitlDetail?.response_received === true;
+
+  useEffect(() => {
+    if (responseReceived) {
+      onResponded?.();
+    }
+  }, [onResponded, responseReceived]);
 
   return (
     <VStack alignItems="stretch" gap={3} width="100%">
