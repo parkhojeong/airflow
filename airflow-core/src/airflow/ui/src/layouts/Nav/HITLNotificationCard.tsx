@@ -86,7 +86,6 @@ export const HITLNotificationCard = ({
           <MetaRow label="Map index" value={<Text>{mappedIndex}</Text>} />
           <MetaRow label="Task ID" value={<Text truncate>{ti.task_id}</Text>} />
           <MetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
-          <MetaRow label="Body" value={<Text whiteSpace="pre-wrap">{detail.body}</Text>} />
           <MetaRow label="Attempt" value={<Text>{ti.try_number}</Text>} />
           {assignees === undefined ? undefined : (
             <MetaRow label="Assignee" value={<Text truncate>{assignees}</Text>} />

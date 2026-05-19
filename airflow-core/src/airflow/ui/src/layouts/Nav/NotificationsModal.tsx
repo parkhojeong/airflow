@@ -261,8 +261,10 @@ export const NotificationsModal = ({
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
   const hitlDataRef = useRef(hitlData);
+  const deadlineDataRef = useRef(deadlineData);
 
   hitlDataRef.current = hitlData;
+  deadlineDataRef.current = deadlineData;
 
   const effectiveDeadlineIsLoading = open && deadlineData === undefined && !deadlineIsError;
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
@@ -295,7 +297,15 @@ export const NotificationsModal = ({
 
     const firstHitl = hitlDataRef.current?.hitl_details[0];
 
-    setSelected(firstHitl === undefined ? undefined : { item: firstHitl, type: "hitl" });
+    if (firstHitl !== undefined) {
+      setSelected({ item: firstHitl, type: "hitl" });
+
+      return;
+    }
+
+    const firstDeadline = deadlineDataRef.current?.deadlines[0];
+
+    setSelected(firstDeadline === undefined ? undefined : { item: firstDeadline, type: "deadline" });
   }, [open]);
 
   useEffect(() => {

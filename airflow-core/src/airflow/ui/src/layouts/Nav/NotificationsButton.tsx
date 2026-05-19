@@ -17,9 +17,14 @@
  * under the License.
  */
 import { Badge, Box, useDisclosure } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FiBell } from "react-icons/fi";
 
 import { useDeadlinesServiceGetDeadlines, useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import {
+  prefetchUseDeadlinesServiceGetDeadlines,
+  prefetchUseTaskInstanceServiceGetHitlDetails,
+} from "openapi/queries/prefetch";
 import { Tooltip } from "src/components/ui";
 import { useAutoRefresh } from "src/utils";
 
@@ -35,6 +40,28 @@ export const NotificationsButton = () => {
   const { onClose, onOpen, open } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
   const { markAsRead, readIds } = useReadDeadlines();
+  const queryClient = useQueryClient();
+
+  const handleMouseEnter = () => {
+    if (open) {
+      return;
+    }
+    void prefetchUseTaskInstanceServiceGetHitlDetails(queryClient, {
+      dagId: "~",
+      dagRunId: "~",
+      limit: NOTIFICATION_LIMIT,
+      orderBy: ["created_at"],
+      responseReceived: false,
+      state: ["deferred"],
+    });
+    void prefetchUseDeadlinesServiceGetDeadlines(queryClient, {
+      dagId: "~",
+      dagRunId: "~",
+      limit: NOTIFICATION_LIMIT,
+      missed: true,
+      orderBy: ["-deadline_time"],
+    });
+  };
 
   const { data: hitlSummaryData } = useTaskInstanceServiceGetHitlDetails(
     {
@@ -109,7 +136,7 @@ export const NotificationsButton = () => {
   return (
     <>
       <Tooltip content={`${notificationCount} active notification${notificationCount === 1 ? "" : "s"}`}>
-        <Box position="relative">
+        <Box onMouseEnter={handleMouseEnter} position="relative">
           <NavButton icon={FiBell} onClick={onOpen} title="Notifications" />
           {notificationCount > 0 ? (
             <Badge
