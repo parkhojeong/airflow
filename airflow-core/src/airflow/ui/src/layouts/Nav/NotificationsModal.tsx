@@ -18,7 +18,7 @@
  */
 import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { DeadlineCollectionResponse, HITLDetailCollection } from "openapi/requests/types.gen";
@@ -48,7 +48,9 @@ type NotificationsModalProps = {
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
   readonly onClose: () => void;
+  readonly onDeadlineRead: (id: string) => void;
   readonly open: boolean;
+  readonly readIds: ReadonlySet<string>;
 };
 
 const isSelectedNotificationStillInFetchedData = ({
@@ -252,10 +254,16 @@ export const NotificationsModal = ({
   hitlIsError,
   hitlIsLoading,
   onClose,
+  onDeadlineRead,
   open,
+  readIds,
 }: NotificationsModalProps) => {
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
+  const hitlDataRef = useRef(hitlData);
+
+  hitlDataRef.current = hitlData;
+
   const effectiveDeadlineIsLoading = open && deadlineData === undefined && !deadlineIsError;
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
   const notifications = useMemo(() => getNotifications({ deadlineData, hitlData }), [deadlineData, hitlData]);
@@ -279,6 +287,16 @@ export const NotificationsModal = ({
   })
     ? selected
     : undefined;
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const firstHitl = hitlDataRef.current?.hitl_details[0];
+
+    setSelected(firstHitl === undefined ? undefined : { item: firstHitl, type: "hitl" });
+  }, [open]);
 
   useEffect(() => {
     if (selectedNotificationIndex === -1) {
@@ -314,10 +332,19 @@ export const NotificationsModal = ({
     setSelected(getPreviousNotification({ notifications, selectedNotificationKey }));
   };
 
+  useEffect(() => {
+    if (selected?.type === "deadline") {
+      onDeadlineRead(selected.item.id);
+    }
+  }, [onDeadlineRead, selected]);
+
   const handleSelect = useCallback((next: SelectedNotification) => {
-    setSelected((current) =>
-      current !== undefined && getNotificationKey(current) === getNotificationKey(next) ? undefined : next,
-    );
+    setSelected((current) => {
+      const nextIsSelected =
+        current !== undefined && getNotificationKey(current) === getNotificationKey(next);
+
+      return nextIsSelected ? undefined : next;
+    });
   }, []);
 
   return (
@@ -372,6 +399,7 @@ export const NotificationsModal = ({
                 hitlIsError={hitlIsError}
                 hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
                 onSelect={handleSelect}
+                readIds={readIds}
                 selectedKey={selectedNotificationKey}
               />
             </Box>

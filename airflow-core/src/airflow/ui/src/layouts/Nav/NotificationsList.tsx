@@ -69,6 +69,7 @@ type NotificationsListProps = {
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
   readonly onSelect: (selection: SelectedNotification) => void;
+  readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
 };
 
@@ -259,10 +260,12 @@ const HitlDagRunSections = ({
 const DeadlineDagRunSections = ({
   group,
   onSelect,
+  readIds,
   selectedKey,
 }: {
   readonly group: DagGroup<DeadlineResponse>;
   readonly onSelect: (selection: SelectedNotification) => void;
+  readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
 }) => {
   const dagRunGroups = groupByDagRun(group.items, (deadline) => deadline.dag_run_id).sort(
@@ -283,6 +286,7 @@ const DeadlineDagRunSections = ({
         return (
           <NotificationRow
             datetime={deadline.deadline_time}
+            isRead={readIds.has(deadline.id)}
             key={key}
             label={deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}
             onSelect={() => onSelect({ item: deadline, type: "deadline" })}
@@ -302,6 +306,7 @@ export const NotificationsList = ({
   hitlIsError,
   hitlIsLoading,
   onSelect,
+  readIds,
   selectedKey,
 }: NotificationsListProps) => {
   const queryClient = useQueryClient();
@@ -372,7 +377,7 @@ export const NotificationsList = ({
           <DagSections>
             {deadlineGroups.map((group) => (
               <DagSection dagId={group.dagId} key={group.dagId}>
-                <DeadlineDagRunSections group={group} onSelect={onSelect} selectedKey={selectedKey} />
+                <DeadlineDagRunSections group={group} onSelect={onSelect} readIds={readIds} selectedKey={selectedKey} />
               </DagSection>
             ))}
           </DagSections>

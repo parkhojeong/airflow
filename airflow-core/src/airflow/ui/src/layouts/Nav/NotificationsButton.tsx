@@ -25,6 +25,7 @@ import { useAutoRefresh } from "src/utils";
 
 import { NavButton } from "./NavButton";
 import { NotificationsModal } from "./NotificationsModal";
+import { useReadDeadlines } from "./useReadDeadlines";
 
 const MAX_BADGE_COUNT = 99;
 const NOTIFICATION_LIMIT = 10;
@@ -33,6 +34,7 @@ const NOTIFICATION_SUMMARY_LIMIT = 1;
 export const NotificationsButton = () => {
   const { onClose, onOpen, open } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
+  const { markAsRead, readIds } = useReadDeadlines();
 
   const { data: hitlSummaryData } = useTaskInstanceServiceGetHitlDetails(
     {
@@ -92,10 +94,17 @@ export const NotificationsButton = () => {
     { enabled: open, refetchInterval },
   );
 
-  const deadlineTotalEntries = deadlineSummaryData?.total_entries ?? 0;
   const hitlTotalEntries = hitlSummaryData?.total_entries ?? 0;
+  const deadlineTotalEntries = deadlineSummaryData?.total_entries ?? 0;
   const notificationCount = hitlTotalEntries + deadlineTotalEntries;
   const displayCount = notificationCount > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : notificationCount;
+  const expectedHitlCount = Math.min(hitlTotalEntries, NOTIFICATION_LIMIT);
+  const expectedDeadlineCount = Math.min(deadlineTotalEntries, NOTIFICATION_LIMIT);
+  const modalHitlIsLoading =
+    isHitlLoading || (open && !isHitlError && (hitlData?.hitl_details.length ?? 0) < expectedHitlCount);
+  const modalDeadlineIsLoading =
+    isDeadlineLoading ||
+    (open && !isDeadlineError && (deadlineData?.deadlines.length ?? 0) < expectedDeadlineCount);
 
   return (
     <>
@@ -126,12 +135,14 @@ export const NotificationsButton = () => {
       <NotificationsModal
         deadlineData={deadlineData}
         deadlineIsError={isDeadlineError}
-        deadlineIsLoading={isDeadlineLoading}
+        deadlineIsLoading={modalDeadlineIsLoading}
         hitlData={hitlData}
         hitlIsError={isHitlError}
-        hitlIsLoading={isHitlLoading}
+        hitlIsLoading={modalHitlIsLoading}
         onClose={onClose}
+        onDeadlineRead={markAsRead}
         open={open}
+        readIds={readIds}
       />
     </>
   );

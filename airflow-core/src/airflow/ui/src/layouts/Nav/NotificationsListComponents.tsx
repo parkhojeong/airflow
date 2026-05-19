@@ -30,12 +30,14 @@ import {
 
 export const NotificationRow = ({
   datetime,
+  isRead = false,
   label,
   onPrefetch,
   onSelect,
   selected,
 }: {
   readonly datetime?: string;
+  readonly isRead?: boolean;
   readonly label: string;
   readonly onPrefetch?: () => void;
   readonly onSelect: () => void;
@@ -55,6 +57,7 @@ export const NotificationRow = ({
       cursor="pointer"
       onClick={onSelect}
       onMouseEnter={onPrefetch}
+      opacity={isRead && !selected ? 0.5 : 1}
       position="relative"
       px={1.5}
       py={1.5}
