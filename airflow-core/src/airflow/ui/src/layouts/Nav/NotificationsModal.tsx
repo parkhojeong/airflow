@@ -17,7 +17,8 @@
  * under the License.
  */
 import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
-import { useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { DeadlineCollectionResponse, HITLDetailCollection } from "openapi/requests/types.gen";
@@ -31,6 +32,7 @@ import {
   NotificationsList,
   type SelectedNotification,
 } from "./NotificationsList";
+import { prefetchHitlDetail } from "./notificationPrefetchUtils";
 
 const NOTIFICATIONS_LABEL = "Notifications";
 const EMPTY_DETAIL_LABEL = "Select a notification to see details";
@@ -252,10 +254,11 @@ export const NotificationsModal = ({
   onClose,
   open,
 }: NotificationsModalProps) => {
+  const queryClient = useQueryClient();
   const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
   const effectiveDeadlineIsLoading = open && deadlineData === undefined && !deadlineIsError;
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
-  const notifications = getNotifications({ deadlineData, hitlData });
+  const notifications = useMemo(() => getNotifications({ deadlineData, hitlData }), [deadlineData, hitlData]);
 
   const selectedNotificationKey = selected === undefined ? undefined : getNotificationKey(selected);
   const selectedNotificationIndex = notifications.findIndex(
@@ -276,6 +279,23 @@ export const NotificationsModal = ({
   })
     ? selected
     : undefined;
+
+  useEffect(() => {
+    if (selectedNotificationIndex === -1) {
+      return;
+    }
+
+    const adjacentNotifications = [
+      notifications[selectedNotificationIndex - 1],
+      notifications[selectedNotificationIndex + 1],
+    ];
+
+    for (const notification of adjacentNotifications) {
+      if (notification?.type === "hitl") {
+        prefetchHitlDetail(queryClient, notification.item);
+      }
+    }
+  }, [notifications, queryClient, selectedNotificationIndex]);
 
   const selectNextNotification = () => {
     setSelected(

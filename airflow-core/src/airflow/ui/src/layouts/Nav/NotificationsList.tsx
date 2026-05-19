@@ -17,6 +17,7 @@
  * under the License.
  */
 import { VStack } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import type {
@@ -36,6 +37,7 @@ import {
   StatusText,
 } from "./NotificationsListComponents";
 import { getDagRunOrderTimestamp, getParsedDagRunMeta, getTimestamp } from "./notificationDisplayUtils";
+import { prefetchHitlDetail } from "./notificationPrefetchUtils";
 
 const MISSED_DEADLINES_LABEL = "Missed deadlines";
 const LOAD_DEADLINES_ERROR_LABEL = "Unable to load deadline alerts";
@@ -201,6 +203,7 @@ export const NotificationsList = ({
   onSelect,
   selectedKey,
 }: NotificationsListProps) => {
+  const queryClient = useQueryClient();
   const deadlines = useMemo(() => deadlineData?.deadlines ?? [], [deadlineData?.deadlines]);
   const hitlDetails = useMemo(() => hitlData?.hitl_details ?? [], [hitlData?.hitl_details]);
 
@@ -261,6 +264,7 @@ export const NotificationsList = ({
                             datetime={detail.created_at}
                             key={key}
                             label={getHitlTaskLabel(detail)}
+                            onPrefetch={() => prefetchHitlDetail(queryClient, detail)}
                             onSelect={() => onSelect({ item: detail, type: "hitl" })}
                             selected={selectedKey === key}
                           />

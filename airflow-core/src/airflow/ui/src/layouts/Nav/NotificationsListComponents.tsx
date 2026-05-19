@@ -31,11 +31,13 @@ import {
 export const NotificationRow = ({
   datetime,
   label,
+  onPrefetch,
   onSelect,
   selected,
 }: {
   readonly datetime?: string;
   readonly label: string;
+  readonly onPrefetch?: () => void;
   readonly onSelect: () => void;
   readonly selected: boolean;
 }) => {
@@ -65,6 +67,7 @@ export const NotificationRow = ({
       borderRadius="md"
       cursor="pointer"
       onClick={onSelect}
+      onMouseEnter={onPrefetch}
       position="relative"
       px={2}
       py={1.5}
@@ -136,7 +139,6 @@ export const DagSection = ({ children, dagId }: { readonly children: ReactNode; 
     borderWidth={1}
     gap={0}
     minW={0}
-    overflow="hidden"
     width="100%"
   >
     <Text
