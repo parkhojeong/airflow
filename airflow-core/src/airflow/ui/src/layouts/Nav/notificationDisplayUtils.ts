@@ -20,7 +20,17 @@ import dayjs from "dayjs";
 
 import { getRelativeTime } from "src/utils/datetimeUtils";
 
-export const DAG_RUN_META_DATE_FORMAT = "MMM D, h:mm:ss A";
+export const DAG_RUN_META_DATE_FORMAT = "MMM D, h:mm A";
+
+const DAG_RUN_META_DATE_WITH_SECONDS_FORMAT = "MMM D, h:mm:ss A";
+
+export const getDagRunListDateFormat = (datetime: string, showSeconds = false) => {
+  if (dayjs(datetime).isSame(dayjs(), "day")) {
+    return showSeconds ? "h:mm:ss A" : "h:mm A";
+  }
+
+  return showSeconds ? DAG_RUN_META_DATE_WITH_SECONDS_FORMAT : DAG_RUN_META_DATE_FORMAT;
+};
 
 const DAG_RUN_TYPES = new Set([
   "asset_materialization",
@@ -71,6 +81,16 @@ export const getParsedDagRunMeta = (dagRunId: string, fallbackRunAfter?: string)
         runAfter: fallbackRunAfter,
         runType,
       };
+};
+
+export const getDagRunListCollisionKey = (dagRunId: string, fallbackRunAfter?: string) => {
+  const dagRunMeta = getParsedDagRunMeta(dagRunId, fallbackRunAfter);
+
+  if (dagRunMeta?.runAfter === undefined) {
+    return dagRunId;
+  }
+
+  return `${dagRunMeta.runType}:${dayjs(dagRunMeta.runAfter).format("YYYY-MM-DDTHH:mm")}`;
 };
 
 export const formatNotificationTime = (datetime?: string) => {

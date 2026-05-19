@@ -17,7 +17,7 @@
  * under the License.
  */
 import { VStack } from "@chakra-ui/react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 import type {
@@ -36,7 +36,12 @@ import {
   NotificationTypeSection,
   StatusText,
 } from "./NotificationsListComponents";
-import { getDagRunOrderTimestamp, getParsedDagRunMeta, getTimestamp } from "./notificationDisplayUtils";
+import {
+  getDagRunListCollisionKey,
+  getDagRunOrderTimestamp,
+  getParsedDagRunMeta,
+  getTimestamp,
+} from "./notificationDisplayUtils";
 import { prefetchHitlDetail } from "./notificationPrefetchUtils";
 
 const MISSED_DEADLINES_LABEL = "Missed deadlines";
@@ -193,6 +198,102 @@ const compareDeadlines = (left: DeadlineResponse, right: DeadlineResponse) =>
   compareDates(left.deadline_time, right.deadline_time) ||
   compareStrings(left.alert_name ?? UNTITLED_DEADLINE_LABEL, right.alert_name ?? UNTITLED_DEADLINE_LABEL);
 
+const getDagRunCollisionKeys = (dagRunGroups: Array<DagRunGroup<unknown>>) => {
+  const counts = new Map<string, number>();
+
+  for (const dagRunGroup of dagRunGroups) {
+    const collisionKey = getDagRunListCollisionKey(dagRunGroup.dagRunId, dagRunGroup.fallbackRunAfter);
+
+    counts.set(collisionKey, (counts.get(collisionKey) ?? 0) + 1);
+  }
+
+  return new Set([...counts].filter(([, count]) => count > 1).map(([key]) => key));
+};
+
+const HitlDagRunSections = ({
+  group,
+  onSelect,
+  queryClient,
+  selectedKey,
+}: {
+  readonly group: DagGroup<HITLDetail>;
+  readonly onSelect: (selection: SelectedNotification) => void;
+  readonly queryClient: QueryClient;
+  readonly selectedKey?: string;
+}) => {
+  const dagRunGroups = groupByDagRun(
+    group.items,
+    (detail) => detail.task_instance.dag_run_id,
+    (detail) => detail.task_instance.run_after,
+  ).sort(compareDagRunGroups);
+  const collisionKeys = getDagRunCollisionKeys(dagRunGroups);
+
+  return dagRunGroups.map((dagRunGroup, index) => (
+    <DagRunSection
+      dagRunId={dagRunGroup.dagRunId}
+      fallbackRunAfter={dagRunGroup.fallbackRunAfter}
+      key={dagRunGroup.dagRunId}
+      separated={index > 0}
+      showSeconds={collisionKeys.has(
+        getDagRunListCollisionKey(dagRunGroup.dagRunId, dagRunGroup.fallbackRunAfter),
+      )}
+    >
+      {dagRunGroup.items.map((detail) => {
+        const key = getNotificationKey({ item: detail, type: "hitl" });
+
+        return (
+          <NotificationRow
+            datetime={detail.created_at}
+            key={key}
+            label={getHitlTaskLabel(detail)}
+            onPrefetch={() => prefetchHitlDetail(queryClient, detail)}
+            onSelect={() => onSelect({ item: detail, type: "hitl" })}
+            selected={selectedKey === key}
+          />
+        );
+      })}
+    </DagRunSection>
+  ));
+};
+
+const DeadlineDagRunSections = ({
+  group,
+  onSelect,
+  selectedKey,
+}: {
+  readonly group: DagGroup<DeadlineResponse>;
+  readonly onSelect: (selection: SelectedNotification) => void;
+  readonly selectedKey?: string;
+}) => {
+  const dagRunGroups = groupByDagRun(group.items, (deadline) => deadline.dag_run_id).sort(
+    compareDagRunGroups,
+  );
+  const collisionKeys = getDagRunCollisionKeys(dagRunGroups);
+
+  return dagRunGroups.map((dagRunGroup, index) => (
+    <DagRunSection
+      dagRunId={dagRunGroup.dagRunId}
+      key={dagRunGroup.dagRunId}
+      separated={index > 0}
+      showSeconds={collisionKeys.has(getDagRunListCollisionKey(dagRunGroup.dagRunId))}
+    >
+      {dagRunGroup.items.map((deadline) => {
+        const key = getNotificationKey({ item: deadline, type: "deadline" });
+
+        return (
+          <NotificationRow
+            datetime={deadline.deadline_time}
+            key={key}
+            label={deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}
+            onSelect={() => onSelect({ item: deadline, type: "deadline" })}
+            selected={selectedKey === key}
+          />
+        );
+      })}
+    </DagRunSection>
+  ));
+};
+
 export const NotificationsList = ({
   deadlineData,
   deadlineIsError,
@@ -243,35 +344,12 @@ export const NotificationsList = ({
           <DagSections>
             {hitlGroups.map((group) => (
               <DagSection dagId={group.dagId} key={group.dagId}>
-                {groupByDagRun(
-                  group.items,
-                  (detail) => detail.task_instance.dag_run_id,
-                  (detail) => detail.task_instance.run_after,
-                )
-                  .sort(compareDagRunGroups)
-                  .map((dagRunGroup, index) => (
-                    <DagRunSection
-                      dagRunId={dagRunGroup.dagRunId}
-                      fallbackRunAfter={dagRunGroup.fallbackRunAfter}
-                      key={dagRunGroup.dagRunId}
-                      separated={index > 0}
-                    >
-                      {dagRunGroup.items.map((detail) => {
-                        const key = getNotificationKey({ item: detail, type: "hitl" });
-
-                        return (
-                          <NotificationRow
-                            datetime={detail.created_at}
-                            key={key}
-                            label={getHitlTaskLabel(detail)}
-                            onPrefetch={() => prefetchHitlDetail(queryClient, detail)}
-                            onSelect={() => onSelect({ item: detail, type: "hitl" })}
-                            selected={selectedKey === key}
-                          />
-                        );
-                      })}
-                    </DagRunSection>
-                  ))}
+                <HitlDagRunSections
+                  group={group}
+                  onSelect={onSelect}
+                  queryClient={queryClient}
+                  selectedKey={selectedKey}
+                />
               </DagSection>
             ))}
           </DagSections>
@@ -294,29 +372,7 @@ export const NotificationsList = ({
           <DagSections>
             {deadlineGroups.map((group) => (
               <DagSection dagId={group.dagId} key={group.dagId}>
-                {groupByDagRun(group.items, (deadline) => deadline.dag_run_id)
-                  .sort(compareDagRunGroups)
-                  .map((dagRunGroup, index) => (
-                    <DagRunSection
-                      dagRunId={dagRunGroup.dagRunId}
-                      key={dagRunGroup.dagRunId}
-                      separated={index > 0}
-                    >
-                      {dagRunGroup.items.map((deadline) => {
-                        const key = getNotificationKey({ item: deadline, type: "deadline" });
-
-                        return (
-                          <NotificationRow
-                            datetime={deadline.deadline_time}
-                            key={key}
-                            label={deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}
-                            onSelect={() => onSelect({ item: deadline, type: "deadline" })}
-                            selected={selectedKey === key}
-                          />
-                        );
-                      })}
-                    </DagRunSection>
-                  ))}
+                <DeadlineDagRunSections group={group} onSelect={onSelect} selectedKey={selectedKey} />
               </DagSection>
             ))}
           </DagSections>

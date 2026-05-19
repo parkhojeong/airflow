@@ -345,17 +345,23 @@ export const NotificationsModal = ({
         </Dialog.Header>
         <Dialog.CloseTrigger />
         <Dialog.Body>
-          <HStack alignItems="stretch" gap={0} height="100%" width="100%">
+          <HStack
+            alignItems="stretch"
+            flexDirection={{ base: "column", lg: "row" }}
+            gap={{ base: 3, lg: 0 }}
+            height="100%"
+            width="100%"
+          >
             <Box
               flexShrink={0}
-              height="100%"
+              height={{ base: "42%", lg: "100%" }}
               overflowX="hidden"
               overflowY="auto"
               pl={2}
               position="relative"
-              pr={8}
+              pr={{ base: 2, lg: 8 }}
               py={2}
-              width={{ base: "50%", md: "768px" }}
+              width={{ base: "100%", lg: "600px", xl: "640px" }}
               zIndex={2}
             >
               <NotificationsList
@@ -375,7 +381,7 @@ export const NotificationsModal = ({
               borderRadius="md"
               borderWidth={1}
               flex={1}
-              height="100%"
+              height={{ base: "58%", lg: "100%" }}
               minW={0}
               overflowY="auto"
               p={3}

@@ -61,7 +61,7 @@ export const DeadlineNotificationCard = ({
     <VStack alignItems="stretch" gap={4} width="100%">
       <HStack alignItems="flex-start" gap={3} justifyContent="space-between" width="100%">
         <VStack alignItems="stretch" flex={1} gap={1.5} minW={0}>
-          <Text fontSize="xl" fontWeight="semibold" lineHeight="short" truncate>
+          <Text fontSize="lg" fontWeight="semibold" lineHeight="short" truncate>
             {deadline.dag_id}
           </Text>
           <HStack color="fg.muted" fontSize="md" fontWeight="medium" gap={1} lineHeight="short" minW={0}>

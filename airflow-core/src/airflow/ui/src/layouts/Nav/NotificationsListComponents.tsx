@@ -23,8 +23,8 @@ import Time from "src/components/Time";
 
 import { NotificationSectionHeading } from "./NotificationCard";
 import {
-  DAG_RUN_META_DATE_FORMAT,
   formatNotificationTime,
+  getDagRunListDateFormat,
   getParsedDagRunMeta,
 } from "./notificationDisplayUtils";
 
@@ -45,31 +45,18 @@ export const NotificationRow = ({
 
   return (
     <Box
-      _after={
-        selected
-          ? {
-              bg: "border.emphasized",
-              content: '""',
-              height: "1px",
-              left: "100%",
-              pointerEvents: "none",
-              position: "absolute",
-              top: "50%",
-              width: 16,
-              zIndex: 1,
-            }
-          : undefined
-      }
       _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
       aria-pressed={selected}
       as="button"
       bg={selected ? "bg.muted" : undefined}
+      borderColor={selected ? "border.emphasized" : "transparent"}
       borderRadius="md"
+      borderWidth={1}
       cursor="pointer"
       onClick={onSelect}
       onMouseEnter={onPrefetch}
       position="relative"
-      px={2}
+      px={1.5}
       py={1.5}
       textAlign="left"
       width="100%"
@@ -84,7 +71,7 @@ export const NotificationRow = ({
             minW={0}
             truncate
           >
-            • {label}
+            {label}
           </Text>
         </VStack>
         {formattedTime === undefined ? undefined : (
@@ -102,28 +89,33 @@ export const DagRunSection = ({
   dagRunId,
   fallbackRunAfter,
   separated,
+  showSeconds,
 }: {
   readonly children: ReactNode;
   readonly dagRunId: string;
   readonly fallbackRunAfter?: string;
   readonly separated: boolean;
+  readonly showSeconds: boolean;
 }) => {
   const dagRunMeta = getParsedDagRunMeta(dagRunId, fallbackRunAfter);
 
   return (
-    <VStack alignItems="stretch" gap={1} minW={0} pt={separated ? 3 : undefined} width="100%">
-      <HStack color="fg.subtle" fontSize="xs" gap={1} minW={0} px={2}>
+    <VStack alignItems="stretch" gap={0.5} minW={0} pt={separated ? 3 : undefined} width="100%">
+      <HStack color="fg.muted" fontSize="xs" fontWeight="medium" gap={1} minW={0} px={2}>
         {dagRunMeta?.runAfter === undefined ? (
           <Text truncate>{dagRunId}</Text>
         ) : (
           <>
             <Text flexShrink={0}>{dagRunMeta.runType}</Text>
             <Text flexShrink={0}>·</Text>
-            <Time datetime={dagRunMeta.runAfter} format={DAG_RUN_META_DATE_FORMAT} />
+            <Time
+              datetime={dagRunMeta.runAfter}
+              format={getDagRunListDateFormat(dagRunMeta.runAfter, showSeconds)}
+            />
           </>
         )}
       </HStack>
-      <VStack alignItems="stretch" gap={0.5} minW={0} width="100%">
+      <VStack alignItems="stretch" gap={0.5} minW={0} pl={2} width="100%">
         {children}
       </VStack>
     </VStack>
@@ -142,10 +134,9 @@ export const DagSection = ({ children, dagId }: { readonly children: ReactNode; 
     width="100%"
   >
     <Text
-      bg="bg.subtle"
       borderBottomColor="border"
       borderBottomWidth={1}
-      color="fg.muted"
+      color="fg"
       fontSize="xs"
       fontWeight="semibold"
       px={3}
