@@ -140,63 +140,80 @@ const HitlTable = ({
   readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
   readonly timezone: string;
-}) => (
-  <Table.Root size="sm" tableLayout="fixed" width="100%">
-    <Table.Header>
-      <Table.Row>
-        <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
-        <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
-        <TableColumnHeader w="76px">Map Index</TableColumnHeader>
-        <TableColumnHeader>Task ID</TableColumnHeader>
-        <TableColumnHeader w="88px">Created at</TableColumnHeader>
-      </Table.Row>
-    </Table.Header>
-    <Table.Body>
-      {details.length === 0 ? (
-        <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
-      ) : details.map((detail) => {
-        const key = getNotificationKey({ item: detail, type: "hitl" });
-        const selected = selectedKey === key;
-        const ti = detail.task_instance;
-        const mappedIndex =
-          ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
+}) => {
+  const groupIndices = details.map((detail, index) => {
+    let groupIndex = 0;
 
-        return (
-          <Table.Row
-            _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-            aria-pressed={selected}
-            bg={selected ? "bg.muted" : undefined}
-            cursor="pointer"
-            key={key}
-            onClick={() => onSelect({ item: detail, type: "hitl" })}
-            onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
-            opacity={readIds.has(detail.task_instance.id) && !selected ? 0.5 : 1}
-          >
-            <Table.Cell overflow="hidden" px={2} py={1.5}>
-              <Text fontSize="xs" truncate>{ti.dag_id}</Text>
-            </Table.Cell>
-            <Table.Cell px={2} py={1.5}>
-              <Text fontSize="xs">
-                <Time datetime={ti.run_after} format={getDagRunListDateFormat(ti.run_after, true, timezone)} />
-              </Text>
-            </Table.Cell>
-            <Table.Cell px={2} py={1.5}>
-              <Text color="fg.muted" fontSize="xs">{mappedIndex}</Text>
-            </Table.Cell>
-            <Table.Cell overflow="hidden" px={2} py={1.5}>
-              <Text fontSize="xs" truncate>{ti.task_id}</Text>
-            </Table.Cell>
-            <Table.Cell px={2} py={1.5}>
-              <Text fontSize="xs">
-                <Time datetime={detail.created_at} format={getDagRunListDateFormat(detail.created_at ?? "", false, timezone)} />
-              </Text>
-            </Table.Cell>
-          </Table.Row>
-        );
-      })}
-    </Table.Body>
-  </Table.Root>
-);
+    for (let i = 1; i <= index; i++) {
+      if (details[i]!.task_instance.dag_id !== details[i - 1]!.task_instance.dag_id) {
+        groupIndex++;
+      }
+    }
+
+    return groupIndex;
+  });
+
+  const GROUP_COLORS = ["green.500", "purple.500"];
+
+  return (
+    <Table.Root size="sm" tableLayout="fixed" width="100%">
+      <Table.Header>
+        <Table.Row>
+          <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
+          <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
+          <TableColumnHeader w="76px">Map Index</TableColumnHeader>
+          <TableColumnHeader>Task ID</TableColumnHeader>
+          <TableColumnHeader w="88px">Created at</TableColumnHeader>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {details.length === 0 ? (
+          <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
+        ) : details.map((detail, index) => {
+          const key = getNotificationKey({ item: detail, type: "hitl" });
+          const selected = selectedKey === key;
+          const ti = detail.task_instance;
+          const mappedIndex =
+            ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
+          const groupColor = GROUP_COLORS[(groupIndices[index] ?? 0) % GROUP_COLORS.length];
+
+          return (
+            <Table.Row
+              _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
+              aria-pressed={selected}
+              bg={selected ? "bg.muted" : undefined}
+              cursor="pointer"
+              key={key}
+              onClick={() => onSelect({ item: detail, type: "hitl" })}
+              onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
+              opacity={readIds.has(detail.task_instance.id) && !selected ? 0.5 : 1}
+            >
+              <Table.Cell borderLeftColor={groupColor} borderLeftWidth={3} overflow="hidden" px={2} py={1.5}>
+                <Text fontSize="xs" truncate>{ti.dag_id}</Text>
+              </Table.Cell>
+              <Table.Cell px={2} py={1.5}>
+                <Text fontSize="xs">
+                  <Time datetime={ti.run_after} format={getDagRunListDateFormat(ti.run_after, true, timezone)} />
+                </Text>
+              </Table.Cell>
+              <Table.Cell px={2} py={1.5}>
+                <Text color="fg.muted" fontSize="xs">{mappedIndex}</Text>
+              </Table.Cell>
+              <Table.Cell overflow="hidden" px={2} py={1.5}>
+                <Text fontSize="xs" truncate>{ti.task_id}</Text>
+              </Table.Cell>
+              <Table.Cell px={2} py={1.5}>
+                <Text fontSize="xs">
+                  <Time datetime={detail.created_at} format={getDagRunListDateFormat(detail.created_at ?? "", false, timezone)} />
+                </Text>
+              </Table.Cell>
+            </Table.Row>
+          );
+        })}
+      </Table.Body>
+    </Table.Root>
+  );
+};
 
 const DeadlineTable = ({
   deadlines,
@@ -212,60 +229,77 @@ const DeadlineTable = ({
   readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
   readonly timezone: string;
-}) => (
-  <Table.Root size="sm" tableLayout="fixed" width="100%">
-    <Table.Header>
-      <Table.Row>
-        <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
-        <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
-        <TableColumnHeader>Alert</TableColumnHeader>
-        <TableColumnHeader w="88px">Deadline</TableColumnHeader>
-      </Table.Row>
-    </Table.Header>
-    <Table.Body>
-      {deadlines.length === 0 ? (
-        <EmptyRow colSpan={DEADLINE_COL_SPAN} label={emptyLabel} />
-      ) : deadlines.map((deadline) => {
-        const key = getNotificationKey({ item: deadline, type: "deadline" });
-        const selected = selectedKey === key;
-        const runAfter = getParsedDagRunMeta(deadline.dag_run_id)?.runAfter;
+}) => {
+  const groupIndices = deadlines.map((deadline, index) => {
+    let groupIndex = 0;
 
-        return (
-          <Table.Row
-            _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-            aria-pressed={selected}
-            bg={selected ? "bg.muted" : undefined}
-            cursor="pointer"
-            key={key}
-            onClick={() => onSelect({ item: deadline, type: "deadline" })}
-            opacity={readIds.has(deadline.id) && !selected ? 0.5 : 1}
-          >
-            <Table.Cell overflow="hidden" px={2} py={1.5}>
-              <Text fontSize="xs" truncate>{deadline.dag_id}</Text>
-            </Table.Cell>
-            <Table.Cell px={2} py={1.5}>
-              <Text fontSize="xs">
-                {runAfter === undefined ? (
-                  deadline.dag_run_id
-                ) : (
-                  <Time datetime={runAfter} format={getDagRunListDateFormat(runAfter, true, timezone)} />
-                )}
-              </Text>
-            </Table.Cell>
-            <Table.Cell overflow="hidden" px={2} py={1.5}>
-              <Text fontSize="xs" truncate>{deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}</Text>
-            </Table.Cell>
-            <Table.Cell px={2} py={1.5}>
-              <Text fontSize="xs">
-                <Time datetime={deadline.deadline_time} format={getDagRunListDateFormat(deadline.deadline_time, false, timezone)} />
-              </Text>
-            </Table.Cell>
-          </Table.Row>
-        );
-      })}
-    </Table.Body>
-  </Table.Root>
-);
+    for (let i = 1; i <= index; i++) {
+      if (deadlines[i]!.dag_id !== deadlines[i - 1]!.dag_id) {
+        groupIndex++;
+      }
+    }
+
+    return groupIndex;
+  });
+
+  const GROUP_COLORS = ["green.500", "purple.500"];
+
+  return (
+    <Table.Root size="sm" tableLayout="fixed" width="100%">
+      <Table.Header>
+        <Table.Row>
+          <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
+          <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
+          <TableColumnHeader>Alert</TableColumnHeader>
+          <TableColumnHeader w="88px">Deadline</TableColumnHeader>
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {deadlines.length === 0 ? (
+          <EmptyRow colSpan={DEADLINE_COL_SPAN} label={emptyLabel} />
+        ) : deadlines.map((deadline, index) => {
+          const key = getNotificationKey({ item: deadline, type: "deadline" });
+          const selected = selectedKey === key;
+          const runAfter = getParsedDagRunMeta(deadline.dag_run_id)?.runAfter;
+          const groupColor = GROUP_COLORS[(groupIndices[index] ?? 0) % GROUP_COLORS.length];
+
+          return (
+            <Table.Row
+              _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
+              aria-pressed={selected}
+              bg={selected ? "bg.muted" : undefined}
+              cursor="pointer"
+              key={key}
+              onClick={() => onSelect({ item: deadline, type: "deadline" })}
+              opacity={readIds.has(deadline.id) && !selected ? 0.5 : 1}
+            >
+              <Table.Cell borderLeftColor={groupColor} borderLeftWidth={3} overflow="hidden" px={2} py={1.5}>
+                <Text fontSize="xs" truncate>{deadline.dag_id}</Text>
+              </Table.Cell>
+              <Table.Cell px={2} py={1.5}>
+                <Text fontSize="xs">
+                  {runAfter === undefined ? (
+                    deadline.dag_run_id
+                  ) : (
+                    <Time datetime={runAfter} format={getDagRunListDateFormat(runAfter, true, timezone)} />
+                  )}
+                </Text>
+              </Table.Cell>
+              <Table.Cell overflow="hidden" px={2} py={1.5}>
+                <Text fontSize="xs" truncate>{deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}</Text>
+              </Table.Cell>
+              <Table.Cell px={2} py={1.5}>
+                <Text fontSize="xs">
+                  <Time datetime={deadline.deadline_time} format={getDagRunListDateFormat(deadline.deadline_time, false, timezone)} />
+                </Text>
+              </Table.Cell>
+            </Table.Row>
+          );
+        })}
+      </Table.Body>
+    </Table.Root>
+  );
+};
 
 export const NotificationsList = ({
   deadlineData,
