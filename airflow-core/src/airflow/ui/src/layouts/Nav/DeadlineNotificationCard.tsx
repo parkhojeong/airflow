@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 import type { DeadlineResponse } from "openapi/requests/types.gen";
 
 import { MetaRow } from "./NotificationCard";
-import { formatNotificationDetailTime, getParsedDagRunMeta } from "./notificationDisplayUtils";
+import { formatNotificationDetailTime } from "./notificationDisplayUtils";
 
 const MISSED_DEADLINE_LABEL = "Missed deadline";
 const OPEN_DAG_RUN_LABEL = "Open Dag run";
@@ -34,7 +34,6 @@ export const DeadlineNotificationCard = ({
   readonly deadline: DeadlineResponse;
   readonly onNavigate?: () => void;
 }) => {
-  const dagRunMeta = getParsedDagRunMeta(deadline.dag_run_id);
   const dagRunLink = `/dags/${deadline.dag_id}/runs/${deadline.dag_run_id}`;
   const deadlineTime = formatNotificationDetailTime(deadline.deadline_time, true);
 
@@ -43,12 +42,7 @@ export const DeadlineNotificationCard = ({
       <Table.Root size="sm" tableLayout="fixed" width="100%">
         <Table.Body>
           <MetaRow label="Dag ID" value={<Text truncate>{deadline.dag_id}</Text>} />
-          <MetaRow
-            label="Dag Run"
-            value={
-              <Text>{formatNotificationDetailTime(dagRunMeta?.runAfter ?? deadline.dag_run_id, true) ?? deadline.dag_run_id}</Text>
-            }
-          />
+          <MetaRow label="Dag Run ID" value={<Text>{deadline.dag_run_id}</Text>} />
           <MetaRow label="Deadline" value={<Text>{deadlineTime ?? "-"}</Text>} />
           <MetaRow label="Alert" value={<Text truncate>{deadline.alert_name ?? MISSED_DEADLINE_LABEL}</Text>} />
         </Table.Body>

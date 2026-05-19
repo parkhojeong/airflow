@@ -17,16 +17,21 @@
  * under the License.
  */
 import dayjs from "dayjs";
+import tz from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
+dayjs.extend(tz);
 
 import { getRelativeTime } from "src/utils/datetimeUtils";
 
-export const DAG_RUN_META_DATE_FORMAT = "MMM D, h:mm A";
+export const DAG_RUN_META_DATE_FORMAT = "MMM D, HH:mm";
 
-const DAG_RUN_META_DATE_WITH_SECONDS_FORMAT = "MMM D, h:mm:ss A";
+const DAG_RUN_META_DATE_WITH_SECONDS_FORMAT = "MMM D, HH:mm:ss";
 
-export const getDagRunListDateFormat = (datetime: string, showSeconds = false) => {
-  if (dayjs(datetime).isSame(dayjs(), "day")) {
-    return showSeconds ? "h:mm:ss A" : "h:mm A";
+export const getDagRunListDateFormat = (datetime: string, showSeconds = false, timezone = "UTC") => {
+  if (dayjs(datetime).tz(timezone).isSame(dayjs().tz(timezone), "day")) {
+    return showSeconds ? "HH:mm:ss" : "HH:mm";
   }
 
   return showSeconds ? DAG_RUN_META_DATE_WITH_SECONDS_FORMAT : DAG_RUN_META_DATE_FORMAT;
@@ -104,7 +109,7 @@ export const formatNotificationTime = (datetime?: string) => {
     return undefined;
   }
 
-  return date.isSame(dayjs(), "day") ? date.format("h:mm A") : date.format("MMM DD");
+  return date.isSame(dayjs(), "day") ? date.format("HH:mm") : date.format("MMM DD");
 };
 
 export const formatNotificationDetailTime = (datetime?: string, showSeconds = false) => {
@@ -118,8 +123,8 @@ export const formatNotificationDetailTime = (datetime?: string, showSeconds = fa
     return undefined;
   }
 
-  const timeFormat = showSeconds ? "h:mm:ss A" : "h:mm A";
-  const dateTimeFormat = showSeconds ? `ddd, MMM D, h:mm:ss A` : "ddd, MMM D, h:mm A";
+  const timeFormat = showSeconds ? "HH:mm:ss" : "HH:mm";
+  const dateTimeFormat = showSeconds ? "ddd, MMM D, HH:mm:ss" : "ddd, MMM D, HH:mm";
   const timestamp = date.isSame(dayjs(), "day") ? date.format(timeFormat) : date.format(dateTimeFormat);
   const relative = getRelativeTime(datetime);
 

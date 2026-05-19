@@ -20,6 +20,8 @@ import { Table, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
+import { useTimezone } from "src/context/timezone";
+
 import type {
   DeadlineCollectionResponse,
   DeadlineResponse,
@@ -111,7 +113,7 @@ const TableColumnHeader = ({ children, w }: { readonly children: string; readonl
   </Table.ColumnHeader>
 );
 
-const HITL_COL_SPAN = 4;
+const HITL_COL_SPAN = 5;
 const DEADLINE_COL_SPAN = 4;
 
 const EmptyRow = ({ colSpan, label }: { readonly colSpan: number; readonly label: string }) => (
@@ -129,6 +131,7 @@ const HitlTable = ({
   queryClient,
   readIds,
   selectedKey,
+  timezone,
 }: {
   readonly details: Array<HITLDetail>;
   readonly emptyLabel: string;
@@ -136,14 +139,16 @@ const HitlTable = ({
   readonly queryClient: QueryClient;
   readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
+  readonly timezone: string;
 }) => (
   <Table.Root size="sm" tableLayout="fixed" width="100%">
     <Table.Header>
       <Table.Row>
-        <TableColumnHeader w="33%">Dag ID</TableColumnHeader>
-        <TableColumnHeader w="17%">Dag Run</TableColumnHeader>
-        <TableColumnHeader w="17%">Map index</TableColumnHeader>
+        <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
+        <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
+        <TableColumnHeader w="76px">Map Index</TableColumnHeader>
         <TableColumnHeader>Task ID</TableColumnHeader>
+        <TableColumnHeader w="88px">Created at</TableColumnHeader>
       </Table.Row>
     </Table.Header>
     <Table.Body>
@@ -172,10 +177,7 @@ const HitlTable = ({
             </Table.Cell>
             <Table.Cell px={2} py={1.5}>
               <Text fontSize="xs">
-                <Time
-                  datetime={ti.run_after}
-                  format={getDagRunListDateFormat(ti.run_after)}
-                />
+                <Time datetime={ti.run_after} format={getDagRunListDateFormat(ti.run_after, true, timezone)} />
               </Text>
             </Table.Cell>
             <Table.Cell px={2} py={1.5}>
@@ -183,6 +185,11 @@ const HitlTable = ({
             </Table.Cell>
             <Table.Cell overflow="hidden" px={2} py={1.5}>
               <Text fontSize="xs" truncate>{ti.task_id}</Text>
+            </Table.Cell>
+            <Table.Cell px={2} py={1.5}>
+              <Text fontSize="xs">
+                <Time datetime={detail.created_at} format={getDagRunListDateFormat(detail.created_at ?? "", false, timezone)} />
+              </Text>
             </Table.Cell>
           </Table.Row>
         );
@@ -197,20 +204,22 @@ const DeadlineTable = ({
   onSelect,
   readIds,
   selectedKey,
+  timezone,
 }: {
   readonly deadlines: Array<DeadlineResponse>;
   readonly emptyLabel: string;
   readonly onSelect: (selection: SelectedNotification) => void;
   readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
+  readonly timezone: string;
 }) => (
   <Table.Root size="sm" tableLayout="fixed" width="100%">
     <Table.Header>
       <Table.Row>
-        <TableColumnHeader w="33%">Dag ID</TableColumnHeader>
-        <TableColumnHeader w="17%">Dag Run</TableColumnHeader>
-        <TableColumnHeader w="17%">Deadline</TableColumnHeader>
+        <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
+        <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
         <TableColumnHeader>Alert</TableColumnHeader>
+        <TableColumnHeader w="88px">Deadline</TableColumnHeader>
       </Table.Row>
     </Table.Header>
     <Table.Body>
@@ -239,17 +248,17 @@ const DeadlineTable = ({
                 {runAfter === undefined ? (
                   deadline.dag_run_id
                 ) : (
-                  <Time datetime={runAfter} format={getDagRunListDateFormat(runAfter)} />
+                  <Time datetime={runAfter} format={getDagRunListDateFormat(runAfter, true, timezone)} />
                 )}
-              </Text>
-            </Table.Cell>
-            <Table.Cell px={2} py={1.5}>
-              <Text fontSize="xs">
-                <Time datetime={deadline.deadline_time} format={getDagRunListDateFormat(deadline.deadline_time)} />
               </Text>
             </Table.Cell>
             <Table.Cell overflow="hidden" px={2} py={1.5}>
               <Text fontSize="xs" truncate>{deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}</Text>
+            </Table.Cell>
+            <Table.Cell px={2} py={1.5}>
+              <Text fontSize="xs">
+                <Time datetime={deadline.deadline_time} format={getDagRunListDateFormat(deadline.deadline_time, false, timezone)} />
+              </Text>
             </Table.Cell>
           </Table.Row>
         );
@@ -271,6 +280,7 @@ export const NotificationsList = ({
   selectedKey,
 }: NotificationsListProps) => {
   const queryClient = useQueryClient();
+  const { selectedTimezone } = useTimezone();
   const deadlines = useMemo(
     () => [...(deadlineData?.deadlines ?? [])].sort(compareDeadlineNotifications),
     [deadlineData?.deadlines],
@@ -296,6 +306,7 @@ export const NotificationsList = ({
               queryClient={queryClient}
               readIds={hitlReadIds}
               selectedKey={selectedKey}
+              timezone={selectedTimezone}
             />
           )}
         </NotificationSection>
@@ -313,6 +324,7 @@ export const NotificationsList = ({
               onSelect={onSelect}
               readIds={readIds}
               selectedKey={selectedKey}
+              timezone={selectedTimezone}
             />
           )}
         </NotificationSection>

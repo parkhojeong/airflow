@@ -25,7 +25,7 @@ import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
 import { MetaRow } from "./NotificationCard";
-import { formatNotificationDetailTime, getParsedDagRunMeta } from "./notificationDisplayUtils";
+import { formatNotificationDetailTime } from "./notificationDisplayUtils";
 
 const OPEN_TASK_LABEL = "Open task";
 const LOADING_RESPONSE_LABEL = "Loading response form...";
@@ -57,7 +57,6 @@ export const HITLNotificationCard = ({
   });
 
   const ti = detail.task_instance;
-  const dagRunMeta = getParsedDagRunMeta(ti.dag_run_id, ti.run_after);
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
   const assignees = formatAssignees(detail.assigned_users);
   const requestedTime = formatNotificationDetailTime(detail.created_at, true);
@@ -68,12 +67,7 @@ export const HITLNotificationCard = ({
       <Table.Root size="sm" tableLayout="fixed" width="100%">
         <Table.Body>
           <MetaRow label="Dag ID" value={<Text truncate>{ti.dag_id}</Text>} />
-          <MetaRow
-            label="Dag Run"
-            value={
-              <Text>{formatNotificationDetailTime(dagRunMeta?.runAfter ?? ti.dag_run_id, true) ?? ti.dag_run_id}</Text>
-            }
-          />
+          <MetaRow label="Dag Run ID" value={<Text>{ti.dag_run_id}</Text>} />
           <MetaRow label="Map index" value={<Text>{mappedIndex}</Text>} />
           <MetaRow label="Task ID" value={<Text truncate>{ti.task_id}</Text>} />
           <MetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
