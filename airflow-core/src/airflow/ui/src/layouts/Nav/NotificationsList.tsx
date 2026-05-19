@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { VStack } from "@chakra-ui/react";
+import { Table, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -26,18 +26,11 @@ import type {
   HITLDetail,
   HITLDetailCollection,
 } from "openapi/requests/types.gen";
+import Time from "src/components/Time";
 
+import { NotificationSection, NotificationTypeSection, StatusText } from "./NotificationsListComponents";
 import {
-  DagRunSection,
-  DagSection,
-  DagSections,
-  NotificationRow,
-  NotificationSection,
-  NotificationTypeSection,
-  StatusText,
-} from "./NotificationsListComponents";
-import {
-  getDagRunListCollisionKey,
+  getDagRunListDateFormat,
   getDagRunOrderTimestamp,
   getParsedDagRunMeta,
   getTimestamp,
@@ -73,74 +66,12 @@ type NotificationsListProps = {
   readonly selectedKey?: string;
 };
 
-type DagGroup<T> = {
-  readonly dagDisplayName?: string;
-  readonly dagId: string;
-  readonly items: Array<T>;
-};
-
-type DagRunGroup<T> = {
-  readonly dagRunId: string;
-  readonly fallbackRunAfter?: string;
-  readonly items: Array<T>;
-};
-
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
 
 const compareStrings = (left: string, right: string) => left.localeCompare(right);
 
 const compareDates = (left?: string, right?: string) => getTimestamp(left) - getTimestamp(right);
-
-const groupByDag = <T,>(
-  items: Array<T>,
-  getDagId: (item: T) => string,
-  getDagDisplayName?: (item: T) => string | null | undefined,
-): Array<DagGroup<T>> => {
-  const groups = new Map<string, DagGroup<T>>();
-
-  for (const item of items) {
-    const dagId = getDagId(item);
-    const existing = groups.get(dagId);
-
-    if (existing === undefined) {
-      groups.set(dagId, {
-        dagDisplayName: getDagDisplayName?.(item) ?? undefined,
-        dagId,
-        items: [item],
-      });
-    } else {
-      existing.items.push(item);
-    }
-  }
-
-  return [...groups.values()];
-};
-
-const groupByDagRun = <T,>(
-  items: Array<T>,
-  getDagRunId: (item: T) => string,
-  getFallbackRunAfter?: (item: T) => string | undefined,
-): Array<DagRunGroup<T>> => {
-  const groups = new Map<string, DagRunGroup<T>>();
-
-  for (const item of items) {
-    const dagRunId = getDagRunId(item);
-    const existing = groups.get(dagRunId);
-
-    if (existing === undefined) {
-      groups.set(dagRunId, {
-        dagRunId,
-        fallbackRunAfter: getFallbackRunAfter?.(item),
-        items: [item],
-      });
-    } else {
-      existing.items.push(item);
-    }
-  }
-
-  return [...groups.values()];
-};
 
 const compareHitlNotifications = (left: HITLDetail, right: HITLDetail) =>
   compareStrings(left.task_instance.dag_id, right.task_instance.dag_id) ||
@@ -172,131 +103,156 @@ export const getNotificationsInDisplayOrder = ({
   return [...hitlNotifications, ...deadlineNotifications];
 };
 
-const getDagRunSortDate = (dagRun: DagRunGroup<unknown>) =>
-  getParsedDagRunMeta(dagRun.dagRunId, dagRun.fallbackRunAfter)?.runAfter;
 
-const compareDagGroups = <T,>(left: DagGroup<T>, right: DagGroup<T>) =>
-  compareStrings(left.dagId, right.dagId);
+const TableColumnHeader = ({ children, w }: { readonly children: string; readonly w?: string }) => (
+  <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={w}>
+    {children}
+  </Table.ColumnHeader>
+);
 
-const compareDagRunGroups = <T,>(left: DagRunGroup<T>, right: DagRunGroup<T>) =>
-  compareDates(getDagRunSortDate(left), getDagRunSortDate(right)) ||
-  compareStrings(left.dagRunId, right.dagRunId);
+const HITL_COL_SPAN = 4;
+const DEADLINE_COL_SPAN = 4;
 
-const getHitlTaskLabel = (detail: HITLDetail) => {
-  const taskInstance = detail.task_instance;
-  const mappedIndex =
-    taskInstance.rendered_map_index ?? (taskInstance.map_index >= 0 ? taskInstance.map_index : undefined);
-  const mapSuffix = mappedIndex === undefined ? "" : `[${mappedIndex}]`;
+const EmptyRow = ({ colSpan, label }: { readonly colSpan: number; readonly label: string }) => (
+  <Table.Row>
+    <Table.Cell colSpan={colSpan} px={2} py={3} textAlign="center">
+      <Text color="fg.muted" fontSize="xs">{label}</Text>
+    </Table.Cell>
+  </Table.Row>
+);
 
-  return `${taskInstance.task_id}${mapSuffix}`;
-};
-
-const compareHitlDetails = (left: HITLDetail, right: HITLDetail) =>
-  compareDates(left.created_at, right.created_at) ||
-  compareStrings(getHitlTaskLabel(left), getHitlTaskLabel(right));
-
-const compareDeadlines = (left: DeadlineResponse, right: DeadlineResponse) =>
-  compareDates(left.deadline_time, right.deadline_time) ||
-  compareStrings(left.alert_name ?? UNTITLED_DEADLINE_LABEL, right.alert_name ?? UNTITLED_DEADLINE_LABEL);
-
-const getDagRunCollisionKeys = (dagRunGroups: Array<DagRunGroup<unknown>>) => {
-  const counts = new Map<string, number>();
-
-  for (const dagRunGroup of dagRunGroups) {
-    const collisionKey = getDagRunListCollisionKey(dagRunGroup.dagRunId, dagRunGroup.fallbackRunAfter);
-
-    counts.set(collisionKey, (counts.get(collisionKey) ?? 0) + 1);
-  }
-
-  return new Set([...counts].filter(([, count]) => count > 1).map(([key]) => key));
-};
-
-const HitlDagRunSections = ({
-  group,
+const HitlTable = ({
+  details,
+  emptyLabel,
   onSelect,
   queryClient,
   selectedKey,
 }: {
-  readonly group: DagGroup<HITLDetail>;
+  readonly details: Array<HITLDetail>;
+  readonly emptyLabel: string;
   readonly onSelect: (selection: SelectedNotification) => void;
   readonly queryClient: QueryClient;
   readonly selectedKey?: string;
-}) => {
-  const dagRunGroups = groupByDagRun(
-    group.items,
-    (detail) => detail.task_instance.dag_run_id,
-    (detail) => detail.task_instance.run_after,
-  ).sort(compareDagRunGroups);
-  const collisionKeys = getDagRunCollisionKeys(dagRunGroups);
-
-  return dagRunGroups.map((dagRunGroup, index) => (
-    <DagRunSection
-      dagRunId={dagRunGroup.dagRunId}
-      fallbackRunAfter={dagRunGroup.fallbackRunAfter}
-      key={dagRunGroup.dagRunId}
-      separated={index > 0}
-      showSeconds={collisionKeys.has(
-        getDagRunListCollisionKey(dagRunGroup.dagRunId, dagRunGroup.fallbackRunAfter),
-      )}
-    >
-      {dagRunGroup.items.map((detail) => {
+}) => (
+  <Table.Root size="sm" tableLayout="fixed" width="100%">
+    <Table.Header>
+      <Table.Row>
+        <TableColumnHeader w="33%">Dag ID</TableColumnHeader>
+        <TableColumnHeader w="17%">Dag Run</TableColumnHeader>
+        <TableColumnHeader w="17%">Map index</TableColumnHeader>
+        <TableColumnHeader>Task ID</TableColumnHeader>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {details.length === 0 ? (
+        <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
+      ) : details.map((detail) => {
         const key = getNotificationKey({ item: detail, type: "hitl" });
+        const selected = selectedKey === key;
+        const ti = detail.task_instance;
+        const mappedIndex =
+          ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
 
         return (
-          <NotificationRow
-            datetime={detail.created_at}
+          <Table.Row
+            _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
+            aria-pressed={selected}
+            bg={selected ? "bg.muted" : undefined}
+            cursor="pointer"
             key={key}
-            label={getHitlTaskLabel(detail)}
-            onPrefetch={() => prefetchHitlDetail(queryClient, detail)}
-            onSelect={() => onSelect({ item: detail, type: "hitl" })}
-            selected={selectedKey === key}
-          />
+            onClick={() => onSelect({ item: detail, type: "hitl" })}
+            onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
+          >
+            <Table.Cell overflow="hidden" px={2} py={1.5}>
+              <Text fontSize="xs" truncate>{ti.dag_id}</Text>
+            </Table.Cell>
+            <Table.Cell px={2} py={1.5}>
+              <Text fontSize="xs">
+                <Time
+                  datetime={ti.run_after}
+                  format={getDagRunListDateFormat(ti.run_after)}
+                />
+              </Text>
+            </Table.Cell>
+            <Table.Cell px={2} py={1.5}>
+              <Text color="fg.muted" fontSize="xs">{mappedIndex}</Text>
+            </Table.Cell>
+            <Table.Cell overflow="hidden" px={2} py={1.5}>
+              <Text fontSize="xs" truncate>{ti.task_id}</Text>
+            </Table.Cell>
+          </Table.Row>
         );
       })}
-    </DagRunSection>
-  ));
-};
+    </Table.Body>
+  </Table.Root>
+);
 
-const DeadlineDagRunSections = ({
-  group,
+const DeadlineTable = ({
+  deadlines,
+  emptyLabel,
   onSelect,
   readIds,
   selectedKey,
 }: {
-  readonly group: DagGroup<DeadlineResponse>;
+  readonly deadlines: Array<DeadlineResponse>;
+  readonly emptyLabel: string;
   readonly onSelect: (selection: SelectedNotification) => void;
   readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
-}) => {
-  const dagRunGroups = groupByDagRun(group.items, (deadline) => deadline.dag_run_id).sort(
-    compareDagRunGroups,
-  );
-  const collisionKeys = getDagRunCollisionKeys(dagRunGroups);
-
-  return dagRunGroups.map((dagRunGroup, index) => (
-    <DagRunSection
-      dagRunId={dagRunGroup.dagRunId}
-      key={dagRunGroup.dagRunId}
-      separated={index > 0}
-      showSeconds={collisionKeys.has(getDagRunListCollisionKey(dagRunGroup.dagRunId))}
-    >
-      {dagRunGroup.items.map((deadline) => {
+}) => (
+  <Table.Root size="sm" tableLayout="fixed" width="100%">
+    <Table.Header>
+      <Table.Row>
+        <TableColumnHeader w="33%">Dag ID</TableColumnHeader>
+        <TableColumnHeader w="17%">Dag Run</TableColumnHeader>
+        <TableColumnHeader w="17%">Deadline</TableColumnHeader>
+        <TableColumnHeader>Alert</TableColumnHeader>
+      </Table.Row>
+    </Table.Header>
+    <Table.Body>
+      {deadlines.length === 0 ? (
+        <EmptyRow colSpan={DEADLINE_COL_SPAN} label={emptyLabel} />
+      ) : deadlines.map((deadline) => {
         const key = getNotificationKey({ item: deadline, type: "deadline" });
+        const selected = selectedKey === key;
+        const runAfter = getParsedDagRunMeta(deadline.dag_run_id)?.runAfter;
 
         return (
-          <NotificationRow
-            datetime={deadline.deadline_time}
-            isRead={readIds.has(deadline.id)}
+          <Table.Row
+            _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
+            aria-pressed={selected}
+            bg={selected ? "bg.muted" : undefined}
+            cursor="pointer"
             key={key}
-            label={deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}
-            onSelect={() => onSelect({ item: deadline, type: "deadline" })}
-            selected={selectedKey === key}
-          />
+            onClick={() => onSelect({ item: deadline, type: "deadline" })}
+            opacity={readIds.has(deadline.id) && !selected ? 0.5 : 1}
+          >
+            <Table.Cell overflow="hidden" px={2} py={1.5}>
+              <Text fontSize="xs" truncate>{deadline.dag_id}</Text>
+            </Table.Cell>
+            <Table.Cell px={2} py={1.5}>
+              <Text fontSize="xs">
+                {runAfter === undefined ? (
+                  deadline.dag_run_id
+                ) : (
+                  <Time datetime={runAfter} format={getDagRunListDateFormat(runAfter)} />
+                )}
+              </Text>
+            </Table.Cell>
+            <Table.Cell px={2} py={1.5}>
+              <Text fontSize="xs">
+                <Time datetime={deadline.deadline_time} format={getDagRunListDateFormat(deadline.deadline_time)} />
+              </Text>
+            </Table.Cell>
+            <Table.Cell overflow="hidden" px={2} py={1.5}>
+              <Text fontSize="xs" truncate>{deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}</Text>
+            </Table.Cell>
+          </Table.Row>
         );
       })}
-    </DagRunSection>
-  ));
-};
+    </Table.Body>
+  </Table.Root>
+);
 
 export const NotificationsList = ({
   deadlineData,
@@ -310,82 +266,50 @@ export const NotificationsList = ({
   selectedKey,
 }: NotificationsListProps) => {
   const queryClient = useQueryClient();
-  const deadlines = useMemo(() => deadlineData?.deadlines ?? [], [deadlineData?.deadlines]);
-  const hitlDetails = useMemo(() => hitlData?.hitl_details ?? [], [hitlData?.hitl_details]);
-
-  const hitlGroups = useMemo(
-    () =>
-      groupByDag(hitlDetails, (detail) => detail.task_instance.dag_id)
-        .map((group) => ({
-          ...group,
-          items: [...group.items].sort(compareHitlDetails),
-        }))
-        .sort(compareDagGroups),
-    [hitlDetails],
+  const deadlines = useMemo(
+    () => [...(deadlineData?.deadlines ?? [])].sort(compareDeadlineNotifications),
+    [deadlineData?.deadlines],
   );
-  const deadlineGroups = useMemo(
-    () =>
-      groupByDag(deadlines, (deadline) => deadline.dag_id)
-        .map((group) => ({
-          ...group,
-          items: [...group.items].sort(compareDeadlines),
-        }))
-        .sort(compareDagGroups),
-    [deadlines],
+  const hitlDetails = useMemo(
+    () => [...(hitlData?.hitl_details ?? [])].sort(compareHitlNotifications),
+    [hitlData?.hitl_details],
   );
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
       <NotificationTypeSection heading={getSectionLabel(PENDING_HITL_LABEL, hitlDetails.length)}>
-        {hitlIsLoading ? (
-          <NotificationSection>
+        <NotificationSection>
+          {hitlIsLoading ? (
             <StatusText>{LOADING_HITL_LABEL}</StatusText>
-          </NotificationSection>
-        ) : hitlIsError ? (
-          <NotificationSection>
+          ) : hitlIsError ? (
             <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
-          </NotificationSection>
-        ) : hitlDetails.length > 0 ? (
-          <DagSections>
-            {hitlGroups.map((group) => (
-              <DagSection dagId={group.dagId} key={group.dagId}>
-                <HitlDagRunSections
-                  group={group}
-                  onSelect={onSelect}
-                  queryClient={queryClient}
-                  selectedKey={selectedKey}
-                />
-              </DagSection>
-            ))}
-          </DagSections>
-        ) : (
-          <NotificationSection>
-            <StatusText>{NO_REQUIRED_ACTIONS_LABEL}</StatusText>
-          </NotificationSection>
-        )}
+          ) : (
+            <HitlTable
+              details={hitlDetails}
+              emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
+              onSelect={onSelect}
+              queryClient={queryClient}
+              selectedKey={selectedKey}
+            />
+          )}
+        </NotificationSection>
       </NotificationTypeSection>
       <NotificationTypeSection heading={getSectionLabel(MISSED_DEADLINES_LABEL, deadlines.length)}>
-        {deadlineIsLoading ? (
-          <NotificationSection>
+        <NotificationSection>
+          {deadlineIsLoading ? (
             <StatusText>{LOADING_DEADLINES_LABEL}</StatusText>
-          </NotificationSection>
-        ) : deadlineIsError ? (
-          <NotificationSection>
+          ) : deadlineIsError ? (
             <StatusText tone="error">{LOAD_DEADLINES_ERROR_LABEL}</StatusText>
-          </NotificationSection>
-        ) : deadlines.length > 0 ? (
-          <DagSections>
-            {deadlineGroups.map((group) => (
-              <DagSection dagId={group.dagId} key={group.dagId}>
-                <DeadlineDagRunSections group={group} onSelect={onSelect} readIds={readIds} selectedKey={selectedKey} />
-              </DagSection>
-            ))}
-          </DagSections>
-        ) : (
-          <NotificationSection>
-            <StatusText>{NO_MISSED_DEADLINES_LABEL}</StatusText>
-          </NotificationSection>
-        )}
+          ) : (
+            <DeadlineTable
+              deadlines={deadlines}
+              emptyLabel={NO_MISSED_DEADLINES_LABEL}
+              onSelect={onSelect}
+              readIds={readIds}
+              selectedKey={selectedKey}
+            />
+          )}
+        </NotificationSection>
       </NotificationTypeSection>
     </VStack>
   );

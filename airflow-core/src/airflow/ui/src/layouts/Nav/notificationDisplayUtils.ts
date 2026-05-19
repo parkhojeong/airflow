@@ -107,7 +107,7 @@ export const formatNotificationTime = (datetime?: string) => {
   return date.isSame(dayjs(), "day") ? date.format("h:mm A") : date.format("MMM DD");
 };
 
-export const formatNotificationDetailTime = (datetime?: string) => {
+export const formatNotificationDetailTime = (datetime?: string, showSeconds = false) => {
   if (datetime === undefined) {
     return undefined;
   }
@@ -118,7 +118,9 @@ export const formatNotificationDetailTime = (datetime?: string) => {
     return undefined;
   }
 
-  const timestamp = date.isSame(dayjs(), "day") ? date.format("h:mm A") : date.format("ddd, MMM D, h:mm A");
+  const timeFormat = showSeconds ? "h:mm:ss A" : "h:mm A";
+  const dateTimeFormat = showSeconds ? `ddd, MMM D, h:mm:ss A` : "ddd, MMM D, h:mm A";
+  const timestamp = date.isSame(dayjs(), "day") ? date.format(timeFormat) : date.format(dateTimeFormat);
   const relative = getRelativeTime(datetime);
 
   return relative === "" ? timestamp : `${timestamp} (${relative})`;

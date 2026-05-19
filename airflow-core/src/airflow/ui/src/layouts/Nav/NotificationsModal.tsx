@@ -388,7 +388,7 @@ export const NotificationsModal = ({
               position="relative"
               pr={{ base: 2, lg: 8 }}
               py={2}
-              width={{ base: "100%", lg: "600px", xl: "640px" }}
+              width={{ base: "100%", lg: "770px", xl: "836px" }}
               zIndex={2}
             >
               <NotificationsList
