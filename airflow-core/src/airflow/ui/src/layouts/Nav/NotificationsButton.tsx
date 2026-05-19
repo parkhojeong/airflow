@@ -31,6 +31,7 @@ import { useAutoRefresh } from "src/utils";
 import { NavButton } from "./NavButton";
 import { NotificationsModal } from "./NotificationsModal";
 import { useReadDeadlines } from "./useReadDeadlines";
+import { useReadHitl } from "./useReadHitl";
 
 const MAX_BADGE_COUNT = 99;
 const NOTIFICATION_LIMIT = 10;
@@ -40,6 +41,7 @@ export const NotificationsButton = () => {
   const { onClose, onOpen, open } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
   const { markAsRead, readIds } = useReadDeadlines();
+  const { markAsRead: markHitlAsRead, readIds: hitlReadIds } = useReadHitl();
   const queryClient = useQueryClient();
 
   const handleMouseEnter = () => {
@@ -166,8 +168,10 @@ export const NotificationsButton = () => {
         hitlData={hitlData}
         hitlIsError={isHitlError}
         hitlIsLoading={modalHitlIsLoading}
+        hitlReadIds={hitlReadIds}
         onClose={onClose}
         onDeadlineRead={markAsRead}
+        onHitlRead={markHitlAsRead}
         open={open}
         readIds={readIds}
       />

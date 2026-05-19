@@ -47,8 +47,10 @@ type NotificationsModalProps = {
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
+  readonly hitlReadIds: ReadonlySet<string>;
   readonly onClose: () => void;
   readonly onDeadlineRead: (id: string) => void;
+  readonly onHitlRead: (id: string) => void;
   readonly open: boolean;
   readonly readIds: ReadonlySet<string>;
 };
@@ -253,8 +255,10 @@ export const NotificationsModal = ({
   hitlData,
   hitlIsError,
   hitlIsLoading,
+  hitlReadIds,
   onClose,
   onDeadlineRead,
+  onHitlRead,
   open,
   readIds,
 }: NotificationsModalProps) => {
@@ -345,8 +349,10 @@ export const NotificationsModal = ({
   useEffect(() => {
     if (selected?.type === "deadline") {
       onDeadlineRead(selected.item.id);
+    } else if (selected?.type === "hitl") {
+      onHitlRead(selected.item.task_instance.id);
     }
-  }, [onDeadlineRead, selected]);
+  }, [onDeadlineRead, onHitlRead, selected]);
 
   const handleSelect = useCallback((next: SelectedNotification) => {
     setSelected((current) => {
@@ -408,6 +414,7 @@ export const NotificationsModal = ({
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
                 hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
+                hitlReadIds={hitlReadIds}
                 onSelect={handleSelect}
                 readIds={readIds}
                 selectedKey={selectedNotificationKey}
