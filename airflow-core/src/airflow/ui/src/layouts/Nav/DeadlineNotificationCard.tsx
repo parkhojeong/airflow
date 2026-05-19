@@ -16,23 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Heading, HStack, Text, VStack } from "@chakra-ui/react";
+import { Button, HStack, Separator, Text, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 import type { DeadlineResponse } from "openapi/requests/types.gen";
-import { RouterLink } from "src/components/ui";
+import Time from "src/components/Time";
 
-import { formatNotificationDetailTime } from "./NotificationsList";
+import {
+  DAG_RUN_META_DATE_FORMAT,
+  formatNotificationDetailTime,
+  getParsedDagRunMeta,
+} from "./NotificationsList";
 
-const DAG_LABEL = "Dag:";
-const DAG_RUN_LABEL = "DagRun:";
 const MISSED_DEADLINE_LABEL = "Missed deadline";
-const MISSED_LABEL = "Missed:";
-const TYPE_LABEL = "Missed deadline";
+const ALERT_LABEL = "Alert";
+const MISSED_LABEL = "Missed";
+const OPEN_DAG_RUN_LABEL = "Open Dag run";
 
 const MetaLine = ({ label, value }: { readonly label: string; readonly value: ReactNode }) => (
-  <HStack color="fg.muted" fontSize="sm" gap={2} minW={0}>
-    <Text color="fg.muted" flexShrink={0}>
+  <HStack alignItems="baseline" color="fg.muted" fontSize="sm" gap={3} minW={0}>
+    <Text color="fg.subtle" flexShrink={0} minW="72px">
       {label}
     </Text>
     <HStack flex={1} gap={1} minW={0}>
@@ -49,44 +53,41 @@ export const DeadlineNotificationCard = ({
   readonly onNavigate?: () => void;
 }) => {
   const title = deadline.alert_name ?? MISSED_DEADLINE_LABEL;
+  const dagRunMeta = getParsedDagRunMeta(deadline.dag_run_id);
+  const dagRunLink = `/dags/${deadline.dag_id}/runs/${deadline.dag_run_id}`;
   const missed = formatNotificationDetailTime(deadline.deadline_time);
 
   return (
-    <VStack alignItems="stretch" gap={3} width="100%">
-      <VStack alignItems="stretch" gap={1} width="100%">
-        <Text
-          color="fg.muted"
-          fontSize="xs"
-          fontWeight="semibold"
-          letterSpacing="wide"
-          textTransform="uppercase"
-        >
-          {TYPE_LABEL}
-        </Text>
-        <Heading size="md">{title}</Heading>
-      </VStack>
-      <VStack alignItems="stretch" gap={1} width="100%">
-        <MetaLine
-          label={DAG_LABEL}
-          value={
-            <RouterLink fontSize="sm" onClick={onNavigate} to={`/dags/${deadline.dag_id}`} truncate>
-              {deadline.dag_id}
-            </RouterLink>
-          }
-        />
-        <MetaLine
-          label={DAG_RUN_LABEL}
-          value={
-            <RouterLink
-              fontSize="sm"
-              onClick={onNavigate}
-              to={`/dags/${deadline.dag_id}/runs/${deadline.dag_run_id}`}
-              truncate
-            >
-              {deadline.dag_run_id}
-            </RouterLink>
-          }
-        />
+    <VStack alignItems="stretch" gap={4} width="100%">
+      <HStack alignItems="flex-start" gap={3} justifyContent="space-between" width="100%">
+        <VStack alignItems="stretch" flex={1} gap={1.5} minW={0}>
+          <Text fontSize="xl" fontWeight="semibold" lineHeight="short" truncate>
+            {deadline.dag_id}
+          </Text>
+          <HStack color="fg.muted" fontSize="md" fontWeight="medium" gap={1} lineHeight="short" minW={0}>
+            {dagRunMeta?.runAfter === undefined ? (
+              <Text truncate>{deadline.dag_run_id}</Text>
+            ) : (
+              <>
+                <Text flexShrink={0}>{dagRunMeta.runType}</Text>
+                <Text flexShrink={0}>·</Text>
+                <Time datetime={dagRunMeta.runAfter} format={DAG_RUN_META_DATE_FORMAT} />
+              </>
+            )}
+          </HStack>
+          <Text color="fg.muted" fontSize="md" lineHeight="short" truncate>
+            {title}
+          </Text>
+        </VStack>
+        <Button asChild flexShrink={0} size="sm" variant="outline">
+          <Link onClick={onNavigate} to={dagRunLink}>
+            {OPEN_DAG_RUN_LABEL}
+          </Link>
+        </Button>
+      </HStack>
+      <Separator />
+      <VStack alignItems="stretch" gap={1.5} width="100%">
+        <MetaLine label={ALERT_LABEL} value={<Text truncate>{title}</Text>} />
         <MetaLine label={MISSED_LABEL} value={<Text>{missed ?? "-"}</Text>} />
       </VStack>
     </VStack>

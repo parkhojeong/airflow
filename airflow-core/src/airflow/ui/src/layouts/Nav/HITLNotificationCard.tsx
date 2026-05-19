@@ -16,28 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, HStack, Separator, Skeleton, Text, VStack } from "@chakra-ui/react";
+import { Button, HStack, Separator, Skeleton, Text, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { RouterLink } from "src/components/ui";
+import Time from "src/components/Time";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
-import { formatNotificationDetailTime } from "./NotificationsList";
+import {
+  DAG_RUN_META_DATE_FORMAT,
+  formatNotificationDetailTime,
+  getParsedDagRunMeta,
+} from "./NotificationsList";
 
-const ASSIGNEE_LABEL = "Assignee:";
-const ATTEMPT_LABEL = "Attempt:";
-const DAG_LABEL = "Dag:";
-const DAG_RUN_LABEL = "DagRun:";
-const MAP_LABEL = "Map:";
-const REQUESTED_LABEL = "Requested:";
-const TASK_LABEL = "Task:";
+const ASSIGNEE_LABEL = "Assignee";
+const ATTEMPT_LABEL = "Attempt";
+const MAP_LABEL = "Map";
+const OPEN_TASK_LABEL = "Open task";
+const REQUESTED_LABEL = "Requested";
+const RESPONSE_LABEL = "Response";
 const LOADING_RESPONSE_LABEL = "Loading response form...";
 
 const formatTaskId = (taskInstance: HITLDetail["task_instance"]) => {
-  const mapSuffix = taskInstance.map_index >= 0 ? `[${taskInstance.map_index}]` : "";
+  const mappedIndex =
+    taskInstance.rendered_map_index ?? (taskInstance.map_index >= 0 ? taskInstance.map_index : undefined);
+  const mapSuffix = mappedIndex === undefined ? "" : `[${mappedIndex}]`;
 
   return `${taskInstance.task_id}${mapSuffix}`;
 };
@@ -54,8 +60,8 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
 };
 
 const MetaLine = ({ label, value }: { readonly label: string; readonly value: ReactNode }) => (
-  <HStack color="fg.muted" fontSize="sm" gap={2} minW={0}>
-    <Text color="fg.muted" flexShrink={0}>
+  <HStack alignItems="baseline" color="fg.muted" fontSize="sm" gap={3} minW={0}>
+    <Text color="fg.subtle" flexShrink={0} minW="72px">
       {label}
     </Text>
     <HStack flex={1} gap={1} minW={0}>
@@ -74,6 +80,7 @@ export const HITLNotificationCard = ({
   readonly onResponded?: () => void;
 }) => {
   const assignees = formatAssignees(detail.assigned_users);
+  const taskId = formatTaskId(detail.task_instance);
   const { data: hitlDetail, isLoading } = useTaskInstanceServiceGetHitlDetailTryDetail({
     dagId: detail.task_instance.dag_id,
     dagRunId: detail.task_instance.dag_run_id,
@@ -83,76 +90,44 @@ export const HITLNotificationCard = ({
   });
 
   const dagName = formatDisplayName(detail.task_instance.dag_display_name, detail.task_instance.dag_id);
-  const taskName = formatDisplayName(
-    detail.task_instance.task_display_name,
-    formatTaskId(detail.task_instance),
-  );
+  const taskLink = `${getTaskInstanceLink(detail.task_instance)}/required_actions`;
+  const taskName = taskId;
   const mappedIndex =
     detail.task_instance.rendered_map_index ??
     (detail.task_instance.map_index >= 0 ? detail.task_instance.map_index : undefined);
+  const dagRunMeta = getParsedDagRunMeta(detail.task_instance.dag_run_id, detail.task_instance.run_after);
   const requestedTime = formatNotificationDetailTime(detail.created_at);
 
   return (
-    <VStack alignItems="stretch" gap={3} width="100%">
-      {isLoading || hitlDetail === undefined ? (
-        <VStack alignItems="stretch" gap={2}>
-          <Text color="fg.muted" fontSize="sm">
-            {LOADING_RESPONSE_LABEL}
+    <VStack alignItems="stretch" gap={4} width="100%">
+      <HStack alignItems="flex-start" gap={3} justifyContent="space-between" width="100%">
+        <VStack alignItems="stretch" flex={1} gap={1.5} minW={0}>
+          <Text fontSize="xl" fontWeight="semibold" lineHeight="short" truncate>
+            {dagName}
           </Text>
-          <Skeleton height="80px" />
+          <HStack color="fg.muted" fontSize="md" fontWeight="medium" gap={1} lineHeight="short" minW={0}>
+            {dagRunMeta?.runAfter === undefined ? (
+              <Text truncate>{detail.task_instance.dag_run_id}</Text>
+            ) : (
+              <>
+                <Text flexShrink={0}>{dagRunMeta.runType}</Text>
+                <Text flexShrink={0}>·</Text>
+                <Time datetime={dagRunMeta.runAfter} format={DAG_RUN_META_DATE_FORMAT} />
+              </>
+            )}
+          </HStack>
+          <Text color="fg.muted" fontSize="md" lineHeight="short" truncate>
+            {taskName}
+          </Text>
         </VStack>
-      ) : (
-        <Box mt={-4}>
-          <HITLResponseForm
-            hitlDetail={hitlDetail}
-            namespace={`hitl:${detail.task_instance.id}`}
-            onResponded={onResponded}
-          />
-        </Box>
-      )}
+        <Button asChild flexShrink={0} size="sm" variant="outline">
+          <Link onClick={onNavigate} to={taskLink}>
+            {OPEN_TASK_LABEL}
+          </Link>
+        </Button>
+      </HStack>
 
-      <Separator />
-
-      <VStack alignItems="stretch" gap={1} width="100%">
-        <MetaLine
-          label={DAG_LABEL}
-          value={
-            <RouterLink
-              fontSize="sm"
-              onClick={onNavigate}
-              to={`/dags/${detail.task_instance.dag_id}`}
-              truncate
-            >
-              {dagName}
-            </RouterLink>
-          }
-        />
-        <MetaLine
-          label={DAG_RUN_LABEL}
-          value={
-            <RouterLink
-              fontSize="sm"
-              onClick={onNavigate}
-              to={`/dags/${detail.task_instance.dag_id}/runs/${detail.task_instance.dag_run_id}`}
-              truncate
-            >
-              {detail.task_instance.dag_run_id}
-            </RouterLink>
-          }
-        />
-        <MetaLine
-          label={TASK_LABEL}
-          value={
-            <RouterLink
-              fontSize="sm"
-              onClick={onNavigate}
-              to={`${getTaskInstanceLink(detail.task_instance)}/required_actions`}
-              truncate
-            >
-              {taskName}
-            </RouterLink>
-          }
-        />
+      <VStack alignItems="stretch" gap={1.5} width="100%">
         {assignees === undefined ? undefined : (
           <MetaLine label={ASSIGNEE_LABEL} value={<Text truncate>{assignees}</Text>} />
         )}
@@ -160,10 +135,29 @@ export const HITLNotificationCard = ({
         {mappedIndex === undefined ? undefined : (
           <MetaLine label={MAP_LABEL} value={<Text>{mappedIndex}</Text>} />
         )}
-        <MetaLine
-          label={REQUESTED_LABEL}
-          value={requestedTime === undefined ? undefined : <Text>{requestedTime}</Text>}
-        />
+        <MetaLine label={REQUESTED_LABEL} value={<Text truncate>{requestedTime ?? "-"}</Text>} />
+      </VStack>
+
+      <Separator />
+
+      <VStack alignItems="stretch" gap={3} width="100%">
+        <Text color="fg.muted" fontSize="sm" fontWeight="semibold">
+          {RESPONSE_LABEL}
+        </Text>
+        {isLoading || hitlDetail === undefined ? (
+          <VStack alignItems="stretch" gap={2}>
+            <Text color="fg.muted" fontSize="sm">
+              {LOADING_RESPONSE_LABEL}
+            </Text>
+            <Skeleton height="80px" />
+          </VStack>
+        ) : (
+          <HITLResponseForm
+            hitlDetail={hitlDetail}
+            namespace={`hitl:${detail.task_instance.id}`}
+            onResponded={onResponded}
+          />
+        )}
       </VStack>
     </VStack>
   );

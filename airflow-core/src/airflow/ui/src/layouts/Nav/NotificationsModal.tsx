@@ -329,7 +329,7 @@ export const NotificationsModal = ({
             <Box
               flexShrink={0}
               height="100%"
-              overflowX="visible"
+              overflowX="hidden"
               overflowY="auto"
               pl={2}
               position="relative"
