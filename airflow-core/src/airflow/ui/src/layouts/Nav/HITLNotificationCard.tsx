@@ -30,7 +30,7 @@ import {
   DAG_RUN_META_DATE_FORMAT,
   formatNotificationDetailTime,
   getParsedDagRunMeta,
-} from "./NotificationsList";
+} from "./notificationDisplayUtils";
 
 const ASSIGNEE_LABEL = "Assignee";
 const ATTEMPT_LABEL = "Attempt";

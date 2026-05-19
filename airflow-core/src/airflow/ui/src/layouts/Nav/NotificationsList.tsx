@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, HStack, Text, VStack } from "@chakra-ui/react";
-import dayjs from "dayjs";
+import { VStack } from "@chakra-ui/react";
 import { useMemo } from "react";
 
 import type {
@@ -26,10 +25,17 @@ import type {
   HITLDetail,
   HITLDetailCollection,
 } from "openapi/requests/types.gen";
-import Time from "src/components/Time";
-import { getRelativeTime } from "src/utils/datetimeUtils";
 
-import { NotificationSectionHeading } from "./NotificationCard";
+import {
+  DagRunSection,
+  DagSection,
+  DagSections,
+  NotificationRow,
+  NotificationSection,
+  NotificationTypeSection,
+  StatusText,
+} from "./NotificationsListComponents";
+import { getDagRunOrderTimestamp, getParsedDagRunMeta, getTimestamp } from "./notificationDisplayUtils";
 
 const MISSED_DEADLINES_LABEL = "Missed deadlines";
 const LOAD_DEADLINES_ERROR_LABEL = "Unable to load deadline alerts";
@@ -40,17 +46,6 @@ const NO_MISSED_DEADLINES_LABEL = "No missed deadlines";
 const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
 const PENDING_HITL_LABEL = "Pending HITL";
 const UNTITLED_DEADLINE_LABEL = "Missed deadline";
-
-export const DAG_RUN_META_DATE_FORMAT = "MMM D, h:mm:ss A";
-
-const DAG_RUN_TYPES = new Set([
-  "asset_materialization",
-  "asset_triggered",
-  "backfill",
-  "manual",
-  "operator_triggered",
-  "scheduled",
-]);
 
 export type SelectedNotification =
   | { readonly item: DeadlineResponse; readonly type: "deadline" }
@@ -84,12 +79,6 @@ type DagRunGroup<T> = {
 
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
-
-const getTimestamp = (datetime?: string) => {
-  const date = dayjs(datetime);
-
-  return date.isValid() ? date.valueOf() : 0;
-};
 
 const compareStrings = (left: string, right: string) => left.localeCompare(right);
 
@@ -145,20 +134,6 @@ const groupByDagRun = <T,>(
   return [...groups.values()];
 };
 
-const getDagRunOrderTimestamp = (dagRunId: string, fallbackRunAfter?: string) => {
-  const [runType, runAfterWithSuffix] = dagRunId.split("__");
-
-  if (runType === undefined || runAfterWithSuffix === undefined || !DAG_RUN_TYPES.has(runType)) {
-    return getTimestamp(fallbackRunAfter);
-  }
-
-  const runAfter = dayjs(runAfterWithSuffix).isValid()
-    ? runAfterWithSuffix
-    : runAfterWithSuffix.replace(/_[^_]+$/u, "");
-
-  return getTimestamp(dayjs(runAfter).isValid() ? runAfter : fallbackRunAfter);
-};
-
 const compareHitlNotifications = (left: HITLDetail, right: HITLDetail) =>
   compareStrings(left.task_instance.dag_id, right.task_instance.dag_id) ||
   getDagRunOrderTimestamp(left.task_instance.dag_run_id, left.task_instance.run_after) -
@@ -189,63 +164,6 @@ export const getNotificationsInDisplayOrder = ({
   return [...hitlNotifications, ...deadlineNotifications];
 };
 
-export const formatNotificationTime = (datetime?: string) => {
-  if (datetime === undefined) {
-    return undefined;
-  }
-
-  const date = dayjs(datetime);
-
-  if (!date.isValid()) {
-    return undefined;
-  }
-
-  return date.isSame(dayjs(), "day") ? date.format("h:mm A") : date.format("MMM DD");
-};
-
-export const formatNotificationDetailTime = (datetime?: string) => {
-  if (datetime === undefined) {
-    return undefined;
-  }
-
-  const date = dayjs(datetime);
-
-  if (!date.isValid()) {
-    return undefined;
-  }
-
-  const timestamp = date.isSame(dayjs(), "day") ? date.format("h:mm A") : date.format("ddd, MMM D, h:mm A");
-  const relative = getRelativeTime(datetime);
-
-  return relative === "" ? timestamp : `${timestamp} (${relative})`;
-};
-
-export const getParsedDagRunMeta = (dagRunId: string, fallbackRunAfter?: string) => {
-  const [runType, runAfterWithSuffix] = dagRunId.split("__");
-
-  if (runType === undefined || runAfterWithSuffix === undefined) {
-    return undefined;
-  }
-
-  if (!DAG_RUN_TYPES.has(runType)) {
-    return undefined;
-  }
-
-  const runAfter = dayjs(runAfterWithSuffix).isValid()
-    ? runAfterWithSuffix
-    : runAfterWithSuffix.replace(/_[^_]+$/u, "");
-
-  return dayjs(runAfter).isValid()
-    ? {
-        runAfter,
-        runType,
-      }
-    : {
-        runAfter: fallbackRunAfter,
-        runType,
-      };
-};
-
 const getDagRunSortDate = (dagRun: DagRunGroup<unknown>) =>
   getParsedDagRunMeta(dagRun.dagRunId, dagRun.fallbackRunAfter)?.runAfter;
 
@@ -255,185 +173,6 @@ const compareDagGroups = <T,>(left: DagGroup<T>, right: DagGroup<T>) =>
 const compareDagRunGroups = <T,>(left: DagRunGroup<T>, right: DagRunGroup<T>) =>
   compareDates(getDagRunSortDate(left), getDagRunSortDate(right)) ||
   compareStrings(left.dagRunId, right.dagRunId);
-
-const NotificationRow = ({
-  datetime,
-  label,
-  onSelect,
-  selected,
-}: {
-  readonly datetime?: string;
-  readonly label: string;
-  readonly onSelect: () => void;
-  readonly selected: boolean;
-}) => {
-  const formattedTime = formatNotificationTime(datetime);
-
-  return (
-    <Box
-      _after={
-        selected
-          ? {
-              bg: "border.emphasized",
-              content: '""',
-              height: "1px",
-              left: "100%",
-              pointerEvents: "none",
-              position: "absolute",
-              top: "50%",
-              width: 16,
-              zIndex: 1,
-            }
-          : undefined
-      }
-      _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-      aria-pressed={selected}
-      as="button"
-      bg={selected ? "bg.muted" : undefined}
-      borderRadius="sm"
-      cursor="pointer"
-      onClick={onSelect}
-      position="relative"
-      px={2}
-      py={1}
-      textAlign="left"
-      width="100%"
-      zIndex={selected ? 2 : undefined}
-    >
-      <HStack gap={2} minW={0} width="100%">
-        <VStack alignItems="stretch" flex={1} gap={0} minW={0}>
-          <Text
-            color={selected ? "fg" : "fg.muted"}
-            fontSize="xs"
-            fontWeight={selected ? "semibold" : "normal"}
-            minW={0}
-            truncate
-          >
-            • {label}
-          </Text>
-        </VStack>
-        {formattedTime === undefined ? undefined : (
-          <Text color="fg.subtle" flexShrink={0} fontSize="xs">
-            {formattedTime}
-          </Text>
-        )}
-      </HStack>
-    </Box>
-  );
-};
-
-const DagRunSection = ({
-  children,
-  dagRunId,
-  fallbackRunAfter,
-}: {
-  readonly children: React.ReactNode;
-  readonly dagRunId: string;
-  readonly fallbackRunAfter?: string;
-}) => {
-  const dagRunMeta = getParsedDagRunMeta(dagRunId, fallbackRunAfter);
-
-  return (
-    <VStack alignItems="stretch" gap={0.5} minW={0} width="100%">
-      <HStack color="fg.subtle" fontSize="xs" gap={1} minW={0}>
-        {dagRunMeta?.runAfter === undefined ? (
-          <Text truncate>{dagRunId}</Text>
-        ) : (
-          <>
-            <Text flexShrink={0}>{dagRunMeta.runType}</Text>
-            <Text flexShrink={0}>·</Text>
-            <Time datetime={dagRunMeta.runAfter} format={DAG_RUN_META_DATE_FORMAT} />
-          </>
-        )}
-      </HStack>
-      <VStack alignItems="stretch" gap={0.5} width="100%">
-        {children}
-      </VStack>
-    </VStack>
-  );
-};
-
-const DagSection = ({ children, dagId }: { readonly children: React.ReactNode; readonly dagId: string }) => (
-  <VStack
-    alignItems="stretch"
-    bg="bg"
-    borderColor="border"
-    borderRadius="md"
-    borderWidth={1}
-    gap={2}
-    minW={0}
-    py={2}
-    width="100%"
-  >
-    <Text
-      borderBottomColor="border"
-      borderBottomWidth={1}
-      color="fg.muted"
-      fontSize="xs"
-      fontWeight="semibold"
-      pb={2}
-      px={3}
-      truncate
-    >
-      {dagId}
-    </Text>
-    <VStack alignItems="stretch" gap={2} minW={0} px={3} width="100%">
-      {children}
-    </VStack>
-  </VStack>
-);
-
-const StatusText = ({
-  children,
-  tone = "muted",
-}: {
-  readonly children: string;
-  readonly tone?: "error" | "muted";
-}) => (
-  <Text color={tone === "error" ? "fg.error" : "fg.muted"} fontSize="sm" px={3}>
-    {children}
-  </Text>
-);
-
-const NotificationSection = ({ children }: { readonly children: React.ReactNode }) => (
-  <VStack
-    alignItems="stretch"
-    bg="bg"
-    borderColor="border"
-    borderRadius="md"
-    borderWidth={1}
-    gap={2}
-    py={2}
-    width="100%"
-  >
-    {children}
-  </VStack>
-);
-
-const DagSections = ({ children }: { readonly children: React.ReactNode }) => (
-  <VStack alignItems="stretch" gap={3} minW={0} width="100%">
-    {children}
-  </VStack>
-);
-
-const SectionHeader = ({ children }: { readonly children: string }) => (
-  <Box px={2}>
-    <NotificationSectionHeading>{children}</NotificationSectionHeading>
-  </Box>
-);
-
-const NotificationTypeSection = ({
-  children,
-  heading,
-}: {
-  readonly children: React.ReactNode;
-  readonly heading: string;
-}) => (
-  <VStack alignItems="stretch" gap={2} minW={0} width="100%">
-    <SectionHeader>{heading}</SectionHeader>
-    {children}
-  </VStack>
-);
 
 const getHitlTaskLabel = (detail: HITLDetail) => {
   const taskInstance = detail.task_instance;
@@ -507,11 +246,12 @@ export const NotificationsList = ({
                   (detail) => detail.task_instance.run_after,
                 )
                   .sort(compareDagRunGroups)
-                  .map((dagRunGroup) => (
+                  .map((dagRunGroup, index) => (
                     <DagRunSection
                       dagRunId={dagRunGroup.dagRunId}
                       fallbackRunAfter={dagRunGroup.fallbackRunAfter}
                       key={dagRunGroup.dagRunId}
+                      separated={index > 0}
                     >
                       {dagRunGroup.items.map((detail) => {
                         const key = getNotificationKey({ item: detail, type: "hitl" });
@@ -552,8 +292,12 @@ export const NotificationsList = ({
               <DagSection dagId={group.dagId} key={group.dagId}>
                 {groupByDagRun(group.items, (deadline) => deadline.dag_run_id)
                   .sort(compareDagRunGroups)
-                  .map((dagRunGroup) => (
-                    <DagRunSection dagRunId={dagRunGroup.dagRunId} key={dagRunGroup.dagRunId}>
+                  .map((dagRunGroup, index) => (
+                    <DagRunSection
+                      dagRunId={dagRunGroup.dagRunId}
+                      key={dagRunGroup.dagRunId}
+                      separated={index > 0}
+                    >
                       {dagRunGroup.items.map((deadline) => {
                         const key = getNotificationKey({ item: deadline, type: "deadline" });
 

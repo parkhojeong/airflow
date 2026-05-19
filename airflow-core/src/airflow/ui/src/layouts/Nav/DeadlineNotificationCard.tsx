@@ -27,7 +27,7 @@ import {
   DAG_RUN_META_DATE_FORMAT,
   formatNotificationDetailTime,
   getParsedDagRunMeta,
-} from "./NotificationsList";
+} from "./notificationDisplayUtils";
 
 const MISSED_DEADLINE_LABEL = "Missed deadline";
 const ALERT_LABEL = "Alert";
