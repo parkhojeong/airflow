@@ -24,6 +24,7 @@ import type { HITLDetail } from "openapi/requests/types.gen";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
+import { MetaRow } from "./NotificationCard";
 import { formatNotificationDetailTime, getParsedDagRunMeta } from "./notificationDisplayUtils";
 
 const OPEN_TASK_LABEL = "Open task";
@@ -37,16 +38,6 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   return users.map((user) => user.name).join(", ");
 };
 
-const MetaRow = ({ label, value }: { readonly label: string; readonly value: React.ReactNode }) => (
-  <Table.Row>
-    <Table.Cell color="fg.subtle" fontSize="xs" px={2} py={1.5} w="30%">
-      {label}
-    </Table.Cell>
-    <Table.Cell fontSize="xs" px={2} py={1.5}>
-      {value}
-    </Table.Cell>
-  </Table.Row>
-);
 
 export const HITLNotificationCard = ({
   detail,

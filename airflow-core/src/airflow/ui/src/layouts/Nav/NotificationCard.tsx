@@ -16,8 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Heading, HStack, VStack } from "@chakra-ui/react";
+import { Heading, HStack, Table, Text, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
+
+export const MetaRow = ({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: ReactNode;
+}) => (
+  <Table.Row>
+    <Table.Cell color="fg.subtle" fontSize="xs" px={2} py={1.5} w="30%">
+      {label}
+    </Table.Cell>
+    <Table.Cell fontSize="xs" px={2} py={1.5}>
+      {value}
+    </Table.Cell>
+  </Table.Row>
+);
 
 export const NotificationSectionHeading = ({
   children,

@@ -21,21 +21,11 @@ import { Link } from "react-router-dom";
 
 import type { DeadlineResponse } from "openapi/requests/types.gen";
 
+import { MetaRow } from "./NotificationCard";
 import { formatNotificationDetailTime, getParsedDagRunMeta } from "./notificationDisplayUtils";
 
 const MISSED_DEADLINE_LABEL = "Missed deadline";
 const OPEN_DAG_RUN_LABEL = "Open Dag run";
-
-const MetaRow = ({ label, value }: { readonly label: string; readonly value: React.ReactNode }) => (
-  <Table.Row>
-    <Table.Cell color="fg.subtle" fontSize="xs" px={2} py={1.5} w="30%">
-      {label}
-    </Table.Cell>
-    <Table.Cell fontSize="xs" px={2} py={1.5}>
-      {value}
-    </Table.Cell>
-  </Table.Row>
-);
 
 export const DeadlineNotificationCard = ({
   deadline,
