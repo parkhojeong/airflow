@@ -35,7 +35,6 @@ import { useReadHitl } from "./useReadHitl";
 
 const MAX_BADGE_COUNT = 99;
 const NOTIFICATION_LIMIT = 10;
-const NOTIFICATION_SUMMARY_LIMIT = 1;
 
 export const NotificationsButton = () => {
   const { onClose, onOpen, open } = useDisclosure();
@@ -69,7 +68,7 @@ export const NotificationsButton = () => {
     {
       dagId: "~",
       dagRunId: "~",
-      limit: NOTIFICATION_SUMMARY_LIMIT,
+      limit: NOTIFICATION_LIMIT,
       orderBy: ["created_at"],
       responseReceived: false,
       state: ["deferred"],
@@ -82,7 +81,7 @@ export const NotificationsButton = () => {
     {
       dagId: "~",
       dagRunId: "~",
-      limit: NOTIFICATION_SUMMARY_LIMIT,
+      limit: NOTIFICATION_LIMIT,
       missed: true,
       orderBy: ["-deadline_time"],
     },
