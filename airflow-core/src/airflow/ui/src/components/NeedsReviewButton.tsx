@@ -27,10 +27,12 @@ import { StatsCard } from "./StatsCard";
 
 export const NeedsReviewButton = ({
   dagId,
+  onClick,
   runId,
   taskId,
 }: {
   readonly dagId?: string;
+  readonly onClick?: () => void;
   readonly runId?: string;
   readonly taskId?: string;
 }) => {
@@ -65,6 +67,7 @@ export const NeedsReviewButton = ({
         isRTL={isRTL}
         label={translate("requiredAction_other")}
         link="required_actions?response_received=false"
+        onClick={onClick}
       />
     </Box>
   ) : undefined;

@@ -18,6 +18,7 @@
  */
 import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -40,6 +41,7 @@ const NEXT_NOTIFICATION_LABEL = "Next";
 const PREVIOUS_NOTIFICATION_LABEL = "Prev";
 
 type NotificationsModalProps = {
+  readonly headerAction?: ReactNode;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
@@ -216,6 +218,7 @@ const NotificationDetailPane = ({
 };
 
 export const NotificationsModal = ({
+  headerAction,
   hitlData,
   hitlIsError,
   hitlIsLoading,
@@ -324,13 +327,16 @@ export const NotificationsModal = ({
             <Heading flexShrink={0} size="md">
               {NOTIFICATIONS_LABEL}
             </Heading>
-            <NotificationNavigation
-              canNavigateNotifications={notifications.length > 0}
-              hasNextNotification={hasNextNotification}
-              hasPreviousNotification={hasPreviousNotification}
-              onNext={handleNextNotification}
-              onPrevious={handlePreviousNotification}
-            />
+            <HStack gap={2}>
+              {headerAction}
+              <NotificationNavigation
+                canNavigateNotifications={notifications.length > 0}
+                hasNextNotification={hasNextNotification}
+                hasPreviousNotification={hasPreviousNotification}
+                onNext={handleNextNotification}
+                onPrevious={handlePreviousNotification}
+              />
+            </HStack>
           </HStack>
         </Dialog.Header>
         <Dialog.CloseTrigger />
