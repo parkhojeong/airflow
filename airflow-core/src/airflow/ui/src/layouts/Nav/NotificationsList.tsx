@@ -47,7 +47,6 @@ type NotificationsListProps = {
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
-  readonly hitlReadIds: ReadonlySet<string>;
   readonly onSelect: (selection: SelectedNotification) => void;
   readonly selectedKey?: string;
 };
@@ -95,7 +94,6 @@ const HitlTable = ({
   emptyLabel,
   onSelect,
   queryClient,
-  readIds,
   selectedKey,
   timezone,
 }: {
@@ -103,7 +101,6 @@ const HitlTable = ({
   readonly emptyLabel: string;
   readonly onSelect: (selection: SelectedNotification) => void;
   readonly queryClient: QueryClient;
-  readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
   readonly timezone: string;
 }) => {
@@ -153,7 +150,6 @@ const HitlTable = ({
               key={key}
               onClick={() => onSelect({ item: detail, type: "hitl" })}
               onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
-              opacity={readIds.has(detail.task_instance.id) && !selected ? 0.5 : 1}
             >
               <Table.Cell borderLeftColor={groupColor} borderLeftWidth={3} overflow="hidden" px={2} py={1.5}>
                 <Text fontSize="xs" truncate>{ti.dag_id}</Text>
@@ -186,7 +182,6 @@ export const NotificationsList = ({
   hitlData,
   hitlIsError,
   hitlIsLoading,
-  hitlReadIds,
   onSelect,
   selectedKey,
 }: NotificationsListProps) => {
@@ -208,7 +203,6 @@ export const NotificationsList = ({
               emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
               onSelect={onSelect}
               queryClient={queryClient}
-              readIds={hitlReadIds}
               selectedKey={selectedKey}
               timezone={selectedTimezone}
             />

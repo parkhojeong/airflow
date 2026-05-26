@@ -45,9 +45,7 @@ type NotificationsModalProps = {
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
-  readonly hitlReadIds: ReadonlySet<string>;
   readonly onClose: () => void;
-  readonly onHitlRead: (id: string) => void;
   readonly open: boolean;
 };
 
@@ -222,9 +220,7 @@ export const NotificationsModal = ({
   hitlData,
   hitlIsError,
   hitlIsLoading,
-  hitlReadIds,
   onClose,
-  onHitlRead,
   open,
 }: NotificationsModalProps) => {
   const queryClient = useQueryClient();
@@ -298,12 +294,6 @@ export const NotificationsModal = ({
     setSelected(getPreviousNotification({ notifications, selectedNotificationKey }));
   };
 
-  useEffect(() => {
-    if (selected?.type === "hitl") {
-      onHitlRead(selected.item.task_instance.id);
-    }
-  }, [onHitlRead, selected]);
-
   const handleSelect = useCallback((next: SelectedNotification) => {
     setSelected((current) => {
       const nextIsSelected =
@@ -364,7 +354,6 @@ export const NotificationsModal = ({
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
                 hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
-                hitlReadIds={hitlReadIds}
                 onSelect={handleSelect}
                 selectedKey={selectedNotificationKey}
               />

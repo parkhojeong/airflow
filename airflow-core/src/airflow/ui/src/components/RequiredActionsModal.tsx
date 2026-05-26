@@ -21,7 +21,6 @@ import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import { NotificationsModal } from "src/layouts/Nav/NotificationsModal";
-import { useReadHitl } from "src/layouts/Nav/useReadHitl";
 import { useAutoRefresh } from "src/utils";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
@@ -49,7 +48,6 @@ export const RequiredActionsModal = ({
     undefined,
     { enabled: open, refetchInterval },
   );
-  const { markAsRead: markHitlAsRead, readIds: hitlReadIds } = useReadHitl();
 
   return (
     <NotificationsModal
@@ -63,9 +61,7 @@ export const RequiredActionsModal = ({
       hitlData={hitlData}
       hitlIsError={hitlIsError}
       hitlIsLoading={hitlIsLoading}
-      hitlReadIds={hitlReadIds}
       onClose={onClose}
-      onHitlRead={markHitlAsRead}
       open={open}
     />
   );
