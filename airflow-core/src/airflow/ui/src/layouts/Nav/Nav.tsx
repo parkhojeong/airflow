@@ -39,7 +39,6 @@ import { AdminButton } from "./AdminButton";
 import { BrowseButton } from "./BrowseButton";
 import { DocsButton } from "./DocsButton";
 import { NavButton } from "./NavButton";
-import { NotificationsButton } from "./NotificationsButton";
 import { PluginMenus } from "./PluginMenus";
 import { SecurityButton } from "./SecurityButton";
 import TimezoneModal from "./TimezoneModal";
@@ -196,7 +195,6 @@ export const Nav = () => {
           externalViews={adminItems}
         />
         <SecurityButton />
-        <NotificationsButton />
         <PluginMenus navItems={navItemsWithLegacy} />
       </Flex>
       <Flex alignItems="center" flexDir="column" gap={1}>

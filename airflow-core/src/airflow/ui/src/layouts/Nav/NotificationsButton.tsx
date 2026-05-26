@@ -20,17 +20,13 @@ import { Badge, Box, useDisclosure } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { FiBell } from "react-icons/fi";
 
-import { useDeadlinesServiceGetDeadlines, useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
-import {
-  prefetchUseDeadlinesServiceGetDeadlines,
-  prefetchUseTaskInstanceServiceGetHitlDetails,
-} from "openapi/queries/prefetch";
+import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import { prefetchUseTaskInstanceServiceGetHitlDetails } from "openapi/queries/prefetch";
 import { Tooltip } from "src/components/ui";
 import { useAutoRefresh } from "src/utils";
 
 import { NavButton } from "./NavButton";
 import { NotificationsModal } from "./NotificationsModal";
-import { useReadDeadlines } from "./useReadDeadlines";
 import { useReadHitl } from "./useReadHitl";
 
 const MAX_BADGE_COUNT = 99;
@@ -39,7 +35,6 @@ const NOTIFICATION_LIMIT = 10;
 export const NotificationsButton = () => {
   const { onClose, onOpen, open } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
-  const { markAsRead, readIds } = useReadDeadlines();
   const { markAsRead: markHitlAsRead, readIds: hitlReadIds } = useReadHitl();
   const queryClient = useQueryClient();
 
@@ -55,13 +50,6 @@ export const NotificationsButton = () => {
       responseReceived: false,
       state: ["deferred"],
     });
-    void prefetchUseDeadlinesServiceGetDeadlines(queryClient, {
-      dagId: "~",
-      dagRunId: "~",
-      limit: NOTIFICATION_LIMIT,
-      missed: true,
-      orderBy: ["-deadline_time"],
-    });
   };
 
   const { data: hitlSummaryData } = useTaskInstanceServiceGetHitlDetails(
@@ -72,18 +60,6 @@ export const NotificationsButton = () => {
       orderBy: ["created_at"],
       responseReceived: false,
       state: ["deferred"],
-    },
-    undefined,
-    { refetchInterval },
-  );
-
-  const { data: deadlineSummaryData } = useDeadlinesServiceGetDeadlines(
-    {
-      dagId: "~",
-      dagRunId: "~",
-      limit: NOTIFICATION_LIMIT,
-      missed: true,
-      orderBy: ["-deadline_time"],
     },
     undefined,
     { refetchInterval },
@@ -106,33 +82,12 @@ export const NotificationsButton = () => {
     { enabled: open, refetchInterval },
   );
 
-  const {
-    data: deadlineData,
-    isError: isDeadlineError,
-    isLoading: isDeadlineLoading,
-  } = useDeadlinesServiceGetDeadlines(
-    {
-      dagId: "~",
-      dagRunId: "~",
-      limit: NOTIFICATION_LIMIT,
-      missed: true,
-      orderBy: ["-deadline_time"],
-    },
-    undefined,
-    { enabled: open, refetchInterval },
-  );
-
   const hitlTotalEntries = hitlSummaryData?.total_entries ?? 0;
-  const deadlineTotalEntries = deadlineSummaryData?.total_entries ?? 0;
-  const notificationCount = hitlTotalEntries + deadlineTotalEntries;
+  const notificationCount = hitlTotalEntries;
   const displayCount = notificationCount > MAX_BADGE_COUNT ? `${MAX_BADGE_COUNT}+` : notificationCount;
   const expectedHitlCount = Math.min(hitlTotalEntries, NOTIFICATION_LIMIT);
-  const expectedDeadlineCount = Math.min(deadlineTotalEntries, NOTIFICATION_LIMIT);
   const modalHitlIsLoading =
     isHitlLoading || (open && !isHitlError && (hitlData?.hitl_details.length ?? 0) < expectedHitlCount);
-  const modalDeadlineIsLoading =
-    isDeadlineLoading ||
-    (open && !isDeadlineError && (deadlineData?.deadlines.length ?? 0) < expectedDeadlineCount);
 
   return (
     <>
@@ -161,18 +116,13 @@ export const NotificationsButton = () => {
         </Box>
       </Tooltip>
       <NotificationsModal
-        deadlineData={deadlineData}
-        deadlineIsError={isDeadlineError}
-        deadlineIsLoading={modalDeadlineIsLoading}
         hitlData={hitlData}
         hitlIsError={isHitlError}
         hitlIsLoading={modalHitlIsLoading}
         hitlReadIds={hitlReadIds}
         onClose={onClose}
-        onDeadlineRead={markAsRead}
         onHitlRead={markHitlAsRead}
         open={open}
-        readIds={readIds}
       />
     </>
   );

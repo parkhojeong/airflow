@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Heading, HStack, Table, Text, VStack } from "@chakra-ui/react";
+import { Heading, HStack, Table, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 
 export const MetaRow = ({

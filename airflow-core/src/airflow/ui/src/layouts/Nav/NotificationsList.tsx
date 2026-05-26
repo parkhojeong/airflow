@@ -18,54 +18,37 @@
  */
 import { Table, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
 
 import { useTimezone } from "src/context/timezone";
 
-import type {
-  DeadlineCollectionResponse,
-  DeadlineResponse,
-  HITLDetail,
-  HITLDetailCollection,
-} from "openapi/requests/types.gen";
+import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 import Time from "src/components/Time";
 
 import { NotificationSection, NotificationTypeSection, StatusText } from "./NotificationsListComponents";
-import {
-  getDagRunListDateFormat,
-  getDagRunOrderTimestamp,
-  getParsedDagRunMeta,
-  getTimestamp,
-} from "./notificationDisplayUtils";
+import { getDagRunListDateFormat, getDagRunOrderTimestamp, getTimestamp } from "./notificationDisplayUtils";
 import { prefetchHitlDetail } from "./notificationPrefetchUtils";
 
-const MISSED_DEADLINES_LABEL = "Missed deadlines";
-const LOAD_DEADLINES_ERROR_LABEL = "Unable to load deadline alerts";
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
-const LOADING_DEADLINES_LABEL = "Loading deadline alerts...";
 const LOADING_HITL_LABEL = "Loading pending HITL actions...";
-const NO_MISSED_DEADLINES_LABEL = "No missed deadlines";
 const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
 const PENDING_HITL_LABEL = "Pending HITL";
-const UNTITLED_DEADLINE_LABEL = "Missed deadline";
+const CREATED_AT_LABEL = "Created at";
+const DAG_ID_LABEL = "Dag ID";
+const DAG_RUN_LABEL = "Dag Run";
+const MAP_INDEX_LABEL = "Map Index";
+const TASK_ID_LABEL = "Task ID";
 
-export type SelectedNotification =
-  | { readonly item: DeadlineResponse; readonly type: "deadline" }
-  | { readonly item: HITLDetail; readonly type: "hitl" };
+export type SelectedNotification = { readonly item: HITLDetail; readonly type: "hitl" };
 
 export const getNotificationKey = (selection: SelectedNotification): string =>
-  selection.type === "hitl" ? `hitl:${selection.item.task_instance.id}` : `deadline:${selection.item.id}`;
+  `hitl:${selection.item.task_instance.id}`;
 
 type NotificationsListProps = {
-  readonly deadlineData?: DeadlineCollectionResponse;
-  readonly deadlineIsError: boolean;
-  readonly deadlineIsLoading: boolean;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
   readonly hitlReadIds: ReadonlySet<string>;
   readonly onSelect: (selection: SelectedNotification) => void;
-  readonly readIds: ReadonlySet<string>;
   readonly selectedKey?: string;
 };
 
@@ -83,38 +66,21 @@ const compareHitlNotifications = (left: HITLDetail, right: HITLDetail) =>
   compareDates(left.created_at, right.created_at) ||
   compareStrings(left.task_instance.task_id, right.task_instance.task_id);
 
-const compareDeadlineNotifications = (left: DeadlineResponse, right: DeadlineResponse) =>
-  compareStrings(left.dag_id, right.dag_id) ||
-  getDagRunOrderTimestamp(left.dag_run_id) - getDagRunOrderTimestamp(right.dag_run_id) ||
-  compareDates(left.deadline_time, right.deadline_time) ||
-  compareStrings(left.alert_name ?? UNTITLED_DEADLINE_LABEL, right.alert_name ?? UNTITLED_DEADLINE_LABEL);
-
 export const getNotificationsInDisplayOrder = ({
-  deadlines,
   hitlDetails,
 }: {
-  readonly deadlines: Array<DeadlineResponse>;
   readonly hitlDetails: Array<HITLDetail>;
-}): Array<SelectedNotification> => {
-  const hitlNotifications = [...hitlDetails]
-    .sort(compareHitlNotifications)
-    .map((item) => ({ item, type: "hitl" }) as const);
-  const deadlineNotifications = [...deadlines]
-    .sort(compareDeadlineNotifications)
-    .map((item) => ({ item, type: "deadline" }) as const);
-
-  return [...hitlNotifications, ...deadlineNotifications];
-};
+}): Array<SelectedNotification> =>
+  [...hitlDetails].sort(compareHitlNotifications).map((item) => ({ item, type: "hitl" }) as const);
 
 
-const TableColumnHeader = ({ children, w }: { readonly children: string; readonly w?: string }) => (
-  <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={w}>
+const TableColumnHeader = ({ children, width }: { readonly children: string; readonly width?: string }) => (
+  <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={width}>
     {children}
   </Table.ColumnHeader>
 );
 
 const HITL_COL_SPAN = 5;
-const DEADLINE_COL_SPAN = 4;
 
 const EmptyRow = ({ colSpan, label }: { readonly colSpan: number; readonly label: string }) => (
   <Table.Row>
@@ -141,17 +107,18 @@ const HitlTable = ({
   readonly selectedKey?: string;
   readonly timezone: string;
 }) => {
-  const groupIndices = details.map((detail, index) => {
-    let groupIndex = 0;
+  const groupIndices = details.reduce<Array<number>>((indices, detail, index) => {
+    const previous = details[index - 1];
+    const previousGroupIndex = indices.at(-1) ?? 0;
 
-    for (let i = 1; i <= index; i++) {
-      if (details[i]!.task_instance.dag_id !== details[i - 1]!.task_instance.dag_id) {
-        groupIndex++;
-      }
-    }
+    indices.push(
+      previous === undefined || detail.task_instance.dag_id === previous.task_instance.dag_id
+        ? previousGroupIndex
+        : previousGroupIndex + 1,
+    );
 
-    return groupIndex;
-  });
+    return indices;
+  }, []);
 
   const GROUP_COLORS = ["green.500", "purple.500"];
 
@@ -159,11 +126,11 @@ const HitlTable = ({
     <Table.Root size="sm" tableLayout="fixed" width="100%">
       <Table.Header>
         <Table.Row>
-          <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
-          <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
-          <TableColumnHeader w="76px">Map Index</TableColumnHeader>
-          <TableColumnHeader>Task ID</TableColumnHeader>
-          <TableColumnHeader w="88px">Created at</TableColumnHeader>
+          <TableColumnHeader width="30%">{DAG_ID_LABEL}</TableColumnHeader>
+          <TableColumnHeader width="76px">{DAG_RUN_LABEL}</TableColumnHeader>
+          <TableColumnHeader width="76px">{MAP_INDEX_LABEL}</TableColumnHeader>
+          <TableColumnHeader>{TASK_ID_LABEL}</TableColumnHeader>
+          <TableColumnHeader width="88px">{CREATED_AT_LABEL}</TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -204,93 +171,7 @@ const HitlTable = ({
               </Table.Cell>
               <Table.Cell px={2} py={1.5}>
                 <Text fontSize="xs">
-                  <Time datetime={detail.created_at} format={getDagRunListDateFormat(detail.created_at ?? "", false, timezone)} />
-                </Text>
-              </Table.Cell>
-            </Table.Row>
-          );
-        })}
-      </Table.Body>
-    </Table.Root>
-  );
-};
-
-const DeadlineTable = ({
-  deadlines,
-  emptyLabel,
-  onSelect,
-  readIds,
-  selectedKey,
-  timezone,
-}: {
-  readonly deadlines: Array<DeadlineResponse>;
-  readonly emptyLabel: string;
-  readonly onSelect: (selection: SelectedNotification) => void;
-  readonly readIds: ReadonlySet<string>;
-  readonly selectedKey?: string;
-  readonly timezone: string;
-}) => {
-  const groupIndices = deadlines.map((deadline, index) => {
-    let groupIndex = 0;
-
-    for (let i = 1; i <= index; i++) {
-      if (deadlines[i]!.dag_id !== deadlines[i - 1]!.dag_id) {
-        groupIndex++;
-      }
-    }
-
-    return groupIndex;
-  });
-
-  const GROUP_COLORS = ["green.500", "purple.500"];
-
-  return (
-    <Table.Root size="sm" tableLayout="fixed" width="100%">
-      <Table.Header>
-        <Table.Row>
-          <TableColumnHeader w="30%">Dag ID</TableColumnHeader>
-          <TableColumnHeader w="76px">Dag Run</TableColumnHeader>
-          <TableColumnHeader>Alert</TableColumnHeader>
-          <TableColumnHeader w="88px">Deadline</TableColumnHeader>
-        </Table.Row>
-      </Table.Header>
-      <Table.Body>
-        {deadlines.length === 0 ? (
-          <EmptyRow colSpan={DEADLINE_COL_SPAN} label={emptyLabel} />
-        ) : deadlines.map((deadline, index) => {
-          const key = getNotificationKey({ item: deadline, type: "deadline" });
-          const selected = selectedKey === key;
-          const runAfter = getParsedDagRunMeta(deadline.dag_run_id)?.runAfter;
-          const groupColor = GROUP_COLORS[(groupIndices[index] ?? 0) % GROUP_COLORS.length];
-
-          return (
-            <Table.Row
-              _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-              aria-pressed={selected}
-              bg={selected ? "bg.muted" : undefined}
-              cursor="pointer"
-              key={key}
-              onClick={() => onSelect({ item: deadline, type: "deadline" })}
-              opacity={readIds.has(deadline.id) && !selected ? 0.5 : 1}
-            >
-              <Table.Cell borderLeftColor={groupColor} borderLeftWidth={3} overflow="hidden" px={2} py={1.5}>
-                <Text fontSize="xs" truncate>{deadline.dag_id}</Text>
-              </Table.Cell>
-              <Table.Cell px={2} py={1.5}>
-                <Text fontSize="xs">
-                  {runAfter === undefined ? (
-                    deadline.dag_run_id
-                  ) : (
-                    <Time datetime={runAfter} format={getDagRunListDateFormat(runAfter, true, timezone)} />
-                  )}
-                </Text>
-              </Table.Cell>
-              <Table.Cell overflow="hidden" px={2} py={1.5}>
-                <Text fontSize="xs" truncate>{deadline.alert_name ?? UNTITLED_DEADLINE_LABEL}</Text>
-              </Table.Cell>
-              <Table.Cell px={2} py={1.5}>
-                <Text fontSize="xs">
-                  <Time datetime={deadline.deadline_time} format={getDagRunListDateFormat(deadline.deadline_time, false, timezone)} />
+                  <Time datetime={detail.created_at} format={getDagRunListDateFormat(detail.created_at, false, timezone)} />
                 </Text>
               </Table.Cell>
             </Table.Row>
@@ -302,27 +183,16 @@ const DeadlineTable = ({
 };
 
 export const NotificationsList = ({
-  deadlineData,
-  deadlineIsError,
-  deadlineIsLoading,
   hitlData,
   hitlIsError,
   hitlIsLoading,
   hitlReadIds,
   onSelect,
-  readIds,
   selectedKey,
 }: NotificationsListProps) => {
   const queryClient = useQueryClient();
   const { selectedTimezone } = useTimezone();
-  const deadlines = useMemo(
-    () => [...(deadlineData?.deadlines ?? [])].sort(compareDeadlineNotifications),
-    [deadlineData?.deadlines],
-  );
-  const hitlDetails = useMemo(
-    () => [...(hitlData?.hitl_details ?? [])].sort(compareHitlNotifications),
-    [hitlData?.hitl_details],
-  );
+  const hitlDetails = [...(hitlData?.hitl_details ?? [])].sort(compareHitlNotifications);
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
@@ -339,24 +209,6 @@ export const NotificationsList = ({
               onSelect={onSelect}
               queryClient={queryClient}
               readIds={hitlReadIds}
-              selectedKey={selectedKey}
-              timezone={selectedTimezone}
-            />
-          )}
-        </NotificationSection>
-      </NotificationTypeSection>
-      <NotificationTypeSection heading={getSectionLabel(MISSED_DEADLINES_LABEL, deadlines.length)}>
-        <NotificationSection>
-          {deadlineIsLoading ? (
-            <StatusText>{LOADING_DEADLINES_LABEL}</StatusText>
-          ) : deadlineIsError ? (
-            <StatusText tone="error">{LOAD_DEADLINES_ERROR_LABEL}</StatusText>
-          ) : (
-            <DeadlineTable
-              deadlines={deadlines}
-              emptyLabel={NO_MISSED_DEADLINES_LABEL}
-              onSelect={onSelect}
-              readIds={readIds}
               selectedKey={selectedKey}
               timezone={selectedTimezone}
             />

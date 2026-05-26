@@ -21,10 +21,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-import type { DeadlineCollectionResponse, HITLDetailCollection } from "openapi/requests/types.gen";
+import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { Dialog, Tooltip } from "src/components/ui";
 
-import { DeadlineNotificationCard } from "./DeadlineNotificationCard";
 import { HITLNotificationCard } from "./HITLNotificationCard";
 import {
   getNotificationKey,
@@ -41,29 +40,20 @@ const NEXT_NOTIFICATION_LABEL = "Next";
 const PREVIOUS_NOTIFICATION_LABEL = "Prev";
 
 type NotificationsModalProps = {
-  readonly deadlineData?: DeadlineCollectionResponse;
-  readonly deadlineIsError: boolean;
-  readonly deadlineIsLoading: boolean;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
   readonly hitlReadIds: ReadonlySet<string>;
   readonly onClose: () => void;
-  readonly onDeadlineRead: (id: string) => void;
   readonly onHitlRead: (id: string) => void;
   readonly open: boolean;
-  readonly readIds: ReadonlySet<string>;
 };
 
 const isSelectedNotificationStillInFetchedData = ({
-  deadlineData,
-  deadlineIsLoading,
   hitlData,
   hitlIsLoading,
   selectedNotification,
 }: {
-  readonly deadlineData?: DeadlineCollectionResponse;
-  readonly deadlineIsLoading: boolean;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsLoading: boolean;
   readonly selectedNotification?: SelectedNotification;
@@ -74,38 +64,19 @@ const isSelectedNotificationStillInFetchedData = ({
 
   const selectedNotificationKey = getNotificationKey(selectedNotification);
 
-  if (selectedNotification.type === "hitl") {
-    if (hitlIsLoading) {
-      return true;
-    }
-
-    return (
-      hitlData?.hitl_details.some(
-        (hitlDetail) => getNotificationKey({ item: hitlDetail, type: "hitl" }) === selectedNotificationKey,
-      ) === true
-    );
-  }
-
-  if (deadlineIsLoading) {
+  if (hitlIsLoading) {
     return true;
   }
 
   return (
-    deadlineData?.deadlines.some(
-      (deadline) => getNotificationKey({ item: deadline, type: "deadline" }) === selectedNotificationKey,
+    hitlData?.hitl_details.some(
+      (hitlDetail) => getNotificationKey({ item: hitlDetail, type: "hitl" }) === selectedNotificationKey,
     ) === true
   );
 };
 
-const getNotifications = ({
-  deadlineData,
-  hitlData,
-}: {
-  readonly deadlineData?: DeadlineCollectionResponse;
-  readonly hitlData?: HITLDetailCollection;
-}) =>
+const getNotifications = ({ hitlData }: { readonly hitlData?: HITLDetailCollection }) =>
   getNotificationsInDisplayOrder({
-    deadlines: deadlineData?.deadlines ?? [],
     hitlDetails: hitlData?.hitl_details ?? [],
   });
 
@@ -234,45 +205,33 @@ const NotificationDetailPane = ({
     );
   }
 
-  if (selected.type === "hitl") {
-    return (
-      <HITLNotificationCard
-        detail={selected.item}
-        key={selected.item.task_instance.id}
-        onNavigate={onNavigate}
-        onResponded={onResponded}
-      />
-    );
-  }
-
-  return <DeadlineNotificationCard deadline={selected.item} key={selected.item.id} onNavigate={onNavigate} />;
+  return (
+    <HITLNotificationCard
+      detail={selected.item}
+      key={selected.item.task_instance.id}
+      onNavigate={onNavigate}
+      onResponded={onResponded}
+    />
+  );
 };
 
 export const NotificationsModal = ({
-  deadlineData,
-  deadlineIsError,
-  deadlineIsLoading,
   hitlData,
   hitlIsError,
   hitlIsLoading,
   hitlReadIds,
   onClose,
-  onDeadlineRead,
   onHitlRead,
   open,
-  readIds,
 }: NotificationsModalProps) => {
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
   const hitlDataRef = useRef(hitlData);
-  const deadlineDataRef = useRef(deadlineData);
 
   hitlDataRef.current = hitlData;
-  deadlineDataRef.current = deadlineData;
 
-  const effectiveDeadlineIsLoading = open && deadlineData === undefined && !deadlineIsError;
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
-  const notifications = useMemo(() => getNotifications({ deadlineData, hitlData }), [deadlineData, hitlData]);
+  const notifications = useMemo(() => getNotifications({ hitlData }), [hitlData]);
 
   const selectedNotificationKey = selected === undefined ? undefined : getNotificationKey(selected);
   const selectedNotificationIndex = notifications.findIndex(
@@ -285,8 +244,6 @@ export const NotificationsModal = ({
   const hasPreviousNotification =
     selectedNotificationIndex === -1 ? notifications.length > 0 : selectedNotificationIndex > 0;
   const visibleSelectedNotification = isSelectedNotificationStillInFetchedData({
-    deadlineData,
-    deadlineIsLoading: deadlineIsLoading || effectiveDeadlineIsLoading,
     hitlData,
     hitlIsLoading: hitlIsLoading || effectiveHitlIsLoading,
     selectedNotification: selected,
@@ -301,15 +258,7 @@ export const NotificationsModal = ({
 
     const firstHitl = hitlDataRef.current?.hitl_details[0];
 
-    if (firstHitl !== undefined) {
-      setSelected({ item: firstHitl, type: "hitl" });
-
-      return;
-    }
-
-    const firstDeadline = deadlineDataRef.current?.deadlines[0];
-
-    setSelected(firstDeadline === undefined ? undefined : { item: firstDeadline, type: "deadline" });
+    setSelected(firstHitl === undefined ? undefined : { item: firstHitl, type: "hitl" });
   }, [open]);
 
   useEffect(() => {
@@ -347,12 +296,10 @@ export const NotificationsModal = ({
   };
 
   useEffect(() => {
-    if (selected?.type === "deadline") {
-      onDeadlineRead(selected.item.id);
-    } else if (selected?.type === "hitl") {
+    if (selected?.type === "hitl") {
       onHitlRead(selected.item.task_instance.id);
     }
-  }, [onDeadlineRead, onHitlRead, selected]);
+  }, [onHitlRead, selected]);
 
   const handleSelect = useCallback((next: SelectedNotification) => {
     setSelected((current) => {
@@ -408,15 +355,11 @@ export const NotificationsModal = ({
               zIndex={2}
             >
               <NotificationsList
-                deadlineData={deadlineData}
-                deadlineIsError={deadlineIsError}
-                deadlineIsLoading={deadlineIsLoading || effectiveDeadlineIsLoading}
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
                 hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
                 hitlReadIds={hitlReadIds}
                 onSelect={handleSelect}
-                readIds={readIds}
                 selectedKey={selectedNotificationKey}
               />
             </Box>
@@ -434,9 +377,7 @@ export const NotificationsModal = ({
               zIndex={1}
             >
               <NotificationDetailPane
-                isLoading={
-                  hitlIsLoading || deadlineIsLoading || effectiveHitlIsLoading || effectiveDeadlineIsLoading
-                }
+                isLoading={hitlIsLoading || effectiveHitlIsLoading}
                 onNavigate={onClose}
                 onResponded={selectNextNotification}
                 selected={visibleSelectedNotification}
