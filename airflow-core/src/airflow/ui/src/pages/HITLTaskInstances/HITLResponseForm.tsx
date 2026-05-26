@@ -59,7 +59,6 @@ const isHighlightOption = (
 export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }: HITLResponseFormProps) => {
   const { t: translate } = useTranslation("hitl");
   const [errors, setErrors] = useState<boolean>(false);
-  const [submittedOption, setSubmittedOption] = useState<string | undefined>(undefined);
   const { paramsDict } = useParamStore(namespace);
   const [searchParams] = useSearchParams();
   const { preloadedHITLOptions } = getPreloadHITLFormData(searchParams, hitlDetail);
@@ -87,15 +86,12 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
       return;
     }
 
-    setSubmittedOption(option);
-
     try {
       const formData = getHITLFormData(paramsDict, option);
 
       updateHITLResponse(formData);
     } catch {
       setErrors(true);
-      setSubmittedOption(undefined);
     }
   };
 
@@ -142,7 +138,7 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
                 data-testid={`hitl-option-${option}`}
                 disabled={errors || isResponsePending || !isPending || hitlDetail.response_received}
                 key={option}
-                loading={Boolean(isResponsePending && submittedOption === option)}
+                loading={isResponsePending}
                 onClick={() => handleSubmit(option)}
                 variant={isHighlightOption(option, hitlDetail, preloadedHITLOptions) ? "solid" : "subtle"}
               >
@@ -156,8 +152,7 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
               loading={isResponsePending}
               onClick={() => handleSubmit()}
             >
-              <FiSend />{" "}
-              {isResponsePending ? translate("response.submitting") : translate("response.respond")}
+              <FiSend /> {translate("response.respond")}
             </Button>
           )}
         </HStack>
