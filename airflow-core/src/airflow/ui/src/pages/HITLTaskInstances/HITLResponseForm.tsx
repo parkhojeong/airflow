@@ -59,6 +59,7 @@ const isHighlightOption = (
 export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }: HITLResponseFormProps) => {
   const { t: translate } = useTranslation("hitl");
   const [errors, setErrors] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { paramsDict } = useParamStore(namespace);
   const [searchParams] = useSearchParams();
   const { preloadedHITLOptions } = getPreloadHITLFormData(searchParams, hitlDetail);
@@ -73,7 +74,7 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
 
   const isPending = isHITLPending(hitlDetail.task_instance.state);
 
-  const { isPending: isResponsePending, updateHITLResponse } = useUpdateHITLDetail({
+  const { updateHITLResponse } = useUpdateHITLDetail({
     dagId: hitlDetail.task_instance.dag_id,
     dagRunId: hitlDetail.task_instance.dag_run_id,
     mapIndex: hitlDetail.task_instance.map_index,
@@ -82,9 +83,11 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
   });
 
   const handleSubmit = (option?: string) => {
-    if (errors || isResponsePending) {
+    if (errors || isSubmitting) {
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const formData = getHITLFormData(paramsDict, option);
@@ -93,6 +96,8 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
     } catch {
       setErrors(true);
     }
+
+    setIsSubmitting(false);
   };
 
   return (
@@ -115,7 +120,7 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
         variant="enclosed"
       >
         <FlexibleForm
-          disabled={!isPending || isResponsePending || hitlDetail.response_received}
+          disabled={!isPending || hitlDetail.response_received}
           flexFormDescription={hitlDetail.body ?? undefined}
           flexibleFormDefaultSection={hitlDetail.subject}
           initialParamsDict={{
@@ -136,9 +141,8 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
               <Button
                 colorPalette={isHighlightOption(option, hitlDetail, preloadedHITLOptions) ? "brand" : "gray"}
                 data-testid={`hitl-option-${option}`}
-                disabled={errors || isResponsePending || !isPending || hitlDetail.response_received}
+                disabled={errors || isSubmitting || !isPending || hitlDetail.response_received}
                 key={option}
-                loading={isResponsePending}
                 onClick={() => handleSubmit(option)}
                 variant={isHighlightOption(option, hitlDetail, preloadedHITLOptions) ? "solid" : "subtle"}
               >
@@ -148,8 +152,8 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
           ) : hitlDetail.response_received ? undefined : (
             <Button
               colorPalette="brand"
-              disabled={errors || isResponsePending || !isPending}
-              loading={isResponsePending}
+              disabled={errors || isSubmitting || !isPending}
+              loading={isSubmitting}
               onClick={() => handleSubmit()}
             >
               <FiSend /> {translate("response.respond")}
