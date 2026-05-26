@@ -19,7 +19,7 @@
 import { Text } from "@chakra-ui/react";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ChakraWrapper } from "src/utils/ChakraWrapper.tsx";
@@ -62,6 +62,29 @@ describe("DataTable", () => {
 
     expect(screen.getByText("John Doe")).toBeInTheDocument();
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
+  });
+
+  it("calls onRowClick when a table row is selected", () => {
+    const handleRowClick = vi.fn();
+
+    render(
+      <DataTable
+        columns={columns}
+        data={data}
+        initialState={{ pagination, sorting: [] }}
+        modelName="task"
+        onRowClick={handleRowClick}
+        total={2}
+      />,
+      {
+        wrapper: ChakraWrapper,
+      },
+    );
+
+    fireEvent.click(screen.getByText("John Doe"));
+
+    expect(handleRowClick).toHaveBeenCalledTimes(1);
+    expect(handleRowClick).toHaveBeenCalledWith(expect.objectContaining({ original: data[0] }));
   });
 
   it("disables previous page button on first page", () => {
