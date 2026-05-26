@@ -66,52 +66,6 @@ export const getDagRunOrderTimestamp = (dagRunId: string, fallbackRunAfter?: str
   return getTimestamp(dayjs(runAfter).isValid() ? runAfter : fallbackRunAfter);
 };
 
-export const getParsedDagRunMeta = (dagRunId: string, fallbackRunAfter?: string) => {
-  const [runType, runAfterWithSuffix] = dagRunId.split("__");
-
-  if (runType === undefined || runAfterWithSuffix === undefined || !DAG_RUN_TYPES.has(runType)) {
-    return undefined;
-  }
-
-  const runAfter = dayjs(runAfterWithSuffix).isValid()
-    ? runAfterWithSuffix
-    : runAfterWithSuffix.replace(/_[^_]+$/u, "");
-
-  return dayjs(runAfter).isValid()
-    ? {
-        runAfter,
-        runType,
-      }
-    : {
-        runAfter: fallbackRunAfter,
-        runType,
-      };
-};
-
-export const getDagRunListCollisionKey = (dagRunId: string, fallbackRunAfter?: string) => {
-  const dagRunMeta = getParsedDagRunMeta(dagRunId, fallbackRunAfter);
-
-  if (dagRunMeta?.runAfter === undefined) {
-    return dagRunId;
-  }
-
-  return `${dagRunMeta.runType}:${dayjs(dagRunMeta.runAfter).format("YYYY-MM-DDTHH:mm")}`;
-};
-
-export const formatNotificationTime = (datetime?: string) => {
-  if (datetime === undefined) {
-    return undefined;
-  }
-
-  const date = dayjs(datetime);
-
-  if (!date.isValid()) {
-    return undefined;
-  }
-
-  return date.isSame(dayjs(), "day") ? date.format("HH:mm") : date.format("MMM DD");
-};
-
 export const formatNotificationDetailTime = (datetime?: string, showSeconds = false) => {
   if (datetime === undefined) {
     return undefined;
