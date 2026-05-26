@@ -78,7 +78,7 @@ export const HITLNotificationCard = ({
         </Table.Body>
       </Table.Root>
 
-      <Button asChild alignSelf="flex-end" size="sm" variant="outline">
+      <Button alignSelf="flex-end" asChild size="sm" variant="outline">
         <Link onClick={onNavigate} to={taskLink}>
           {OPEN_TASK_LABEL}
         </Link>
