@@ -88,7 +88,11 @@ export const RequiredActionsDrawer = ({
                       {SELECT_LABEL}
                     </Text>
                   ) : (
-                    <HITLNotificationCard detail={visibleSelected} onNavigate={onClose} onResponded={onClose}/>
+                    <HITLNotificationCard
+                      detail={visibleSelected}
+                      onNavigate={onClose}
+                      onResponded={onClose}
+                    />
                   )}
                 </Box>
               )}
