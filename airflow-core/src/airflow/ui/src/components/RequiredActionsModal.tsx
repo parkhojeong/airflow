@@ -27,9 +27,11 @@ const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "required_actions?response_received=false";
 
 export const RequiredActionsModal = ({
+  dagId,
   onClose,
   open,
 }: {
+  readonly dagId?: string;
   readonly onClose: () => void;
   readonly open: boolean;
 }) => {
@@ -40,7 +42,7 @@ export const RequiredActionsModal = ({
     isLoading: hitlIsLoading,
   } = useTaskInstanceServiceGetHitlDetails(
     {
-      dagId: "~",
+      dagId: dagId ?? "~",
       dagRunId: "~",
       responseReceived: false,
       state: ["deferred"],
