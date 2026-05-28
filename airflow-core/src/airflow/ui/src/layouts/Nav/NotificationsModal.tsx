@@ -251,14 +251,16 @@ export const NotificationsModal = ({
     : undefined;
 
   useEffect(() => {
-    if (!open) {
+    if (!open || selected !== undefined) {
       return;
     }
 
     const firstHitl = hitlDataRef.current?.hitl_details[0];
 
-    setSelected(firstHitl === undefined ? undefined : { item: firstHitl, type: "hitl" });
-  }, [open]);
+    if (firstHitl !== undefined) {
+      setSelected({ item: firstHitl, type: "hitl" });
+    }
+  }, [hitlData, open, selected]);
 
   useEffect(() => {
     if (selectedNotificationIndex === -1) {
