@@ -22,7 +22,7 @@ import { FiClipboard, FiZap } from "react-icons/fi";
 
 import { useDashboardServiceDagStats } from "openapi/queries";
 import { NeedsReviewButton } from "src/components/NeedsReviewButton";
-import { RequiredActionsModal } from "src/components/RequiredActionsModal";
+import { RequiredActionsModal, ViewAllRequiredActionsButton } from "src/components/RequiredActionsModal";
 import { StatsCard } from "src/components/StatsCard";
 import { useAutoRefresh } from "src/utils";
 
@@ -30,7 +30,11 @@ import { DAGImportErrors } from "./DAGImportErrors";
 import { PluginImportErrors } from "./PluginImportErrors";
 
 export const Stats = () => {
-  const { onClose: onCloseRequiredActions, onOpen: onOpenRequiredActions, open: requiredActionsOpen } = useDisclosure();
+  const {
+    onClose: onCloseRequiredActions,
+    onOpen: onOpenRequiredActions,
+    open: requiredActionsOpen,
+  } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
   const { data: statsData, isLoading: isStatsLoading } = useDashboardServiceDagStats(undefined, {
     refetchInterval,
@@ -102,7 +106,11 @@ export const Stats = () => {
           link="dags?paused=false"
         />
       </Flex>
-      <RequiredActionsModal onClose={onCloseRequiredActions} open={requiredActionsOpen} />
+      <RequiredActionsModal
+        headerAction={<ViewAllRequiredActionsButton onClick={onCloseRequiredActions} />}
+        onClose={onCloseRequiredActions}
+        open={requiredActionsOpen}
+      />
     </Box>
   );
 };

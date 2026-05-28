@@ -17,6 +17,7 @@
  * under the License.
  */
 import { Button } from "@chakra-ui/react";
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
@@ -24,18 +25,30 @@ import { NotificationsModal } from "src/layouts/Nav/NotificationsModal";
 import { useAutoRefresh } from "src/utils";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
-const REQUIRED_ACTIONS_LINK = "required_actions?response_received=false";
+const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
+
+export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: () => void }) => (
+  <Button asChild size="sm" variant="outline">
+    <Link onClick={onClick} to={REQUIRED_ACTIONS_LINK}>
+      {VIEW_ALL_REQUIRED_ACTIONS_LABEL}
+    </Link>
+  </Button>
+);
 
 export const RequiredActionsModal = ({
   dagId,
+  headerAction,
   onClose,
   open,
+  runId,
 }: {
   readonly dagId?: string;
+  readonly headerAction?: ReactNode;
   readonly onClose: () => void;
   readonly open: boolean;
+  readonly runId?: string;
 }) => {
-  const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
+  const refetchInterval = useAutoRefresh({ checkPendingRuns: true, dagId });
   const {
     data: hitlData,
     isError: hitlIsError,
@@ -43,7 +56,7 @@ export const RequiredActionsModal = ({
   } = useTaskInstanceServiceGetHitlDetails(
     {
       dagId: dagId ?? "~",
-      dagRunId: "~",
+      dagRunId: runId ?? "~",
       responseReceived: false,
       state: ["deferred"],
     },
@@ -53,13 +66,7 @@ export const RequiredActionsModal = ({
 
   return (
     <NotificationsModal
-      headerAction={
-        <Button asChild size="sm" variant="outline">
-          <Link onClick={onClose} to={REQUIRED_ACTIONS_LINK}>
-            {VIEW_ALL_REQUIRED_ACTIONS_LABEL}
-          </Link>
-        </Button>
-      }
+      headerAction={headerAction}
       hitlData={hitlData}
       hitlIsError={hitlIsError}
       hitlIsLoading={hitlIsLoading}

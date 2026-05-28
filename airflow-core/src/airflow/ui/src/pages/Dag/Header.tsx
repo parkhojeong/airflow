@@ -30,6 +30,7 @@ import DagRunInfo from "src/components/DagRunInfo";
 import { DagVersion } from "src/components/DagVersion";
 import DisplayMarkdownButton from "src/components/DisplayMarkdownButton";
 import { HeaderCard } from "src/components/HeaderCard";
+import { RequiredActionsButton } from "src/components/RequiredActionsButton";
 import { TogglePause } from "src/components/TogglePause";
 import { RouterLink } from "src/components/ui";
 
@@ -132,6 +133,7 @@ export const Header = ({
         dag === undefined ? undefined : (
           <>
             <DeadlineAlertsBadge dagId={dag.dag_id} />
+            <RequiredActionsButton dagId={dag.dag_id} />
             {dag.doc_md === null ? undefined : (
               <DisplayMarkdownButton
                 header={translate("dagDetails.documentation")}
