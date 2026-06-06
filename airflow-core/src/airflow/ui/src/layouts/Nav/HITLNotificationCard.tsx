@@ -38,7 +38,6 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   return users.map((user) => user.name).join(", ");
 };
 
-
 export const HITLNotificationCard = ({
   detail,
   onNavigate,
@@ -92,11 +91,7 @@ export const HITLNotificationCard = ({
           <Skeleton height="80px" />
         </VStack>
       ) : (
-        <HITLResponseForm
-          hitlDetail={hitlDetail}
-          namespace={`hitl:${ti.id}`}
-          onResponded={onResponded}
-        />
+        <HITLResponseForm hitlDetail={hitlDetail} namespace={`hitl:${ti.id}`} onResponded={onResponded} />
       )}
     </VStack>
   );

@@ -55,7 +55,9 @@ export const NotificationTypeSection = ({
   readonly heading: string;
 }) => (
   <VStack alignItems="stretch" gap={2} minW={0} width="100%">
-    <Heading px={2} size="sm">{heading}</Heading>
+    <Heading px={2} size="sm">
+      {heading}
+    </Heading>
     {children}
   </VStack>
 );

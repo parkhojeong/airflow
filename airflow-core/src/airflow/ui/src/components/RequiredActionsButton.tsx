@@ -20,7 +20,13 @@ import { NeedsReviewButton } from "src/components/NeedsReviewButton";
 import { RequiredActionsModal } from "src/components/RequiredActionsModal";
 import { useRequiredActionsModal } from "src/hooks/useRequiredActionsModal";
 
-export const RequiredActionsButton = ({ dagId, runId }: { readonly dagId: string; readonly runId?: string }) => {
+export const RequiredActionsButton = ({
+  dagId,
+  runId,
+}: {
+  readonly dagId: string;
+  readonly runId?: string;
+}) => {
   const redirectPath = runId === undefined ? `/dags/${dagId}` : `/dags/${dagId}/runs/${runId}`;
   const { onCloseRequiredActions, onOpenRequiredActions, requiredActionsOpen } =
     useRequiredActionsModal(redirectPath);

@@ -20,10 +20,10 @@ import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
+import { getRelativeTime } from "src/utils/datetimeUtils";
+
 dayjs.extend(utc);
 dayjs.extend(tz);
-
-import { getRelativeTime } from "src/utils/datetimeUtils";
 
 export const DAG_RUN_META_DATE_FORMAT = "MMM D, HH:mm";
 

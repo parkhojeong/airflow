@@ -19,11 +19,10 @@
 import { Table, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 
-import { useTimezone } from "src/context/timezone";
-import { isHITLPending } from "src/utils/hitl";
-
 import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 import Time from "src/components/Time";
+import { useTimezone } from "src/context/timezone";
+import { isHITLPending } from "src/utils/hitl";
 
 import { NotificationSection, NotificationTypeSection, StatusText } from "./NotificationsListComponents";
 import { getDagRunListDateFormat, getDagRunOrderTimestamp, getTimestamp } from "./notificationDisplayUtils";
@@ -92,7 +91,9 @@ const HITL_COL_SPAN = 5;
 const EmptyRow = ({ colSpan, label }: { readonly colSpan: number; readonly label: string }) => (
   <Table.Row>
     <Table.Cell colSpan={colSpan} px={2} py={3} textAlign="center">
-      <Text color="fg.muted" fontSize="xs">{label}</Text>
+      <Text color="fg.muted" fontSize="xs">
+        {label}
+      </Text>
     </Table.Cell>
   </Table.Row>
 );
@@ -141,46 +142,66 @@ const HitlTable = ({
       <Table.Body>
         {details.length === 0 ? (
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
-        ) : details.map((detail, index) => {
-          const key = getNotificationKey({ item: detail, type: "hitl" });
-          const selected = selectedKey === key;
-          const ti = detail.task_instance;
-          const mappedIndex =
-            ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
-          const groupColor = GROUP_COLORS[(groupIndices[index] ?? 0) % GROUP_COLORS.length];
+        ) : (
+          details.map((detail, index) => {
+            const key = getNotificationKey({ item: detail, type: "hitl" });
+            const selected = selectedKey === key;
+            const ti = detail.task_instance;
+            const mappedIndex =
+              ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
+            const groupColor = GROUP_COLORS[(groupIndices[index] ?? 0) % GROUP_COLORS.length];
 
-          return (
-            <Table.Row
-              _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-              aria-pressed={selected}
-              bg={selected ? "bg.muted" : undefined}
-              cursor="pointer"
-              key={key}
-              onClick={() => onSelect({ item: detail, type: "hitl" })}
-              onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
-            >
-              <Table.Cell borderLeftColor={groupColor} borderLeftWidth={3} overflow="hidden" px={2} py={1.5}>
-                <Text fontSize="xs" truncate>{ti.dag_id}</Text>
-              </Table.Cell>
-              <Table.Cell px={2} py={1.5}>
-                <Text fontSize="xs">
-                  <Time datetime={ti.run_after} format={getDagRunListDateFormat(ti.run_after, true, timezone)} />
-                </Text>
-              </Table.Cell>
-              <Table.Cell px={2} py={1.5}>
-                <Text color="fg.muted" fontSize="xs">{mappedIndex}</Text>
-              </Table.Cell>
-              <Table.Cell overflow="hidden" px={2} py={1.5}>
-                <Text fontSize="xs" truncate>{ti.task_id}</Text>
-              </Table.Cell>
-              <Table.Cell px={2} py={1.5}>
-                <Text fontSize="xs">
-                  <Time datetime={detail.created_at} format={getDagRunListDateFormat(detail.created_at, false, timezone)} />
-                </Text>
-              </Table.Cell>
-            </Table.Row>
-          );
-        })}
+            return (
+              <Table.Row
+                _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
+                aria-pressed={selected}
+                bg={selected ? "bg.muted" : undefined}
+                cursor="pointer"
+                key={key}
+                onClick={() => onSelect({ item: detail, type: "hitl" })}
+                onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
+              >
+                <Table.Cell
+                  borderLeftColor={groupColor}
+                  borderLeftWidth={3}
+                  overflow="hidden"
+                  px={2}
+                  py={1.5}
+                >
+                  <Text fontSize="xs" truncate>
+                    {ti.dag_id}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell px={2} py={1.5}>
+                  <Text fontSize="xs">
+                    <Time
+                      datetime={ti.run_after}
+                      format={getDagRunListDateFormat(ti.run_after, true, timezone)}
+                    />
+                  </Text>
+                </Table.Cell>
+                <Table.Cell px={2} py={1.5}>
+                  <Text color="fg.muted" fontSize="xs">
+                    {mappedIndex}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell overflow="hidden" px={2} py={1.5}>
+                  <Text fontSize="xs" truncate>
+                    {ti.task_id}
+                  </Text>
+                </Table.Cell>
+                <Table.Cell px={2} py={1.5}>
+                  <Text fontSize="xs">
+                    <Time
+                      datetime={detail.created_at}
+                      format={getDagRunListDateFormat(detail.created_at, false, timezone)}
+                    />
+                  </Text>
+                </Table.Cell>
+              </Table.Row>
+            );
+          })
+        )}
       </Table.Body>
     </Table.Root>
   );

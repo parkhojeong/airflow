@@ -21,13 +21,10 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-
-
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import type { NotificationFilterMode } from "src/layouts/Nav/NotificationsList";
 import { NotificationsModal } from "src/layouts/Nav/NotificationsModal";
 import { useAutoRefresh } from "src/utils";
-
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
