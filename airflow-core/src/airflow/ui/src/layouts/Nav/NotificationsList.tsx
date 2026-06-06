@@ -221,7 +221,7 @@ export const NotificationsList = ({
   const isShowingAllActions = filterMode === "all";
   const pendingHitlDetails = isShowingAllActions ? hitlDetails.filter(isPendingHitlDetail) : hitlDetails;
   const completedHitlDetails = isShowingAllActions
-    ? hitlDetails.filter((detail) => !isPendingHitlDetail(detail))
+    ? hitlDetails.filter((detail) => Boolean(detail.response_received))
     : [];
 
   return (
