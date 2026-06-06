@@ -20,6 +20,7 @@ import { Table, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 
 import { useTimezone } from "src/context/timezone";
+import { isHITLPending } from "src/utils/hitl";
 
 import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 import Time from "src/components/Time";
@@ -31,7 +32,10 @@ import { prefetchHitlDetail } from "./notificationPrefetchUtils";
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
 const LOADING_HITL_LABEL = "Loading pending HITL actions...";
 const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
+const NO_HITL_ACTIONS_LABEL = "No HITL actions";
+const NO_COMPLETED_HITL_ACTIONS_LABEL = "No completed HITL actions";
 const PENDING_HITL_LABEL = "Pending HITL";
+const COMPLETED_HITL_LABEL = "Completed HITL";
 const CREATED_AT_LABEL = "Created at";
 const DAG_ID_LABEL = "Dag ID";
 const DAG_RUN_LABEL = "Dag Run";
@@ -39,11 +43,13 @@ const MAP_INDEX_LABEL = "Map Index";
 const TASK_ID_LABEL = "Task ID";
 
 export type SelectedNotification = { readonly item: HITLDetail; readonly type: "hitl" };
+export type NotificationFilterMode = "all" | "pending";
 
 export const getNotificationKey = (selection: SelectedNotification): string =>
   `hitl:${selection.item.task_instance.id}`;
 
 type NotificationsListProps = {
+  readonly filterMode: NotificationFilterMode;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
@@ -72,6 +78,8 @@ export const getNotificationsInDisplayOrder = ({
 }): Array<SelectedNotification> =>
   [...hitlDetails].sort(compareHitlNotifications).map((item) => ({ item, type: "hitl" }) as const);
 
+const isPendingHitlDetail = (detail: HITLDetail) =>
+  !detail.response_received && isHITLPending(detail.task_instance.state);
 
 const TableColumnHeader = ({ children, width }: { readonly children: string; readonly width?: string }) => (
   <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={width}>
@@ -179,6 +187,7 @@ const HitlTable = ({
 };
 
 export const NotificationsList = ({
+  filterMode,
   hitlData,
   hitlIsError,
   hitlIsLoading,
@@ -188,10 +197,15 @@ export const NotificationsList = ({
   const queryClient = useQueryClient();
   const { selectedTimezone } = useTimezone();
   const hitlDetails = [...(hitlData?.hitl_details ?? [])].sort(compareHitlNotifications);
+  const isShowingAllActions = filterMode === "all";
+  const pendingHitlDetails = isShowingAllActions ? hitlDetails.filter(isPendingHitlDetail) : hitlDetails;
+  const completedHitlDetails = isShowingAllActions
+    ? hitlDetails.filter((detail) => !isPendingHitlDetail(detail))
+    : [];
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <NotificationTypeSection heading={getSectionLabel(PENDING_HITL_LABEL, hitlDetails.length)}>
+      <NotificationTypeSection heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}>
         <NotificationSection>
           {hitlIsLoading ? (
             <StatusText>{LOADING_HITL_LABEL}</StatusText>
@@ -199,7 +213,7 @@ export const NotificationsList = ({
             <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
           ) : (
             <HitlTable
-              details={hitlDetails}
+              details={pendingHitlDetails}
               emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
               onSelect={onSelect}
               queryClient={queryClient}
@@ -209,6 +223,28 @@ export const NotificationsList = ({
           )}
         </NotificationSection>
       </NotificationTypeSection>
+      {isShowingAllActions ? (
+        <NotificationTypeSection heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}>
+          <NotificationSection>
+            {hitlIsLoading ? (
+              <StatusText>{LOADING_HITL_LABEL}</StatusText>
+            ) : hitlIsError ? (
+              <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
+            ) : (
+              <HitlTable
+                details={completedHitlDetails}
+                emptyLabel={
+                  hitlDetails.length === 0 ? NO_HITL_ACTIONS_LABEL : NO_COMPLETED_HITL_ACTIONS_LABEL
+                }
+                onSelect={onSelect}
+                queryClient={queryClient}
+                selectedKey={selectedKey}
+                timezone={selectedTimezone}
+              />
+            )}
+          </NotificationSection>
+        </NotificationTypeSection>
+      ) : undefined}
     </VStack>
   );
 };

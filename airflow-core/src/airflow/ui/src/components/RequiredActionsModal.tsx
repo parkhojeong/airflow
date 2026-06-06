@@ -16,19 +16,64 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button } from "@chakra-ui/react";
+import { Button, Group, HStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import type { NotificationFilterMode } from "src/layouts/Nav/NotificationsList";
 import { NotificationsModal } from "src/layouts/Nav/NotificationsModal";
 import { useAutoRefresh } from "src/utils";
 
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
+const PENDING_ACTIONS_LABEL = "Pending";
+const ALL_ACTIONS_LABEL = "All";
+const PENDING_ACTIONS_VALUE = "pending" satisfies NotificationFilterMode;
+const ALL_ACTIONS_VALUE = "all" satisfies NotificationFilterMode;
+
+const getNotificationFilterMode = (value?: string): NotificationFilterMode =>
+  value === ALL_ACTIONS_VALUE ? ALL_ACTIONS_VALUE : PENDING_ACTIONS_VALUE;
+
+const REQUIRED_ACTION_FILTER_OPTIONS: Array<{ label: string; value: NotificationFilterMode }> = [
+  { label: PENDING_ACTIONS_LABEL, value: PENDING_ACTIONS_VALUE },
+  { label: ALL_ACTIONS_LABEL, value: ALL_ACTIONS_VALUE },
+];
+
+const RequiredActionsFilter = ({
+  onChange,
+  value,
+}: {
+  readonly onChange: (value: NotificationFilterMode) => void;
+  readonly value: NotificationFilterMode;
+}) => (
+  <Group backgroundColor="bg.muted" borderColor="border.emphasized" borderRadius={8} borderWidth={1} p={0.5}>
+    {REQUIRED_ACTION_FILTER_OPTIONS.map((option) => {
+      const selected = value === option.value;
+
+      return (
+        <Button
+          _hover={{ backgroundColor: "bg.emphasized" }}
+          bg={selected ? "bg.panel" : undefined}
+          borderColor={selected ? "border.emphasized" : "transparent"}
+          borderWidth={selected ? 1 : 0}
+          key={option.value}
+          minH={6}
+          onClick={() => onChange(option.value)}
+          px={2}
+          size="xs"
+          variant="ghost"
+        >
+          {option.label}
+        </Button>
+      );
+    })}
+  </Group>
+);
 
 export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: () => void }) => (
   <Button asChild size="sm" variant="outline">
@@ -51,7 +96,10 @@ export const RequiredActionsModal = ({
   readonly open: boolean;
   readonly runId?: string;
 }) => {
+  const [selectedFilter, setSelectedFilter] = useState<NotificationFilterMode>(PENDING_ACTIONS_VALUE);
   const refetchInterval = useAutoRefresh({ checkPendingRuns: open, dagId: open ? dagId : undefined });
+  const normalizedSelectedFilter = getNotificationFilterMode(selectedFilter);
+  const showAllActions = selectedFilter === ALL_ACTIONS_VALUE;
   const {
     data: hitlData,
     isError: hitlIsError,
@@ -60,8 +108,8 @@ export const RequiredActionsModal = ({
     {
       dagId: dagId ?? "~",
       dagRunId: runId ?? "~",
-      responseReceived: false,
-      state: ["deferred"],
+      responseReceived: showAllActions ? undefined : false,
+      state: showAllActions ? undefined : ["deferred", "awaiting_input"],
     },
     undefined,
     { enabled: open, refetchInterval },
@@ -69,7 +117,13 @@ export const RequiredActionsModal = ({
 
   return (
     <NotificationsModal
-      headerAction={headerAction}
+      filterMode={normalizedSelectedFilter}
+      headerAction={
+        <HStack gap={2}>
+          {headerAction}
+          <RequiredActionsFilter onChange={setSelectedFilter} value={normalizedSelectedFilter} />
+        </HStack>
+      }
       hitlData={hitlData}
       hitlIsError={hitlIsError}
       hitlIsLoading={hitlIsLoading}

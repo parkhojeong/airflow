@@ -29,6 +29,7 @@ import { HITLNotificationCard } from "./HITLNotificationCard";
 import {
   getNotificationKey,
   getNotificationsInDisplayOrder,
+  type NotificationFilterMode,
   NotificationsList,
   type SelectedNotification,
 } from "./NotificationsList";
@@ -41,6 +42,7 @@ const NEXT_NOTIFICATION_LABEL = "Next";
 const PREVIOUS_NOTIFICATION_LABEL = "Prev";
 
 type NotificationsModalProps = {
+  readonly filterMode: NotificationFilterMode;
   readonly headerAction?: ReactNode;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
@@ -216,6 +218,7 @@ const NotificationDetailPane = ({
 };
 
 export const NotificationsModal = ({
+  filterMode,
   headerAction,
   hitlData,
   hitlIsError,
@@ -353,6 +356,7 @@ export const NotificationsModal = ({
               zIndex={2}
             >
               <NotificationsList
+                filterMode={filterMode}
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
                 hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
