@@ -66,12 +66,12 @@ export const getDagRunOrderTimestamp = (dagRunId: string, fallbackRunAfter?: str
   return getTimestamp(dayjs(runAfter).isValid() ? runAfter : fallbackRunAfter);
 };
 
-export const formatNotificationDetailTime = (datetime?: string, showSeconds = false) => {
+export const formatNotificationDetailTime = (datetime?: string, showSeconds = false, timezone = "UTC") => {
   if (datetime === undefined) {
     return undefined;
   }
 
-  const date = dayjs(datetime);
+  const date = dayjs(datetime).tz(timezone);
 
   if (!date.isValid()) {
     return undefined;
@@ -79,7 +79,9 @@ export const formatNotificationDetailTime = (datetime?: string, showSeconds = fa
 
   const timeFormat = showSeconds ? "HH:mm:ss" : "HH:mm";
   const dateTimeFormat = showSeconds ? "ddd, MMM D, HH:mm:ss" : "ddd, MMM D, HH:mm";
-  const timestamp = date.isSame(dayjs(), "day") ? date.format(timeFormat) : date.format(dateTimeFormat);
+  const timestamp = date.isSame(dayjs().tz(timezone), "day")
+    ? date.format(timeFormat)
+    : date.format(dateTimeFormat);
   const relative = getRelativeTime(datetime);
 
   return relative === "" ? timestamp : `${timestamp} (${relative})`;
