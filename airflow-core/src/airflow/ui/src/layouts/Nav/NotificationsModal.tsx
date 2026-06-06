@@ -19,7 +19,7 @@
 import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
@@ -228,9 +228,6 @@ export const NotificationsModal = ({
 }: NotificationsModalProps) => {
   const queryClient = useQueryClient();
   const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
-  const hitlDataRef = useRef(hitlData);
-
-  hitlDataRef.current = hitlData;
 
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
   const notifications = getNotifications({ hitlData });
@@ -258,10 +255,10 @@ export const NotificationsModal = ({
       return;
     }
 
-    const firstHitl = hitlDataRef.current?.hitl_details[0];
+    const [firstNotification] = getNotifications({ hitlData });
 
-    if (firstHitl !== undefined) {
-      setSelected({ item: firstHitl, type: "hitl" });
+    if (firstNotification !== undefined) {
+      setSelected(firstNotification);
     }
   }, [hitlData, open, selected]);
 
