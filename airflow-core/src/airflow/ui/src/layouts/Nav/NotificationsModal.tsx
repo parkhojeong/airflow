@@ -19,7 +19,7 @@
 import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
@@ -233,7 +233,7 @@ export const NotificationsModal = ({
   hitlDataRef.current = hitlData;
 
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
-  const notifications = useMemo(() => getNotifications({ hitlData }), [hitlData]);
+  const notifications = getNotifications({ hitlData });
 
   const selectedNotificationKey = selected === undefined ? undefined : getNotificationKey(selected);
   const selectedNotificationIndex = notifications.findIndex(
@@ -299,14 +299,14 @@ export const NotificationsModal = ({
     setSelected(getPreviousNotification({ notifications, selectedNotificationKey }));
   };
 
-  const handleSelect = useCallback((next: SelectedNotification) => {
+  const handleSelect = (next: SelectedNotification) => {
     setSelected((current) => {
       const nextIsSelected =
         current !== undefined && getNotificationKey(current) === getNotificationKey(next);
 
       return nextIsSelected ? undefined : next;
     });
-  }, []);
+  };
 
   return (
     <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
