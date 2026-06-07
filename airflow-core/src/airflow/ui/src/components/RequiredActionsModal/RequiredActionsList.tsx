@@ -24,9 +24,14 @@ import Time from "src/components/Time";
 import { useTimezone } from "src/context/timezone";
 import { isHITLPending } from "src/utils/hitl";
 
-import { NotificationSection, NotificationTypeSection, StatusText } from "./NotificationsListComponents";
-import { getDagRunListDateFormat } from "./notificationDisplayUtils";
-import { prefetchHitlDetail } from "./notificationPrefetchUtils";
+import {
+  RequiredActionSection,
+  RequiredActionTypeSection,
+  StatusText,
+} from "./RequiredActionsListComponents";
+import { getDagRunListDateFormat } from "./requiredActionDisplayUtils";
+import { prefetchHitlDetail } from "./requiredActionPrefetchUtils";
+import { getRequiredActionKey, type SelectedRequiredAction } from "./requiredActionSelection";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
 const LOADING_HITL_LABEL = "Loading pending HITL actions...";
@@ -41,18 +46,14 @@ const DAG_RUN_LABEL = "Dag Run";
 const MAP_INDEX_LABEL = "Map Index";
 const TASK_ID_LABEL = "Task ID";
 
-export type SelectedNotification = { readonly item: HITLDetail; readonly type: "hitl" };
-export type NotificationFilterMode = "all" | "pending";
+export type RequiredActionsFilterMode = "all" | "pending";
 
-export const getNotificationKey = (selection: SelectedNotification): string =>
-  `hitl:${selection.item.task_instance.id}`;
-
-type NotificationsListProps = {
-  readonly filterMode: NotificationFilterMode;
+type RequiredActionsListProps = {
+  readonly filterMode: RequiredActionsFilterMode;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
-  readonly onSelect: (selection: SelectedNotification) => void;
+  readonly onSelect: (selection: SelectedRequiredAction) => void;
   readonly selectedKey?: string;
 };
 
@@ -87,7 +88,7 @@ const HitlTable = ({
 }: {
   readonly details: Array<HITLDetail>;
   readonly emptyLabel: string;
-  readonly onSelect: (selection: SelectedNotification) => void;
+  readonly onSelect: (selection: SelectedRequiredAction) => void;
   readonly queryClient: QueryClient;
   readonly selectedKey?: string;
   readonly timezone: string;
@@ -123,7 +124,7 @@ const HitlTable = ({
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
-            const key = getNotificationKey({ item: detail, type: "hitl" });
+            const key = getRequiredActionKey({ item: detail, type: "hitl" });
             const selected = selectedKey === key;
             const ti = detail.task_instance;
             const mappedIndex =
@@ -186,7 +187,7 @@ const HitlTable = ({
   );
 };
 
-const HitlNotificationSection = ({
+const HitlRequiredActionSection = ({
   details,
   emptyLabel,
   heading,
@@ -202,13 +203,13 @@ const HitlNotificationSection = ({
   readonly heading: string;
   readonly isError: boolean;
   readonly isLoading: boolean;
-  readonly onSelect: (selection: SelectedNotification) => void;
+  readonly onSelect: (selection: SelectedRequiredAction) => void;
   readonly queryClient: QueryClient;
   readonly selectedKey?: string;
   readonly timezone: string;
 }) => (
-  <NotificationTypeSection heading={heading}>
-    <NotificationSection>
+  <RequiredActionTypeSection heading={heading}>
+    <RequiredActionSection>
       {isLoading ? (
         <StatusText>{LOADING_HITL_LABEL}</StatusText>
       ) : isError ? (
@@ -223,18 +224,18 @@ const HitlNotificationSection = ({
           timezone={timezone}
         />
       )}
-    </NotificationSection>
-  </NotificationTypeSection>
+    </RequiredActionSection>
+  </RequiredActionTypeSection>
 );
 
-export const NotificationsList = ({
+export const RequiredActionsList = ({
   filterMode,
   hitlData,
   hitlIsError,
   hitlIsLoading,
   onSelect,
   selectedKey,
-}: NotificationsListProps) => {
+}: RequiredActionsListProps) => {
   const queryClient = useQueryClient();
   const { selectedTimezone } = useTimezone();
   const hitlDetails = hitlData?.hitl_details ?? [];
@@ -246,7 +247,7 @@ export const NotificationsList = ({
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <HitlNotificationSection
+      <HitlRequiredActionSection
         details={pendingHitlDetails}
         emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
         heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}
@@ -258,7 +259,7 @@ export const NotificationsList = ({
         timezone={selectedTimezone}
       />
       {isShowingAllActions ? (
-        <HitlNotificationSection
+        <HitlRequiredActionSection
           details={completedHitlDetails}
           emptyLabel={hitlDetails.length === 0 ? NO_HITL_ACTIONS_LABEL : NO_COMPLETED_HITL_ACTIONS_LABEL}
           heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}

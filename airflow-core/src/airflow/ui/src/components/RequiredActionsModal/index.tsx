@@ -22,21 +22,22 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
-import type { NotificationFilterMode } from "src/layouts/Nav/NotificationsList";
-import { NotificationsModal } from "src/layouts/Nav/NotificationsModal";
 import { useAutoRefresh } from "src/utils";
+
+import { RequiredActionsDialog } from "./RequiredActionsDialog";
+import type { RequiredActionsFilterMode } from "./RequiredActionsList";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
 const PENDING_ACTIONS_LABEL = "Pending";
 const ALL_ACTIONS_LABEL = "All";
-const PENDING_ACTIONS_VALUE = "pending" satisfies NotificationFilterMode;
-const ALL_ACTIONS_VALUE = "all" satisfies NotificationFilterMode;
+const PENDING_ACTIONS_VALUE = "pending" satisfies RequiredActionsFilterMode;
+const ALL_ACTIONS_VALUE = "all" satisfies RequiredActionsFilterMode;
 
-const getNotificationFilterMode = (value?: string): NotificationFilterMode =>
+const getRequiredActionsFilterMode = (value?: string): RequiredActionsFilterMode =>
   value === ALL_ACTIONS_VALUE ? ALL_ACTIONS_VALUE : PENDING_ACTIONS_VALUE;
 
-const REQUIRED_ACTION_FILTER_OPTIONS: Array<{ label: string; value: NotificationFilterMode }> = [
+const REQUIRED_ACTION_FILTER_OPTIONS: Array<{ label: string; value: RequiredActionsFilterMode }> = [
   { label: PENDING_ACTIONS_LABEL, value: PENDING_ACTIONS_VALUE },
   { label: ALL_ACTIONS_LABEL, value: ALL_ACTIONS_VALUE },
 ];
@@ -45,8 +46,8 @@ const RequiredActionsFilter = ({
   onChange,
   value,
 }: {
-  readonly onChange: (value: NotificationFilterMode) => void;
-  readonly value: NotificationFilterMode;
+  readonly onChange: (value: RequiredActionsFilterMode) => void;
+  readonly value: RequiredActionsFilterMode;
 }) => (
   <Group backgroundColor="bg.muted" borderColor="border.emphasized" borderRadius={8} borderWidth={1} p={0.5}>
     {REQUIRED_ACTION_FILTER_OPTIONS.map((option) => {
@@ -93,9 +94,9 @@ export const RequiredActionsModal = ({
   readonly open: boolean;
   readonly runId?: string;
 }) => {
-  const [selectedFilter, setSelectedFilter] = useState<NotificationFilterMode>(PENDING_ACTIONS_VALUE);
+  const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
   const refetchInterval = useAutoRefresh({ checkPendingRuns: open, dagId: open ? dagId : undefined });
-  const normalizedSelectedFilter = getNotificationFilterMode(selectedFilter);
+  const normalizedSelectedFilter = getRequiredActionsFilterMode(selectedFilter);
   const showAllActions = selectedFilter === ALL_ACTIONS_VALUE;
   const {
     data: hitlData,
@@ -114,7 +115,7 @@ export const RequiredActionsModal = ({
   );
 
   return (
-    <NotificationsModal
+    <RequiredActionsDialog
       filterMode={normalizedSelectedFilter}
       headerAction={
         <HStack gap={2}>

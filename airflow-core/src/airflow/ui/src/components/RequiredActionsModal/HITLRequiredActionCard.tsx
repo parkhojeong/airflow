@@ -26,8 +26,8 @@ import { useTimezone } from "src/context/timezone";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
-import { MetaRow } from "./NotificationCard";
-import { formatNotificationDetailTime } from "./notificationDisplayUtils";
+import { MetaRow } from "./RequiredActionCard";
+import { formatRequiredActionDetailTime } from "./requiredActionDisplayUtils";
 
 const OPEN_TASK_LABEL = "Open task";
 const LOADING_RESPONSE_LABEL = "Loading response form...";
@@ -40,7 +40,7 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   return users.map((user) => user.name).join(", ");
 };
 
-export const HITLNotificationCard = ({
+export const HITLRequiredActionCard = ({
   detail,
   onNavigate,
   onResponded,
@@ -67,7 +67,7 @@ export const HITLNotificationCard = ({
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
   const assignees = formatAssignees(detail.assigned_users);
   const assigneeLabel = detail.assigned_users?.length === 1 ? "Assignee" : "Assignees";
-  const requestedTime = formatNotificationDetailTime(detail.created_at, true, selectedTimezone);
+  const requestedTime = formatRequiredActionDetailTime(detail.created_at, true, selectedTimezone);
   const taskLink = `${getTaskInstanceLink(ti)}/required_actions`;
 
   return (

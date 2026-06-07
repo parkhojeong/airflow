@@ -21,27 +21,27 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import { Tooltip } from "src/components/ui";
 
-const NEXT_NOTIFICATION_LABEL = "Next";
-const PREVIOUS_NOTIFICATION_LABEL = "Prev";
+const NEXT_REQUIRED_ACTION_LABEL = "Next";
+const PREVIOUS_REQUIRED_ACTION_LABEL = "Prev";
 
-export const NotificationNavigation = ({
-  canNavigateNotifications,
-  hasNextNotification,
-  hasPreviousNotification,
+export const RequiredActionNavigation = ({
+  canNavigateRequiredActions,
+  hasNextRequiredAction,
+  hasPreviousRequiredAction,
   onNext,
   onPrevious,
 }: {
-  readonly canNavigateNotifications: boolean;
-  readonly hasNextNotification: boolean;
-  readonly hasPreviousNotification: boolean;
+  readonly canNavigateRequiredActions: boolean;
+  readonly hasNextRequiredAction: boolean;
+  readonly hasPreviousRequiredAction: boolean;
   readonly onNext: () => void;
   readonly onPrevious: () => void;
 }) => (
   <HStack gap={1}>
-    <Tooltip content={PREVIOUS_NOTIFICATION_LABEL}>
+    <Tooltip content={PREVIOUS_REQUIRED_ACTION_LABEL}>
       <IconButton
-        aria-label={PREVIOUS_NOTIFICATION_LABEL}
-        disabled={!canNavigateNotifications || !hasPreviousNotification}
+        aria-label={PREVIOUS_REQUIRED_ACTION_LABEL}
+        disabled={!canNavigateRequiredActions || !hasPreviousRequiredAction}
         onClick={onPrevious}
         size="xs"
         variant="ghost"
@@ -49,10 +49,10 @@ export const NotificationNavigation = ({
         <FiChevronLeft />
       </IconButton>
     </Tooltip>
-    <Tooltip content={NEXT_NOTIFICATION_LABEL}>
+    <Tooltip content={NEXT_REQUIRED_ACTION_LABEL}>
       <IconButton
-        aria-label={NEXT_NOTIFICATION_LABEL}
-        disabled={!canNavigateNotifications || !hasNextNotification}
+        aria-label={NEXT_REQUIRED_ACTION_LABEL}
+        disabled={!canNavigateRequiredActions || !hasNextRequiredAction}
         onClick={onNext}
         size="xs"
         variant="ghost"

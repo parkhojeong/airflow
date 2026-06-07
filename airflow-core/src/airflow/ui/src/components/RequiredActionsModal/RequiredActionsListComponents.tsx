@@ -31,7 +31,7 @@ export const StatusText = ({
   </Text>
 );
 
-export const NotificationSection = ({ children }: { readonly children: ReactNode }) => (
+export const RequiredActionSection = ({ children }: { readonly children: ReactNode }) => (
   <VStack
     alignItems="stretch"
     bg="bg"
@@ -47,7 +47,7 @@ export const NotificationSection = ({ children }: { readonly children: ReactNode
   </VStack>
 );
 
-export const NotificationTypeSection = ({
+export const RequiredActionTypeSection = ({
   children,
   heading,
 }: {

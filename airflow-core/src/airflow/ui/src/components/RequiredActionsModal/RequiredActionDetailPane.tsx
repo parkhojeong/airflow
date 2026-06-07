@@ -18,13 +18,13 @@
  */
 import { Text, VStack } from "@chakra-ui/react";
 
-import { HITLNotificationCard } from "./HITLNotificationCard";
-import type { SelectedNotification } from "./NotificationsList";
+import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
+import type { SelectedRequiredAction } from "./requiredActionSelection";
 
-const EMPTY_DETAIL_LABEL = "Select a notification to see details";
-const LOADING_NOTIFICATIONS_LABEL = "Loading notifications...";
+const EMPTY_DETAIL_LABEL = "Select a required action to see details";
+const LOADING_REQUIRED_ACTIONS_LABEL = "Loading required actions...";
 
-export const NotificationDetailPane = ({
+export const RequiredActionDetailPane = ({
   isLoading,
   onNavigate,
   onResponded,
@@ -33,20 +33,20 @@ export const NotificationDetailPane = ({
   readonly isLoading: boolean;
   readonly onNavigate: () => void;
   readonly onResponded: () => void;
-  readonly selected?: SelectedNotification;
+  readonly selected?: SelectedRequiredAction;
 }) => {
   if (selected === undefined) {
     return (
       <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
         <Text color="fg.muted" fontSize="sm">
-          {isLoading ? LOADING_NOTIFICATIONS_LABEL : EMPTY_DETAIL_LABEL}
+          {isLoading ? LOADING_REQUIRED_ACTIONS_LABEL : EMPTY_DETAIL_LABEL}
         </Text>
       </VStack>
     );
   }
 
   return (
-    <HITLNotificationCard
+    <HITLRequiredActionCard
       detail={selected.item}
       key={selected.item.task_instance.id}
       onNavigate={onNavigate}

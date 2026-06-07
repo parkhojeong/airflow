@@ -37,7 +37,7 @@ export const getDagRunListDateFormat = (datetime: string, showSeconds = false, t
   return showSeconds ? DAG_RUN_META_DATE_WITH_SECONDS_FORMAT : DAG_RUN_META_DATE_FORMAT;
 };
 
-export const formatNotificationDetailTime = (datetime?: string, showSeconds = false, timezone = "UTC") => {
+export const formatRequiredActionDetailTime = (datetime?: string, showSeconds = false, timezone = "UTC") => {
   if (datetime === undefined) {
     return undefined;
   }

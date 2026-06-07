@@ -23,15 +23,15 @@ import type { ReactNode } from "react";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { Dialog } from "src/components/ui";
 
-import { NotificationDetailPane } from "./NotificationDetailPane";
-import { NotificationNavigation } from "./NotificationNavigation";
-import { type NotificationFilterMode, NotificationsList } from "./NotificationsList";
-import { useNotificationSelection } from "./useNotificationSelection";
+import { RequiredActionDetailPane } from "./RequiredActionDetailPane";
+import { RequiredActionNavigation } from "./RequiredActionNavigation";
+import { type RequiredActionsFilterMode, RequiredActionsList } from "./RequiredActionsList";
+import { useRequiredActionSelection } from "./useRequiredActionSelection";
 
-const NOTIFICATIONS_LABEL = "Notifications";
+const REQUIRED_ACTIONS_LABEL = "Required actions";
 
-type NotificationsModalProps = {
-  readonly filterMode: NotificationFilterMode;
+type RequiredActionsDialogProps = {
+  readonly filterMode: RequiredActionsFilterMode;
   readonly headerAction?: ReactNode;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
@@ -40,7 +40,7 @@ type NotificationsModalProps = {
   readonly open: boolean;
 };
 
-export const NotificationsModal = ({
+export const RequiredActionsDialog = ({
   filterMode,
   headerAction,
   hitlData,
@@ -48,24 +48,24 @@ export const NotificationsModal = ({
   hitlIsLoading,
   onClose,
   open,
-}: NotificationsModalProps) => {
+}: RequiredActionsDialogProps) => {
   const queryClient = useQueryClient();
 
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
-  const isLoadingHitlNotifications = hitlIsLoading || effectiveHitlIsLoading;
+  const isLoadingHitlRequiredActions = hitlIsLoading || effectiveHitlIsLoading;
   const {
-    canNavigateNotifications,
-    handleNextNotification,
-    handlePreviousNotification,
+    canNavigateRequiredActions,
+    handleNextRequiredAction,
+    handlePreviousRequiredAction,
     handleSelect,
-    hasNextNotification,
-    hasPreviousNotification,
-    selectedNotificationKey,
-    selectNextNotification,
-    visibleSelectedNotification,
-  } = useNotificationSelection({
+    hasNextRequiredAction,
+    hasPreviousRequiredAction,
+    selectedRequiredActionKey,
+    selectNextRequiredAction,
+    visibleSelectedRequiredAction,
+  } = useRequiredActionSelection({
     hitlData,
-    isLoading: isLoadingHitlNotifications,
+    isLoading: isLoadingHitlRequiredActions,
     open,
     queryClient,
   });
@@ -82,16 +82,16 @@ export const NotificationsModal = ({
         <Dialog.Header>
           <HStack justifyContent="space-between" pr={8} width="100%">
             <Heading flexShrink={0} size="md">
-              {NOTIFICATIONS_LABEL}
+              {REQUIRED_ACTIONS_LABEL}
             </Heading>
             <HStack gap={2}>
               {headerAction}
-              <NotificationNavigation
-                canNavigateNotifications={canNavigateNotifications}
-                hasNextNotification={hasNextNotification}
-                hasPreviousNotification={hasPreviousNotification}
-                onNext={handleNextNotification}
-                onPrevious={handlePreviousNotification}
+              <RequiredActionNavigation
+                canNavigateRequiredActions={canNavigateRequiredActions}
+                hasNextRequiredAction={hasNextRequiredAction}
+                hasPreviousRequiredAction={hasPreviousRequiredAction}
+                onNext={handleNextRequiredAction}
+                onPrevious={handlePreviousRequiredAction}
               />
             </HStack>
           </HStack>
@@ -117,13 +117,13 @@ export const NotificationsModal = ({
               width={{ base: "100%", lg: "770px", xl: "836px" }}
               zIndex={2}
             >
-              <NotificationsList
+              <RequiredActionsList
                 filterMode={filterMode}
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
-                hitlIsLoading={isLoadingHitlNotifications}
+                hitlIsLoading={isLoadingHitlRequiredActions}
                 onSelect={handleSelect}
-                selectedKey={selectedNotificationKey}
+                selectedKey={selectedRequiredActionKey}
               />
             </Box>
             <Box
@@ -139,11 +139,11 @@ export const NotificationsModal = ({
               position="relative"
               zIndex={1}
             >
-              <NotificationDetailPane
-                isLoading={isLoadingHitlNotifications}
+              <RequiredActionDetailPane
+                isLoading={isLoadingHitlRequiredActions}
                 onNavigate={onClose}
-                onResponded={selectNextNotification}
-                selected={visibleSelectedNotification}
+                onResponded={selectNextRequiredAction}
+                selected={visibleSelectedRequiredAction}
               />
             </Box>
           </HStack>
