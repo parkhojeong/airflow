@@ -27,7 +27,7 @@ import {
   PENDING_ACTIONS_VALUE,
   RequiredActionsFilter,
 } from "./RequiredActionsFilter";
-import type { RequiredActionsFilterMode } from "./RequiredActionsList";
+import type { RequiredActionsFilterMode } from "./types";
 import { useRequiredActionsQuery } from "./useRequiredActionsQuery";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";

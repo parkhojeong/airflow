@@ -25,7 +25,8 @@ import { Dialog } from "src/components/ui";
 
 import { RequiredActionDetailPane } from "./RequiredActionDetailPane";
 import { RequiredActionNavigation } from "./RequiredActionNavigation";
-import { type RequiredActionsFilterMode, RequiredActionsList } from "./RequiredActionsList";
+import { RequiredActionsList } from "./RequiredActionsList";
+import type { RequiredActionsFilterMode } from "./types";
 import { useRequiredActionSelection } from "./useRequiredActionSelection";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";

@@ -18,7 +18,7 @@
  */
 import { Button, Group } from "@chakra-ui/react";
 
-import type { RequiredActionsFilterMode } from "./RequiredActionsList";
+import type { RequiredActionsFilterMode } from "./types";
 
 const PENDING_ACTIONS_LABEL = "Pending";
 const ALL_ACTIONS_LABEL = "All";

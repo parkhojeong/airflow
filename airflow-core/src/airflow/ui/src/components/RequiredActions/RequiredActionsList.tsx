@@ -22,6 +22,7 @@ import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { isHITLPending } from "src/utils/hitl";
 
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
+import type { RequiredActionsFilterMode } from "./types";
 import type { SelectedRequiredAction } from "./utils/requiredActionSelection";
 
 const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
@@ -29,8 +30,6 @@ const NO_HITL_ACTIONS_LABEL = "No HITL actions";
 const NO_COMPLETED_HITL_ACTIONS_LABEL = "No completed HITL actions";
 const PENDING_HITL_LABEL = "Pending HITL";
 const COMPLETED_HITL_LABEL = "Completed HITL";
-
-export type RequiredActionsFilterMode = "all" | "pending";
 
 type RequiredActionsListProps = {
   readonly filterMode: RequiredActionsFilterMode;
