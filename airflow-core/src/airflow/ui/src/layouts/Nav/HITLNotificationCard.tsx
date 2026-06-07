@@ -21,6 +21,7 @@ import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
+import { ErrorAlert } from "src/components/ErrorAlert";
 import { useTimezone } from "src/context/timezone";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
@@ -49,7 +50,12 @@ export const HITLNotificationCard = ({
   readonly onResponded?: () => void;
 }) => {
   const { selectedTimezone } = useTimezone();
-  const { data: hitlDetail, isLoading } = useTaskInstanceServiceGetHitlDetailTryDetail({
+  const {
+    data: hitlDetail,
+    error,
+    isError,
+    isLoading,
+  } = useTaskInstanceServiceGetHitlDetailTryDetail({
     dagId: detail.task_instance.dag_id,
     dagRunId: detail.task_instance.dag_run_id,
     mapIndex: detail.task_instance.map_index,
@@ -60,6 +66,7 @@ export const HITLNotificationCard = ({
   const ti = detail.task_instance;
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
   const assignees = formatAssignees(detail.assigned_users);
+  const assigneeLabel = detail.assigned_users?.length === 1 ? "Assignee" : "Assignees";
   const requestedTime = formatNotificationDetailTime(detail.created_at, true, selectedTimezone);
   const taskLink = `${getTaskInstanceLink(ti)}/required_actions`;
 
@@ -74,7 +81,7 @@ export const HITLNotificationCard = ({
           <MetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
           <MetaRow label="Attempt" value={<Text>{ti.try_number}</Text>} />
           {assignees === undefined ? undefined : (
-            <MetaRow label="Assignee" value={<Text truncate>{assignees}</Text>} />
+            <MetaRow label={assigneeLabel} value={<Text truncate>{assignees}</Text>} />
           )}
         </Table.Body>
       </Table.Root>
@@ -85,7 +92,9 @@ export const HITLNotificationCard = ({
         </Link>
       </Button>
 
-      {isLoading || hitlDetail === undefined ? (
+      {isError ? (
+        <ErrorAlert error={error} />
+      ) : isLoading || hitlDetail === undefined ? (
         <VStack alignItems="stretch" gap={2}>
           <Text color="fg.muted" fontSize="sm">
             {LOADING_RESPONSE_LABEL}
