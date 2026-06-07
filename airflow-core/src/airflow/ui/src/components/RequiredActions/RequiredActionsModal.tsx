@@ -16,62 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Group, HStack } from "@chakra-ui/react";
+import { Button, HStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
-import { useAutoRefresh } from "src/utils";
-
 import { RequiredActionsDialog } from "./RequiredActionsDialog";
+import {
+  getRequiredActionsFilterMode,
+  PENDING_ACTIONS_VALUE,
+  RequiredActionsFilter,
+} from "./RequiredActionsFilter";
 import type { RequiredActionsFilterMode } from "./RequiredActionsList";
+import { useRequiredActionsQuery } from "./useRequiredActionsQuery";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
-const PENDING_ACTIONS_LABEL = "Pending";
-const ALL_ACTIONS_LABEL = "All";
-const PENDING_ACTIONS_VALUE = "pending" satisfies RequiredActionsFilterMode;
-const ALL_ACTIONS_VALUE = "all" satisfies RequiredActionsFilterMode;
-
-const getRequiredActionsFilterMode = (value?: string): RequiredActionsFilterMode =>
-  value === ALL_ACTIONS_VALUE ? ALL_ACTIONS_VALUE : PENDING_ACTIONS_VALUE;
-
-const REQUIRED_ACTION_FILTER_OPTIONS: Array<{ label: string; value: RequiredActionsFilterMode }> = [
-  { label: PENDING_ACTIONS_LABEL, value: PENDING_ACTIONS_VALUE },
-  { label: ALL_ACTIONS_LABEL, value: ALL_ACTIONS_VALUE },
-];
-
-const RequiredActionsFilter = ({
-  onChange,
-  value,
-}: {
-  readonly onChange: (value: RequiredActionsFilterMode) => void;
-  readonly value: RequiredActionsFilterMode;
-}) => (
-  <Group backgroundColor="bg.muted" borderColor="border.emphasized" borderRadius={8} borderWidth={1} p={0.5}>
-    {REQUIRED_ACTION_FILTER_OPTIONS.map((option) => {
-      const selected = value === option.value;
-
-      return (
-        <Button
-          _hover={{ backgroundColor: "bg.emphasized" }}
-          bg={selected ? "bg.panel" : undefined}
-          borderColor={selected ? "border.emphasized" : "transparent"}
-          borderWidth={selected ? 1 : 0}
-          key={option.value}
-          minH={6}
-          onClick={() => onChange(option.value)}
-          px={2}
-          size="xs"
-          variant="ghost"
-        >
-          {option.label}
-        </Button>
-      );
-    })}
-  </Group>
-);
 
 export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: () => void }) => (
   <Button asChild size="sm" variant="outline">
@@ -95,24 +55,12 @@ export const RequiredActionsModal = ({
   readonly runId?: string;
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
-  const refetchInterval = useAutoRefresh({ checkPendingRuns: open, dagId: open ? dagId : undefined });
   const normalizedSelectedFilter = getRequiredActionsFilterMode(selectedFilter);
-  const showAllActions = selectedFilter === ALL_ACTIONS_VALUE;
   const {
     data: hitlData,
     isError: hitlIsError,
     isLoading: hitlIsLoading,
-  } = useTaskInstanceServiceGetHitlDetails(
-    {
-      dagId: dagId ?? "~",
-      dagRunId: runId ?? "~",
-      orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
-      responseReceived: showAllActions ? undefined : false,
-      state: showAllActions ? undefined : ["deferred", "awaiting_input"],
-    },
-    undefined,
-    { enabled: open, refetchInterval },
-  );
+  } = useRequiredActionsQuery({ dagId, filterMode: normalizedSelectedFilter, open, runId });
 
   return (
     <RequiredActionsDialog
