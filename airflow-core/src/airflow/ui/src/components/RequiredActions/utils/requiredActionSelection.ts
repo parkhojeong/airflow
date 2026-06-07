@@ -16,9 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { HITLDetail } from "openapi/requests/types.gen";
+import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 
 export type SelectedRequiredAction = { readonly item: HITLDetail; readonly type: "hitl" };
 
+export type SetSelectedRequiredAction = (selected?: SelectedRequiredAction) => void;
+
 export const getRequiredActionKey = (selection: SelectedRequiredAction): string =>
   `hitl:${selection.item.task_instance.id}`;
+
+export const getRequiredActions = ({ hitlData }: { readonly hitlData?: HITLDetailCollection }) =>
+  (hitlData?.hitl_details ?? []).map((item) => ({ item, type: "hitl" }) as const);
+
+export const findSelectedRequiredActionIndex = ({
+  requiredActions,
+  selectedRequiredActionKey,
+}: {
+  readonly requiredActions: Array<SelectedRequiredAction>;
+  readonly selectedRequiredActionKey?: string;
+}) => {
+  if (selectedRequiredActionKey === undefined) {
+    return -1;
+  }
+
+  return requiredActions.findIndex(
+    (requiredAction) => getRequiredActionKey(requiredAction) === selectedRequiredActionKey,
+  );
+};

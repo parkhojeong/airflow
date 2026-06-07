@@ -27,7 +27,7 @@ import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
 import { MetaRow } from "./RequiredActionCard";
-import { formatRequiredActionDetailTime } from "./requiredActionDisplayUtils";
+import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay";
 
 const OPEN_TASK_LABEL = "Open task";
 const LOADING_RESPONSE_LABEL = "Loading response form...";

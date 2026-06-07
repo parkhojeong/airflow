@@ -29,9 +29,9 @@ import {
   RequiredActionTypeSection,
   StatusText,
 } from "./RequiredActionsListComponents";
-import { getDagRunListDateFormat } from "./requiredActionDisplayUtils";
-import { prefetchHitlDetail } from "./requiredActionPrefetchUtils";
-import { getRequiredActionKey, type SelectedRequiredAction } from "./requiredActionSelection";
+import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
+import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
+import { getRequiredActionKey, type SelectedRequiredAction } from "./utils/requiredActionSelection";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
 const LOADING_HITL_LABEL = "Loading pending HITL actions...";
