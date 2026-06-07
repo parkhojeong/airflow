@@ -34,10 +34,7 @@ import type { RequiredActionsFilterMode } from "src/components/RequiredActions/t
 import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
-import {
-  CompletedHITLRequiredActionsSection,
-  PendingHITLRequiredActionsSection,
-} from "./HITLRequiredActionsSections";
+import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
 import {
   getRequiredActionSelectionState,
   useAutoSelectFirstRequiredAction,
@@ -48,6 +45,13 @@ import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./uti
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
 const REQUIRED_ACTIONS_LABEL = "Required actions";
+const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
+const NO_COMPLETED_HITL_ACTIONS_LABEL = "No completed HITL actions";
+const PENDING_HITL_LABEL = "Pending HITL";
+const COMPLETED_HITL_LABEL = "Completed HITL";
+
+const getSectionLabel = (label: string, count?: number) =>
+  count === undefined ? label : `${label} (${count})`;
 
 const getAllHitlData = ({
   completedHitlData,
@@ -185,19 +189,23 @@ export const HITLRequiredActionsModal = ({
               zIndex={2}
             >
               <VStack alignItems="stretch" gap={4} width="100%">
-                <PendingHITLRequiredActionsSection
-                  details={pendingHitlData?.hitl_details ?? []}
+                <HITLRequiredActionSection
+                  details={pendingHitlData?.hitl_details}
+                  emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
+                  heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlData?.hitl_details.length ?? 0)}
                   onSelect={handleSelect}
                   selectedKey={selectedRequiredActionKey}
                 />
                 {showAllActions ? (
-                  <CompletedHITLRequiredActionsSection
-                    details={completedHitlData?.hitl_details ?? []}
-                    hasHITLDetails={
-                      (pendingHitlData?.total_entries ?? 0) + (completedHitlData?.total_entries ?? 0) > 0
-                    }
-                    hitlIsError={hitlIsError}
-                    hitlIsLoading={isLoadingHitlRequiredActions}
+                  <HITLRequiredActionSection
+                    details={completedHitlData?.hitl_details}
+                    emptyLabel={NO_COMPLETED_HITL_ACTIONS_LABEL}
+                    heading={getSectionLabel(
+                      COMPLETED_HITL_LABEL,
+                      completedHitlData?.hitl_details.length ?? 0,
+                    )}
+                    isError={hitlIsError}
+                    isLoading={isLoadingHitlRequiredActions}
                     onSelect={handleSelect}
                     selectedKey={selectedRequiredActionKey}
                   />

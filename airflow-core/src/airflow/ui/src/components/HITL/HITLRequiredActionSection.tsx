@@ -38,7 +38,7 @@ export const HITLRequiredActionSection = ({
   onSelect,
   selectedKey,
 }: {
-  readonly details: Array<HITLDetail>;
+  readonly details?: Array<HITLDetail>;
   readonly emptyLabel: string;
   readonly heading: string;
   readonly isError?: boolean;
@@ -54,7 +54,7 @@ export const HITLRequiredActionSection = ({
         <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
       ) : (
         <HITLRequiredActionsTable
-          details={details}
+          details={details ?? []}
           emptyLabel={emptyLabel}
           onSelect={onSelect}
           selectedKey={selectedKey}
