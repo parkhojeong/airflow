@@ -16,29 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Skeleton, Table, Text, VStack } from "@chakra-ui/react";
+import { Button, VStack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { ErrorAlert } from "src/components/ErrorAlert";
-import { useTimezone } from "src/context/timezone";
-import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
-import { MetaRow } from "./RequiredActionCard";
-import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay";
+import { HITLRequiredActionResponse } from "./HITLRequiredActionResponse";
+import { HITLRequiredActionSummary } from "./HITLRequiredActionSummary";
 
 const OPEN_TASK_LABEL = "Open task";
-const LOADING_RESPONSE_LABEL = "Loading response form...";
-
-const formatAssignees = (users: HITLDetail["assigned_users"]) => {
-  if (users === undefined || users.length === 0) {
-    return undefined;
-  }
-
-  return users.map((user) => user.name).join(", ");
-};
 
 export const HITLRequiredActionCard = ({
   detail,
@@ -49,7 +37,6 @@ export const HITLRequiredActionCard = ({
   readonly onNavigate?: () => void;
   readonly onResponded?: () => void;
 }) => {
-  const { selectedTimezone } = useTimezone();
   const {
     data: hitlDetail,
     error,
@@ -64,27 +51,11 @@ export const HITLRequiredActionCard = ({
   });
 
   const ti = detail.task_instance;
-  const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
-  const assignees = formatAssignees(detail.assigned_users);
-  const assigneeLabel = detail.assigned_users?.length === 1 ? "Assignee" : "Assignees";
-  const requestedTime = formatRequiredActionDetailTime(detail.created_at, true, selectedTimezone);
   const taskLink = `${getTaskInstanceLink(ti)}/required_actions`;
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <Table.Root size="sm" tableLayout="fixed" width="100%">
-        <Table.Body>
-          <MetaRow label="Dag ID" value={<Text truncate>{ti.dag_id}</Text>} />
-          <MetaRow label="Dag Run ID" value={<Text>{ti.dag_run_id}</Text>} />
-          <MetaRow label="Map index" value={<Text>{mappedIndex}</Text>} />
-          <MetaRow label="Task ID" value={<Text truncate>{ti.task_id}</Text>} />
-          <MetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
-          <MetaRow label="Attempt" value={<Text>{ti.try_number}</Text>} />
-          {assignees === undefined ? undefined : (
-            <MetaRow label={assigneeLabel} value={<Text truncate>{assignees}</Text>} />
-          )}
-        </Table.Body>
-      </Table.Root>
+      <HITLRequiredActionSummary detail={detail} />
 
       <Button alignSelf="flex-end" asChild size="sm" variant="outline">
         <Link onClick={onNavigate} to={taskLink}>
@@ -92,18 +63,14 @@ export const HITLRequiredActionCard = ({
         </Link>
       </Button>
 
-      {isError ? (
-        <ErrorAlert error={error} />
-      ) : isLoading || hitlDetail === undefined ? (
-        <VStack alignItems="stretch" gap={2}>
-          <Text color="fg.muted" fontSize="sm">
-            {LOADING_RESPONSE_LABEL}
-          </Text>
-          <Skeleton height="80px" />
-        </VStack>
-      ) : (
-        <HITLResponseForm hitlDetail={hitlDetail} namespace={`hitl:${ti.id}`} onResponded={onResponded} />
-      )}
+      <HITLRequiredActionResponse
+        error={error}
+        hitlDetail={hitlDetail}
+        isError={isError}
+        isLoading={isLoading}
+        namespace={`hitl:${ti.id}`}
+        onResponded={onResponded}
+      />
     </VStack>
   );
 };
