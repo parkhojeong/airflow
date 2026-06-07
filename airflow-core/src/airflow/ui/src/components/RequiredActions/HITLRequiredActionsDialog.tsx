@@ -23,15 +23,15 @@ import type { ReactNode } from "react";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { Dialog } from "src/components/ui";
 
+import { HITLRequiredActionsList } from "./HITLRequiredActionsList";
 import { RequiredActionDetailPane } from "./RequiredActionDetailPane";
 import { RequiredActionNavigation } from "./RequiredActionNavigation";
-import { RequiredActionsList } from "./RequiredActionsList";
 import type { RequiredActionsFilterMode } from "./types";
 import { useRequiredActionSelection } from "./useRequiredActionSelection";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";
 
-type RequiredActionsDialogProps = {
+type HITLRequiredActionsDialogProps = {
   readonly filterMode: RequiredActionsFilterMode;
   readonly headerAction?: ReactNode;
   readonly hitlData?: HITLDetailCollection;
@@ -41,7 +41,7 @@ type RequiredActionsDialogProps = {
   readonly open: boolean;
 };
 
-export const RequiredActionsDialog = ({
+export const HITLRequiredActionsDialog = ({
   filterMode,
   headerAction,
   hitlData,
@@ -49,7 +49,7 @@ export const RequiredActionsDialog = ({
   hitlIsLoading,
   onClose,
   open,
-}: RequiredActionsDialogProps) => {
+}: HITLRequiredActionsDialogProps) => {
   const queryClient = useQueryClient();
 
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
@@ -63,7 +63,7 @@ export const RequiredActionsDialog = ({
     hasPreviousRequiredAction,
     selectedRequiredActionKey,
     selectNextRequiredAction,
-    visibleSelectedRequiredAction,
+    visibleSelectedHITLRequiredAction,
   } = useRequiredActionSelection({
     hitlData,
     isLoading: isLoadingHitlRequiredActions,
@@ -118,7 +118,7 @@ export const RequiredActionsDialog = ({
               width={{ base: "100%", lg: "770px", xl: "836px" }}
               zIndex={2}
             >
-              <RequiredActionsList
+              <HITLRequiredActionsList
                 filterMode={filterMode}
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
@@ -144,7 +144,7 @@ export const RequiredActionsDialog = ({
                 isLoading={isLoadingHitlRequiredActions}
                 onNavigate={onClose}
                 onResponded={selectNextRequiredAction}
-                selected={visibleSelectedRequiredAction}
+                selected={visibleSelectedHITLRequiredAction}
               />
             </Box>
           </HStack>

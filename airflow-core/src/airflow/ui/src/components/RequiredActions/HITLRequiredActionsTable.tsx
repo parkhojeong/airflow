@@ -25,7 +25,7 @@ import { useTimezone } from "src/context/timezone";
 
 import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
 import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
-import { getRequiredActionKey, type SelectedRequiredAction } from "./utils/requiredActionSelection";
+import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const CREATED_AT_LABEL = "Created at";
 const DAG_ID_LABEL = "Dag ID";
@@ -73,7 +73,7 @@ export const HITLRequiredActionsTable = ({
 }: {
   readonly details: Array<HITLDetail>;
   readonly emptyLabel: string;
-  readonly onSelect: (selection: SelectedRequiredAction) => void;
+  readonly onSelect: (selection: SelectedHITLRequiredAction) => void;
   readonly selectedKey?: string;
 }) => {
   const queryClient = useQueryClient();
@@ -96,7 +96,7 @@ export const HITLRequiredActionsTable = ({
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
-            const key = getRequiredActionKey({ item: detail, type: "hitl" });
+            const key = getHITLRequiredActionKey({ item: detail, type: "hitl" });
             const selected = selectedKey === key;
             const ti = detail.task_instance;
             const mappedIndex =

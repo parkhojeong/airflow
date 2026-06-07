@@ -24,22 +24,22 @@ import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { buildRequiredActionNavigation } from "./utils/requiredActionNavigation";
 import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
 import {
-  findSelectedRequiredActionIndex,
-  getRequiredActionKey,
-  getRequiredActions,
-  type SetSelectedRequiredAction,
-  type SelectedRequiredAction,
+  findSelectedHITLRequiredActionIndex,
+  getHITLRequiredActionKey,
+  getHITLRequiredActions,
+  type SetSelectedHITLRequiredAction,
+  type SelectedHITLRequiredAction,
 } from "./utils/requiredActionSelection";
-import { isSelectedRequiredActionStillInFetchedData } from "./utils/requiredActionVisibility";
+import { isSelectedHITLRequiredActionStillInFetchedData } from "./utils/requiredActionVisibility";
 
 type RequiredActionSelectionState = {
   readonly hasNextRequiredAction: boolean;
   readonly hasPreviousRequiredAction: boolean;
-  readonly requiredActions: Array<SelectedRequiredAction>;
-  readonly selected?: SelectedRequiredAction;
+  readonly requiredActions: Array<SelectedHITLRequiredAction>;
+  readonly selected?: SelectedHITLRequiredAction;
   readonly selectedRequiredActionIndex: number;
   readonly selectedRequiredActionKey?: string;
-  readonly visibleSelectedRequiredAction?: SelectedRequiredAction;
+  readonly visibleSelectedHITLRequiredAction?: SelectedHITLRequiredAction;
 };
 
 type RequiredActionSelectionEffectsProps = {
@@ -47,7 +47,7 @@ type RequiredActionSelectionEffectsProps = {
   readonly isLoading: boolean;
   readonly open: boolean;
   readonly queryClient: QueryClient;
-  readonly setSelected: SetSelectedRequiredAction;
+  readonly setSelected: SetSelectedHITLRequiredAction;
 } & RequiredActionSelectionState;
 
 const useRequiredActionSelectionState = ({
@@ -57,11 +57,11 @@ const useRequiredActionSelectionState = ({
 }: {
   readonly hitlData?: HITLDetailCollection;
   readonly isLoading: boolean;
-  readonly selected?: SelectedRequiredAction;
+  readonly selected?: SelectedHITLRequiredAction;
 }): RequiredActionSelectionState => {
-  const requiredActions = getRequiredActions({ hitlData });
-  const selectedRequiredActionKey = selected === undefined ? undefined : getRequiredActionKey(selected);
-  const selectedRequiredActionIndex = findSelectedRequiredActionIndex({
+  const requiredActions = getHITLRequiredActions({ hitlData });
+  const selectedRequiredActionKey = selected === undefined ? undefined : getHITLRequiredActionKey(selected);
+  const selectedRequiredActionIndex = findSelectedHITLRequiredActionIndex({
     requiredActions,
     selectedRequiredActionKey,
   });
@@ -71,7 +71,7 @@ const useRequiredActionSelectionState = ({
       : selectedRequiredActionIndex < requiredActions.length - 1;
   const hasPreviousRequiredAction =
     selectedRequiredActionIndex === -1 ? requiredActions.length > 0 : selectedRequiredActionIndex > 0;
-  const visibleSelectedRequiredAction = isSelectedRequiredActionStillInFetchedData({
+  const visibleSelectedHITLRequiredAction = isSelectedHITLRequiredActionStillInFetchedData({
     hitlData,
     hitlIsLoading: isLoading,
     selectedRequiredAction: selected,
@@ -86,7 +86,7 @@ const useRequiredActionSelectionState = ({
     selected,
     selectedRequiredActionIndex,
     selectedRequiredActionKey,
-    visibleSelectedRequiredAction,
+    visibleSelectedHITLRequiredAction,
   };
 };
 
@@ -155,7 +155,7 @@ export const useRequiredActionSelection = ({
   readonly open: boolean;
   readonly queryClient: QueryClient;
 }) => {
-  const [selected, setSelected] = useState<SelectedRequiredAction | undefined>(undefined);
+  const [selected, setSelected] = useState<SelectedHITLRequiredAction | undefined>(undefined);
   const selectionState = useRequiredActionSelectionState({
     hitlData,
     isLoading,
@@ -166,7 +166,7 @@ export const useRequiredActionSelection = ({
     hasPreviousRequiredAction,
     requiredActions,
     selectedRequiredActionKey,
-    visibleSelectedRequiredAction,
+    visibleSelectedHITLRequiredAction,
   } = selectionState;
 
   useRequiredActionSelectionEffects({
@@ -185,10 +185,10 @@ export const useRequiredActionSelection = ({
       setSelected,
     });
 
-  const handleSelect = (next: SelectedRequiredAction) => {
+  const handleSelect = (next: SelectedHITLRequiredAction) => {
     setSelected((current) => {
       const nextIsSelected =
-        current !== undefined && getRequiredActionKey(current) === getRequiredActionKey(next);
+        current !== undefined && getHITLRequiredActionKey(current) === getHITLRequiredActionKey(next);
 
       return nextIsSelected ? undefined : next;
     });
@@ -203,6 +203,6 @@ export const useRequiredActionSelection = ({
     hasPreviousRequiredAction,
     selectedRequiredActionKey,
     selectNextRequiredAction,
-    visibleSelectedRequiredAction,
+    visibleSelectedHITLRequiredAction,
   };
 };

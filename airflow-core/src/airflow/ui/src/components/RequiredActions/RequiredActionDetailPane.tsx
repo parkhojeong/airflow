@@ -19,7 +19,7 @@
 import { Text, VStack } from "@chakra-ui/react";
 
 import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
-import type { SelectedRequiredAction } from "./utils/requiredActionSelection";
+import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const EMPTY_DETAIL_LABEL = "Select a required action to see details";
 const LOADING_REQUIRED_ACTIONS_LABEL = "Loading required actions...";
@@ -33,7 +33,7 @@ export const RequiredActionDetailPane = ({
   readonly isLoading: boolean;
   readonly onNavigate: () => void;
   readonly onResponded: () => void;
-  readonly selected?: SelectedRequiredAction;
+  readonly selected?: SelectedHITLRequiredAction;
 }) => {
   if (selected === undefined) {
     return (

@@ -24,7 +24,7 @@ import {
   RequiredActionTypeSection,
   StatusText,
 } from "./RequiredActionsListComponents";
-import type { SelectedRequiredAction } from "./utils/requiredActionSelection";
+import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
 const LOADING_HITL_LABEL = "Loading pending HITL actions...";
@@ -43,7 +43,7 @@ export const HITLRequiredActionSection = ({
   readonly heading: string;
   readonly isError: boolean;
   readonly isLoading: boolean;
-  readonly onSelect: (selection: SelectedRequiredAction) => void;
+  readonly onSelect: (selection: SelectedHITLRequiredAction) => void;
   readonly selectedKey?: string;
 }) => (
   <RequiredActionTypeSection heading={heading}>

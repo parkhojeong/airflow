@@ -17,20 +17,20 @@
  * under the License.
  */
 import {
-  findSelectedRequiredActionIndex,
-  getRequiredActionKey,
-  type SelectedRequiredAction,
-  type SetSelectedRequiredAction,
+  findSelectedHITLRequiredActionIndex,
+  getHITLRequiredActionKey,
+  type SelectedHITLRequiredAction,
+  type SetSelectedHITLRequiredAction,
 } from "./requiredActionSelection";
 
 export const getNextRequiredAction = ({
   requiredActions,
   selectedRequiredActionKey,
 }: {
-  readonly requiredActions: Array<SelectedRequiredAction>;
+  readonly requiredActions: Array<SelectedHITLRequiredAction>;
   readonly selectedRequiredActionKey?: string;
 }) => {
-  const selectedRequiredActionIndex = findSelectedRequiredActionIndex({
+  const selectedRequiredActionIndex = findSelectedHITLRequiredActionIndex({
     requiredActions,
     selectedRequiredActionKey,
   });
@@ -44,10 +44,10 @@ export const getPreviousRequiredAction = ({
   requiredActions,
   selectedRequiredActionKey,
 }: {
-  readonly requiredActions: Array<SelectedRequiredAction>;
+  readonly requiredActions: Array<SelectedHITLRequiredAction>;
   readonly selectedRequiredActionKey?: string;
 }) => {
-  const selectedRequiredActionIndex = findSelectedRequiredActionIndex({
+  const selectedRequiredActionIndex = findSelectedHITLRequiredActionIndex({
     requiredActions,
     selectedRequiredActionKey,
   });
@@ -61,15 +61,15 @@ export const getNextRequiredActionAfterResponse = ({
   requiredActions,
   selectedRequiredActionKey,
 }: {
-  readonly requiredActions: Array<SelectedRequiredAction>;
+  readonly requiredActions: Array<SelectedHITLRequiredAction>;
   readonly selectedRequiredActionKey?: string;
 }) => {
-  const selectedRequiredActionIndex = findSelectedRequiredActionIndex({
+  const selectedRequiredActionIndex = findSelectedHITLRequiredActionIndex({
     requiredActions,
     selectedRequiredActionKey,
   });
   const remainingRequiredActions = requiredActions.filter(
-    (requiredAction) => getRequiredActionKey(requiredAction) !== selectedRequiredActionKey,
+    (requiredAction) => getHITLRequiredActionKey(requiredAction) !== selectedRequiredActionKey,
   );
 
   if (selectedRequiredActionIndex === -1) {
@@ -84,9 +84,9 @@ export const buildRequiredActionNavigation = ({
   selectedRequiredActionKey,
   setSelected,
 }: {
-  readonly requiredActions: Array<SelectedRequiredAction>;
+  readonly requiredActions: Array<SelectedHITLRequiredAction>;
   readonly selectedRequiredActionKey?: string;
-  readonly setSelected: SetSelectedRequiredAction;
+  readonly setSelected: SetSelectedHITLRequiredAction;
 }) => {
   const selectNextRequiredAction = () => {
     setSelected(

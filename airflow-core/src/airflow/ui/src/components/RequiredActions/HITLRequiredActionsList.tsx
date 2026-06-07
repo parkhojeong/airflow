@@ -23,7 +23,7 @@ import { isHITLPending } from "src/utils/hitl";
 
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
 import type { RequiredActionsFilterMode } from "./types";
-import type { SelectedRequiredAction } from "./utils/requiredActionSelection";
+import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
 const NO_HITL_ACTIONS_LABEL = "No HITL actions";
@@ -31,26 +31,26 @@ const NO_COMPLETED_HITL_ACTIONS_LABEL = "No completed HITL actions";
 const PENDING_HITL_LABEL = "Pending HITL";
 const COMPLETED_HITL_LABEL = "Completed HITL";
 
-type RequiredActionsListProps = {
+type HITLRequiredActionsListProps = {
   readonly filterMode: RequiredActionsFilterMode;
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsError: boolean;
   readonly hitlIsLoading: boolean;
-  readonly onSelect: (selection: SelectedRequiredAction) => void;
+  readonly onSelect: (selection: SelectedHITLRequiredAction) => void;
   readonly selectedKey?: string;
 };
 
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
 
-export const RequiredActionsList = ({
+export const HITLRequiredActionsList = ({
   filterMode,
   hitlData,
   hitlIsError,
   hitlIsLoading,
   onSelect,
   selectedKey,
-}: RequiredActionsListProps) => {
+}: HITLRequiredActionsListProps) => {
   const hitlDetails = hitlData?.hitl_details ?? [];
   const isShowingAllActions = filterMode === "all";
   const pendingHitlDetails = hitlDetails.filter(

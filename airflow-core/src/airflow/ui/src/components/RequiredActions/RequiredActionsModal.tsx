@@ -21,7 +21,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { RequiredActionsDialog } from "./RequiredActionsDialog";
+import { HITLRequiredActionsDialog } from "./HITLRequiredActionsDialog";
 import {
   getRequiredActionsFilterMode,
   PENDING_ACTIONS_VALUE,
@@ -63,7 +63,7 @@ export const RequiredActionsModal = ({
   } = useHITLRequiredActionsQuery({ dagId, filterMode: normalizedSelectedFilter, open, runId });
 
   return (
-    <RequiredActionsDialog
+    <HITLRequiredActionsDialog
       filterMode={normalizedSelectedFilter}
       headerAction={
         <HStack gap={2}>

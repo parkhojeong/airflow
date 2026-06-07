@@ -18,22 +18,22 @@
  */
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 
-import { getRequiredActionKey, type SelectedRequiredAction } from "./requiredActionSelection";
+import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./requiredActionSelection";
 
-export const isSelectedRequiredActionStillInFetchedData = ({
+export const isSelectedHITLRequiredActionStillInFetchedData = ({
   hitlData,
   hitlIsLoading,
   selectedRequiredAction,
 }: {
   readonly hitlData?: HITLDetailCollection;
   readonly hitlIsLoading: boolean;
-  readonly selectedRequiredAction?: SelectedRequiredAction;
+  readonly selectedRequiredAction?: SelectedHITLRequiredAction;
 }) => {
   if (selectedRequiredAction === undefined) {
     return false;
   }
 
-  const selectedRequiredActionKey = getRequiredActionKey(selectedRequiredAction);
+  const selectedRequiredActionKey = getHITLRequiredActionKey(selectedRequiredAction);
 
   if (hitlIsLoading) {
     return true;
@@ -41,7 +41,8 @@ export const isSelectedRequiredActionStillInFetchedData = ({
 
   return (
     hitlData?.hitl_details.some(
-      (hitlDetail) => getRequiredActionKey({ item: hitlDetail, type: "hitl" }) === selectedRequiredActionKey,
+      (hitlDetail) =>
+        getHITLRequiredActionKey({ item: hitlDetail, type: "hitl" }) === selectedRequiredActionKey,
     ) === true
   );
 };

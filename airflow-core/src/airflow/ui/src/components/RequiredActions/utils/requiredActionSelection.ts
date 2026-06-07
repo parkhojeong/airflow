@@ -18,21 +18,21 @@
  */
 import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 
-export type SelectedRequiredAction = { readonly item: HITLDetail; readonly type: "hitl" };
+export type SelectedHITLRequiredAction = { readonly item: HITLDetail; readonly type: "hitl" };
 
-export type SetSelectedRequiredAction = (selected?: SelectedRequiredAction) => void;
+export type SetSelectedHITLRequiredAction = (selected?: SelectedHITLRequiredAction) => void;
 
-export const getRequiredActionKey = (selection: SelectedRequiredAction): string =>
+export const getHITLRequiredActionKey = (selection: SelectedHITLRequiredAction): string =>
   `hitl:${selection.item.task_instance.id}`;
 
-export const getRequiredActions = ({ hitlData }: { readonly hitlData?: HITLDetailCollection }) =>
+export const getHITLRequiredActions = ({ hitlData }: { readonly hitlData?: HITLDetailCollection }) =>
   (hitlData?.hitl_details ?? []).map((item) => ({ item, type: "hitl" }) as const);
 
-export const findSelectedRequiredActionIndex = ({
+export const findSelectedHITLRequiredActionIndex = ({
   requiredActions,
   selectedRequiredActionKey,
 }: {
-  readonly requiredActions: Array<SelectedRequiredAction>;
+  readonly requiredActions: Array<SelectedHITLRequiredAction>;
   readonly selectedRequiredActionKey?: string;
 }) => {
   if (selectedRequiredActionKey === undefined) {
@@ -40,6 +40,6 @@ export const findSelectedRequiredActionIndex = ({
   }
 
   return requiredActions.findIndex(
-    (requiredAction) => getRequiredActionKey(requiredAction) === selectedRequiredActionKey,
+    (requiredAction) => getHITLRequiredActionKey(requiredAction) === selectedRequiredActionKey,
   );
 };
