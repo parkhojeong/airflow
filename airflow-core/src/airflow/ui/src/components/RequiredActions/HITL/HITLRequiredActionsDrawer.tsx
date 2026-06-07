@@ -20,18 +20,18 @@ import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 
-import { HITLRequiredActionCard } from "./HITL/HITLRequiredActionCard";
+import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";
 const EMPTY_LABEL = "No required actions";
 
-type RequiredActionsDrawerProps = {
+type HITLRequiredActionsDrawerProps = {
   readonly detail?: HITLDetail;
   readonly onClose: () => void;
   readonly open: boolean;
 };
 
-export const RequiredActionsDrawer = ({ detail, onClose, open }: RequiredActionsDrawerProps) => (
+export const HITLRequiredActionsDrawer = ({ detail, onClose, open }: HITLRequiredActionsDrawerProps) => (
   <Drawer.Root
     lazyMount
     onOpenChange={(event) => {
