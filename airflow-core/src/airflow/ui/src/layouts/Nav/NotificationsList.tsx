@@ -17,7 +17,7 @@
  * under the License.
  */
 import { Table, Text, VStack } from "@chakra-ui/react";
-import { useQueryClient, type QueryClient } from "@tanstack/react-query";
+import { type QueryClient, useQueryClient } from "@tanstack/react-query";
 
 import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 import Time from "src/components/Time";
@@ -58,9 +58,6 @@ type NotificationsListProps = {
 
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
-
-const isPendingHitlDetail = (detail: HITLDetail) =>
-  !detail.response_received && isHITLPending(detail.task_instance.state);
 
 const TableColumnHeader = ({ children, width }: { readonly children: string; readonly width?: string }) => (
   <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={width}>
@@ -201,10 +198,10 @@ export const NotificationsList = ({
   const { selectedTimezone } = useTimezone();
   const hitlDetails = hitlData?.hitl_details ?? [];
   const isShowingAllActions = filterMode === "all";
-  const pendingHitlDetails = isShowingAllActions ? hitlDetails.filter(isPendingHitlDetail) : hitlDetails;
-  const completedHitlDetails = isShowingAllActions
-    ? hitlDetails.filter((detail) => Boolean(detail.response_received))
-    : [];
+  const pendingHitlDetails = hitlDetails.filter(
+    (detail) => !detail.response_received && isHITLPending(detail.task_instance.state),
+  );
+  const completedHitlDetails = hitlDetails.filter((detail) => Boolean(detail.response_received));
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
