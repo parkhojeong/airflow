@@ -29,7 +29,7 @@ import EditableMarkdownButton from "src/components/EditableMarkdownButton";
 import { HeaderCard } from "src/components/HeaderCard";
 import { LimitedItemsList } from "src/components/LimitedItemsList";
 import { MarkRunAsButton } from "src/components/MarkAs";
-import { RequiredActionsButton } from "src/components/RequiredActions/RequiredActionsButton";
+import { NeedsReviewButtonWithModal } from "src/components/NeedsReviewButton";
 import { RunTypeIcon } from "src/components/RunTypeIcon";
 import Time from "src/components/Time";
 import { RouterLink } from "src/components/ui";
@@ -74,7 +74,7 @@ export const Header = ({ dagRun }: { readonly dagRun: DAGRunResponse }) => {
       <HeaderCard
         actions={
           <>
-            <RequiredActionsButton dagId={dagId} runId={dagRunId} />
+            <NeedsReviewButtonWithModal dagId={dagId} runId={dagRunId} />
             <EditableMarkdownButton
               header={translate("note.dagRun")}
               isPending={isPending}

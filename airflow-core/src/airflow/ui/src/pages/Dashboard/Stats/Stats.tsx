@@ -16,16 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Flex, Heading, useDisclosure } from "@chakra-ui/react";
+import { Box, Flex, Heading } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { FiClipboard, FiZap } from "react-icons/fi";
 
 import { useDashboardServiceDagStats } from "openapi/queries";
-import {
-  HITLRequiredActionsModal,
-  ViewAllRequiredActionsButton,
-} from "src/components/HITL/HITLRequiredActionsModal";
-import { NeedsReviewButton } from "src/components/NeedsReviewButton";
+import { NeedsReviewButtonWithModal } from "src/components/NeedsReviewButton";
 import { StatsCard } from "src/components/StatsCard";
 import { useAutoRefresh } from "src/utils";
 
@@ -33,11 +29,6 @@ import { DAGImportErrors } from "./DAGImportErrors";
 import { PluginImportErrors } from "./PluginImportErrors";
 
 export const Stats = () => {
-  const {
-    onClose: onCloseRequiredActions,
-    onOpen: onOpenRequiredActions,
-    open: requiredActionsOpen,
-  } = useDisclosure();
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true });
   const { data: statsData, isLoading: isStatsLoading } = useDashboardServiceDagStats(undefined, {
     refetchInterval,
@@ -61,7 +52,7 @@ export const Stats = () => {
       </Flex>
 
       <Flex flexWrap="wrap" gap={4}>
-        <NeedsReviewButton onClick={onOpenRequiredActions} />
+        <NeedsReviewButtonWithModal />
 
         <StatsCard
           colorScheme="failed"
@@ -109,11 +100,6 @@ export const Stats = () => {
           link="dags?paused=false"
         />
       </Flex>
-      <HITLRequiredActionsModal
-        headerAction={<ViewAllRequiredActionsButton onClick={onCloseRequiredActions} />}
-        onClose={onCloseRequiredActions}
-        open={requiredActionsOpen}
-      />
     </Box>
   );
 };

@@ -21,18 +21,21 @@ import { useTranslation } from "react-i18next";
 import { LuUserRoundPen } from "react-icons/lu";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import {
+  HITLRequiredActionsModal,
+  ViewAllRequiredActionsButton,
+} from "src/components/HITL/HITLRequiredActionsModal";
+import { useRequiredActionsModal } from "src/components/RequiredActions/useRequiredActionsModal";
 import { useAutoRefresh } from "src/utils/query";
 
 import { StatsCard } from "./StatsCard";
 
-export const NeedsReviewButton = ({
+const useNeedsReview = ({
   dagId,
-  onClick,
   runId,
   taskId,
 }: {
   readonly dagId?: string;
-  readonly onClick?: () => void;
   readonly runId?: string;
   readonly taskId?: string;
 }) => {
@@ -52,7 +55,21 @@ export const NeedsReviewButton = ({
     },
   );
 
-  const hitlTIsCount = hitlStatsData?.hitl_details.length ?? 0;
+  return {
+    hitlStatsData,
+    isLoading,
+  };
+};
+
+const NeedsReviewButtonCard = ({
+  hitlTIsCount,
+  isLoading,
+  onClick,
+}: {
+  readonly hitlTIsCount: number;
+  readonly isLoading: boolean;
+  readonly onClick?: () => void;
+}) => {
   const { i18n, t: translate } = useTranslation("hitl");
 
   const isRTL = i18n.dir() === "rtl";
@@ -71,4 +88,52 @@ export const NeedsReviewButton = ({
       />
     </Box>
   ) : undefined;
+};
+
+export const NeedsReviewButton = ({
+  dagId,
+  runId,
+  taskId,
+}: {
+  readonly dagId?: string;
+  readonly runId?: string;
+  readonly taskId?: string;
+}) => {
+  const { hitlStatsData, isLoading } = useNeedsReview({ dagId, runId, taskId });
+  const hitlTIsCount = hitlStatsData?.hitl_details.length ?? 0;
+
+  return <NeedsReviewButtonCard hitlTIsCount={hitlTIsCount} isLoading={isLoading} />;
+};
+
+export const NeedsReviewButtonWithModal = ({
+  dagId,
+  runId,
+}: {
+  readonly dagId?: string;
+  readonly runId?: string;
+}) => {
+  const { onCloseRequiredActions, onOpenRequiredActions, requiredActionsOpen } = useRequiredActionsModal(
+    dagId === undefined ? "/" : runId === undefined ? `/dags/${dagId}` : `/dags/${dagId}/runs/${runId}`,
+  );
+  const { hitlStatsData, isLoading } = useNeedsReview({ dagId, runId });
+  const hitlTIsCount = hitlStatsData?.hitl_details.length ?? 0;
+
+  return (
+    <>
+      <NeedsReviewButtonCard
+        hitlTIsCount={hitlTIsCount}
+        isLoading={isLoading}
+        onClick={onOpenRequiredActions}
+      />
+      <HITLRequiredActionsModal
+        dagId={dagId}
+        headerAction={
+          dagId === undefined ? <ViewAllRequiredActionsButton onClick={onCloseRequiredActions} /> : undefined
+        }
+        onClose={onCloseRequiredActions}
+        open={requiredActionsOpen}
+        runId={runId}
+      />
+    </>
+  );
 };
