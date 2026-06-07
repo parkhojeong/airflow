@@ -17,8 +17,9 @@
  * under the License.
  */
 import { NeedsReviewButton } from "src/components/NeedsReviewButton";
-import { RequiredActionsModal } from "src/components/RequiredActionsModal";
 import { useRequiredActionsModal } from "src/hooks/useRequiredActionsModal";
+
+import { RequiredActionsModal } from "./RequiredActionsModal";
 
 export const RequiredActionsButton = ({
   dagId,

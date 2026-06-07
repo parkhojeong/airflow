@@ -19,7 +19,8 @@
 import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { HITLRequiredActionCard } from "src/components/RequiredActionsModal/HITLRequiredActionCard";
+
+import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";
 const EMPTY_LABEL = "No required actions";

@@ -22,7 +22,10 @@ import { FiClipboard, FiZap } from "react-icons/fi";
 
 import { useDashboardServiceDagStats } from "openapi/queries";
 import { NeedsReviewButton } from "src/components/NeedsReviewButton";
-import { RequiredActionsModal, ViewAllRequiredActionsButton } from "src/components/RequiredActionsModal";
+import {
+  RequiredActionsModal,
+  ViewAllRequiredActionsButton,
+} from "src/components/RequiredActions/RequiredActionsModal";
 import { StatsCard } from "src/components/StatsCard";
 import { useAutoRefresh } from "src/utils";
 

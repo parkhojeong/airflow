@@ -29,7 +29,7 @@ import EditableMarkdownButton from "src/components/EditableMarkdownButton";
 import { HeaderCard } from "src/components/HeaderCard";
 import { LimitedItemsList } from "src/components/LimitedItemsList";
 import { MarkRunAsButton } from "src/components/MarkAs";
-import { RequiredActionsButton } from "src/components/RequiredActionsButton";
+import { RequiredActionsButton } from "src/components/RequiredActions/RequiredActionsButton";
 import { RunTypeIcon } from "src/components/RunTypeIcon";
 import Time from "src/components/Time";
 import { RouterLink } from "src/components/ui";

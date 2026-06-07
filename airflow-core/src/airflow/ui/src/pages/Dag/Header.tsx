@@ -30,7 +30,7 @@ import DagRunInfo from "src/components/DagRunInfo";
 import { DagVersion } from "src/components/DagVersion";
 import DisplayMarkdownButton from "src/components/DisplayMarkdownButton";
 import { HeaderCard } from "src/components/HeaderCard";
-import { RequiredActionsButton } from "src/components/RequiredActionsButton";
+import { RequiredActionsButton } from "src/components/RequiredActions/RequiredActionsButton";
 import { TogglePause } from "src/components/TogglePause";
 import { RouterLink } from "src/components/ui";
 
