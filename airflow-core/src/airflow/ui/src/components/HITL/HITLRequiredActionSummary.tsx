@@ -19,9 +19,9 @@
 import { Table, Text } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
+import { MetaRow } from "src/components/RequiredActions/RequiredActionCard";
 import { useTimezone } from "src/context/timezone";
 
-import { MetaRow } from "../RequiredActionCard";
 import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay";
 
 const formatAssignees = (users: HITLDetail["assigned_users"]) => {

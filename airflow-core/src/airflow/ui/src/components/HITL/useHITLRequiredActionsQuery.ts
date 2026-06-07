@@ -17,10 +17,9 @@
  * under the License.
  */
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import { ALL_ACTIONS_VALUE } from "src/components/RequiredActions/RequiredActionsFilter";
+import type { RequiredActionsFilterMode } from "src/components/RequiredActions/types";
 import { useAutoRefresh } from "src/utils";
-
-import { ALL_ACTIONS_VALUE } from "../RequiredActionsFilter";
-import type { RequiredActionsFilterMode } from "../types";
 
 export const useHITLRequiredActionsQuery = ({
   dagId,

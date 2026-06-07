@@ -20,13 +20,13 @@ import { Box, Button, Heading, HStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
+import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
+import { RequiredActionsFilter } from "src/components/RequiredActions/RequiredActionsFilter";
 import { Dialog } from "src/components/ui";
 
-import { HITLRequiredActionsList } from "./HITL/HITLRequiredActionsList";
-import { useHITLRequiredActionsModalState } from "./HITL/useHITLRequiredActionsModalState";
-import { RequiredActionDetailPane } from "./RequiredActionDetailPane";
-import { RequiredActionNavigation } from "./RequiredActionNavigation";
-import { RequiredActionsFilter } from "./RequiredActionsFilter";
+import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
+import { HITLRequiredActionsList } from "./HITLRequiredActionsList";
+import { useHITLRequiredActionsModalState } from "./useHITLRequiredActionsModalState";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
@@ -40,7 +40,7 @@ export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: ()
   </Button>
 );
 
-export const RequiredActionsModal = ({
+export const HITLRequiredActionsModal = ({
   dagId,
   headerAction,
   onClose,
@@ -112,7 +112,7 @@ export const RequiredActionsModal = ({
               position="relative"
               zIndex={1}
             >
-              <RequiredActionDetailPane {...detail} onNavigate={onClose} />
+              <HITLRequiredActionDetailPane {...detail} onNavigate={onClose} />
             </Box>
           </HStack>
         </Dialog.Body>

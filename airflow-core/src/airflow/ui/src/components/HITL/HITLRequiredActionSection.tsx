@@ -17,12 +17,12 @@
  * under the License.
  */
 import type { HITLDetail } from "openapi/requests/types.gen";
-
 import {
   RequiredActionSection,
   RequiredActionTypeSection,
   StatusText,
-} from "../RequiredActionsListComponents";
+} from "src/components/RequiredActions/RequiredActionsListComponents";
+
 import { HITLRequiredActionsTable } from "./HITLRequiredActionsTable";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 

@@ -21,11 +21,11 @@ import { useTranslation } from "react-i18next";
 import { FiClipboard, FiZap } from "react-icons/fi";
 
 import { useDashboardServiceDagStats } from "openapi/queries";
-import { NeedsReviewButton } from "src/components/NeedsReviewButton";
 import {
-  RequiredActionsModal,
+  HITLRequiredActionsModal,
   ViewAllRequiredActionsButton,
-} from "src/components/RequiredActions/RequiredActionsModal";
+} from "src/components/HITL/HITLRequiredActionsModal";
+import { NeedsReviewButton } from "src/components/NeedsReviewButton";
 import { StatsCard } from "src/components/StatsCard";
 import { useAutoRefresh } from "src/utils";
 
@@ -109,7 +109,7 @@ export const Stats = () => {
           link="dags?paused=false"
         />
       </Flex>
-      <RequiredActionsModal
+      <HITLRequiredActionsModal
         headerAction={<ViewAllRequiredActionsButton onClick={onCloseRequiredActions} />}
         onClose={onCloseRequiredActions}
         open={requiredActionsOpen}

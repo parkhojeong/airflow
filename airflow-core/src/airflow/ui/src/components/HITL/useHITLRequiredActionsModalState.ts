@@ -21,9 +21,12 @@ import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
+import {
+  getRequiredActionsFilterMode,
+  PENDING_ACTIONS_VALUE,
+} from "src/components/RequiredActions/RequiredActionsFilter";
+import type { RequiredActionsFilterMode } from "src/components/RequiredActions/types";
 
-import { getRequiredActionsFilterMode, PENDING_ACTIONS_VALUE } from "../RequiredActionsFilter";
-import type { RequiredActionsFilterMode } from "../types";
 import { useHITLRequiredActionsQuery } from "./useHITLRequiredActionsQuery";
 import { useRequiredActionSelection } from "./useRequiredActionSelection";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";

@@ -16,9 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { HITLRequiredActionsModal } from "src/components/HITL/HITLRequiredActionsModal";
 import { NeedsReviewButton } from "src/components/NeedsReviewButton";
 
-import { RequiredActionsModal } from "./RequiredActionsModal";
 import { useRequiredActionsModal } from "./useRequiredActionsModal";
 
 export const RequiredActionsButton = ({
@@ -35,7 +35,7 @@ export const RequiredActionsButton = ({
   return (
     <>
       <NeedsReviewButton dagId={dagId} onClick={onOpenRequiredActions} runId={runId} />
-      <RequiredActionsModal
+      <HITLRequiredActionsModal
         dagId={dagId}
         onClose={onCloseRequiredActions}
         open={requiredActionsOpen}

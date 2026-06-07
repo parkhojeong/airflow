@@ -19,9 +19,9 @@
 import { VStack } from "@chakra-ui/react";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
+import type { RequiredActionsFilterMode } from "src/components/RequiredActions/types";
 import { isHITLPending } from "src/utils/hitl";
 
-import type { RequiredActionsFilterMode } from "../types";
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
