@@ -186,6 +186,47 @@ const HitlTable = ({
   );
 };
 
+const HitlNotificationSection = ({
+  details,
+  emptyLabel,
+  heading,
+  isError,
+  isLoading,
+  onSelect,
+  queryClient,
+  selectedKey,
+  timezone,
+}: {
+  readonly details: Array<HITLDetail>;
+  readonly emptyLabel: string;
+  readonly heading: string;
+  readonly isError: boolean;
+  readonly isLoading: boolean;
+  readonly onSelect: (selection: SelectedNotification) => void;
+  readonly queryClient: QueryClient;
+  readonly selectedKey?: string;
+  readonly timezone: string;
+}) => (
+  <NotificationTypeSection heading={heading}>
+    <NotificationSection>
+      {isLoading ? (
+        <StatusText>{LOADING_HITL_LABEL}</StatusText>
+      ) : isError ? (
+        <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
+      ) : (
+        <HitlTable
+          details={details}
+          emptyLabel={emptyLabel}
+          onSelect={onSelect}
+          queryClient={queryClient}
+          selectedKey={selectedKey}
+          timezone={timezone}
+        />
+      )}
+    </NotificationSection>
+  </NotificationTypeSection>
+);
+
 export const NotificationsList = ({
   filterMode,
   hitlData,
@@ -205,45 +246,29 @@ export const NotificationsList = ({
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <NotificationTypeSection heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}>
-        <NotificationSection>
-          {hitlIsLoading ? (
-            <StatusText>{LOADING_HITL_LABEL}</StatusText>
-          ) : hitlIsError ? (
-            <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
-          ) : (
-            <HitlTable
-              details={pendingHitlDetails}
-              emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
-              onSelect={onSelect}
-              queryClient={queryClient}
-              selectedKey={selectedKey}
-              timezone={selectedTimezone}
-            />
-          )}
-        </NotificationSection>
-      </NotificationTypeSection>
+      <HitlNotificationSection
+        details={pendingHitlDetails}
+        emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
+        heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}
+        isError={hitlIsError}
+        isLoading={hitlIsLoading}
+        onSelect={onSelect}
+        queryClient={queryClient}
+        selectedKey={selectedKey}
+        timezone={selectedTimezone}
+      />
       {isShowingAllActions ? (
-        <NotificationTypeSection heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}>
-          <NotificationSection>
-            {hitlIsLoading ? (
-              <StatusText>{LOADING_HITL_LABEL}</StatusText>
-            ) : hitlIsError ? (
-              <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
-            ) : (
-              <HitlTable
-                details={completedHitlDetails}
-                emptyLabel={
-                  hitlDetails.length === 0 ? NO_HITL_ACTIONS_LABEL : NO_COMPLETED_HITL_ACTIONS_LABEL
-                }
-                onSelect={onSelect}
-                queryClient={queryClient}
-                selectedKey={selectedKey}
-                timezone={selectedTimezone}
-              />
-            )}
-          </NotificationSection>
-        </NotificationTypeSection>
+        <HitlNotificationSection
+          details={completedHitlDetails}
+          emptyLabel={hitlDetails.length === 0 ? NO_HITL_ACTIONS_LABEL : NO_COMPLETED_HITL_ACTIONS_LABEL}
+          heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}
+          isError={hitlIsError}
+          isLoading={hitlIsLoading}
+          onSelect={onSelect}
+          queryClient={queryClient}
+          selectedKey={selectedKey}
+          timezone={selectedTimezone}
+        />
       ) : undefined}
     </VStack>
   );
