@@ -18,12 +18,12 @@
  */
 import type { HITLDetail } from "openapi/requests/types.gen";
 
-import { HITLRequiredActionsTable } from "./HITLRequiredActionsTable";
 import {
   RequiredActionSection,
   RequiredActionTypeSection,
   StatusText,
-} from "./RequiredActionsListComponents";
+} from "../RequiredActionsListComponents";
+import { HITLRequiredActionsTable } from "./HITLRequiredActionsTable";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";

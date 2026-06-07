@@ -23,10 +23,10 @@ import type { ReactNode } from "react";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { Dialog } from "src/components/ui";
 
+import { RequiredActionDetailPane } from "../RequiredActionDetailPane";
+import { RequiredActionNavigation } from "../RequiredActionNavigation";
+import type { RequiredActionsFilterMode } from "../types";
 import { HITLRequiredActionsList } from "./HITLRequiredActionsList";
-import { RequiredActionDetailPane } from "./RequiredActionDetailPane";
-import { RequiredActionNavigation } from "./RequiredActionNavigation";
-import type { RequiredActionsFilterMode } from "./types";
 import { useRequiredActionSelection } from "./useRequiredActionSelection";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";

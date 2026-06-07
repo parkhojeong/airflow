@@ -21,14 +21,14 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { HITLRequiredActionsDialog } from "./HITLRequiredActionsDialog";
+import { HITLRequiredActionsDialog } from "./HITL/HITLRequiredActionsDialog";
+import { useHITLRequiredActionsQuery } from "./HITL/useHITLRequiredActionsQuery";
 import {
   getRequiredActionsFilterMode,
   PENDING_ACTIONS_VALUE,
   RequiredActionsFilter,
 } from "./RequiredActionsFilter";
 import type { RequiredActionsFilterMode } from "./types";
-import { useHITLRequiredActionsQuery } from "./useHITLRequiredActionsQuery";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";

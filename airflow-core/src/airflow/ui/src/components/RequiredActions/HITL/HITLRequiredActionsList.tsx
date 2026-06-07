@@ -21,8 +21,8 @@ import { VStack } from "@chakra-ui/react";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { isHITLPending } from "src/utils/hitl";
 
+import type { RequiredActionsFilterMode } from "../types";
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
-import type { RequiredActionsFilterMode } from "./types";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const NO_REQUIRED_ACTIONS_LABEL = "No required actions";

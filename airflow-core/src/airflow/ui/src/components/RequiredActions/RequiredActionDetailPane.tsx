@@ -18,8 +18,8 @@
  */
 import { Text, VStack } from "@chakra-ui/react";
 
-import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
-import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
+import { HITLRequiredActionCard } from "./HITL/HITLRequiredActionCard";
+import type { SelectedHITLRequiredAction } from "./HITL/utils/requiredActionSelection";
 
 const EMPTY_DETAIL_LABEL = "Select a required action to see details";
 const LOADING_REQUIRED_ACTIONS_LABEL = "Loading required actions...";
