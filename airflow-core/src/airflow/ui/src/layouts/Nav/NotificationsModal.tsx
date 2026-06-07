@@ -16,29 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Heading, HStack, IconButton, Text, VStack } from "@chakra-ui/react";
+import { Box, Heading, HStack } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
-import { Dialog, Tooltip } from "src/components/ui";
+import { Dialog } from "src/components/ui";
 
-import { HITLNotificationCard } from "./HITLNotificationCard";
-import {
-  getNotificationKey,
-  type NotificationFilterMode,
-  NotificationsList,
-  type SelectedNotification,
-} from "./NotificationsList";
-import { prefetchHitlDetail } from "./notificationPrefetchUtils";
+import { NotificationDetailPane } from "./NotificationDetailPane";
+import { NotificationNavigation } from "./NotificationNavigation";
+import { type NotificationFilterMode, NotificationsList } from "./NotificationsList";
+import { useNotificationSelection } from "./useNotificationSelection";
 
 const NOTIFICATIONS_LABEL = "Notifications";
-const EMPTY_DETAIL_LABEL = "Select a notification to see details";
-const LOADING_NOTIFICATIONS_LABEL = "Loading notifications...";
-const NEXT_NOTIFICATION_LABEL = "Next";
-const PREVIOUS_NOTIFICATION_LABEL = "Prev";
 
 type NotificationsModalProps = {
   readonly filterMode: NotificationFilterMode;
@@ -48,170 +38,6 @@ type NotificationsModalProps = {
   readonly hitlIsLoading: boolean;
   readonly onClose: () => void;
   readonly open: boolean;
-};
-
-const isSelectedNotificationStillInFetchedData = ({
-  hitlData,
-  hitlIsLoading,
-  selectedNotification,
-}: {
-  readonly hitlData?: HITLDetailCollection;
-  readonly hitlIsLoading: boolean;
-  readonly selectedNotification?: SelectedNotification;
-}) => {
-  if (selectedNotification === undefined) {
-    return false;
-  }
-
-  const selectedNotificationKey = getNotificationKey(selectedNotification);
-
-  if (hitlIsLoading) {
-    return true;
-  }
-
-  return (
-    hitlData?.hitl_details.some(
-      (hitlDetail) => getNotificationKey({ item: hitlDetail, type: "hitl" }) === selectedNotificationKey,
-    ) === true
-  );
-};
-
-const getNotifications = ({ hitlData }: { readonly hitlData?: HITLDetailCollection }) =>
-  (hitlData?.hitl_details ?? []).map((item) => ({ item, type: "hitl" }) as const);
-
-const getNextNotification = ({
-  notifications,
-  selectedNotificationKey,
-}: {
-  readonly notifications: Array<SelectedNotification>;
-  readonly selectedNotificationKey?: string;
-}) => {
-  if (selectedNotificationKey === undefined) {
-    return notifications[0];
-  }
-
-  const selectedNotificationIndex = notifications.findIndex(
-    (notification) => getNotificationKey(notification) === selectedNotificationKey,
-  );
-
-  if (selectedNotificationIndex === -1) {
-    return notifications[0];
-  }
-
-  return notifications[selectedNotificationIndex + 1];
-};
-
-const getPreviousNotification = ({
-  notifications,
-  selectedNotificationKey,
-}: {
-  readonly notifications: Array<SelectedNotification>;
-  readonly selectedNotificationKey?: string;
-}) => {
-  if (selectedNotificationKey === undefined) {
-    return notifications.at(-1);
-  }
-
-  const selectedNotificationIndex = notifications.findIndex(
-    (notification) => getNotificationKey(notification) === selectedNotificationKey,
-  );
-
-  if (selectedNotificationIndex === -1) {
-    return notifications.at(-1);
-  }
-
-  return notifications[selectedNotificationIndex - 1];
-};
-
-const getNextNotificationAfterResponse = ({
-  notifications,
-  selectedNotificationKey,
-}: {
-  readonly notifications: Array<SelectedNotification>;
-  readonly selectedNotificationKey?: string;
-}) => {
-  const selectedNotificationIndex = notifications.findIndex(
-    (notification) => getNotificationKey(notification) === selectedNotificationKey,
-  );
-  const remainingNotifications = notifications.filter(
-    (notification) => getNotificationKey(notification) !== selectedNotificationKey,
-  );
-
-  if (selectedNotificationIndex === -1) {
-    return remainingNotifications[0];
-  }
-
-  return remainingNotifications[selectedNotificationIndex] ?? remainingNotifications[0];
-};
-
-const NotificationNavigation = ({
-  canNavigateNotifications,
-  hasNextNotification,
-  hasPreviousNotification,
-  onNext,
-  onPrevious,
-}: {
-  readonly canNavigateNotifications: boolean;
-  readonly hasNextNotification: boolean;
-  readonly hasPreviousNotification: boolean;
-  readonly onNext: () => void;
-  readonly onPrevious: () => void;
-}) => (
-  <HStack gap={1}>
-    <Tooltip content={PREVIOUS_NOTIFICATION_LABEL}>
-      <IconButton
-        aria-label={PREVIOUS_NOTIFICATION_LABEL}
-        disabled={!canNavigateNotifications || !hasPreviousNotification}
-        onClick={onPrevious}
-        size="xs"
-        variant="ghost"
-      >
-        <FiChevronLeft />
-      </IconButton>
-    </Tooltip>
-    <Tooltip content={NEXT_NOTIFICATION_LABEL}>
-      <IconButton
-        aria-label={NEXT_NOTIFICATION_LABEL}
-        disabled={!canNavigateNotifications || !hasNextNotification}
-        onClick={onNext}
-        size="xs"
-        variant="ghost"
-      >
-        <FiChevronRight />
-      </IconButton>
-    </Tooltip>
-  </HStack>
-);
-
-const NotificationDetailPane = ({
-  isLoading,
-  onNavigate,
-  onResponded,
-  selected,
-}: {
-  readonly isLoading: boolean;
-  readonly onNavigate: () => void;
-  readonly onResponded: () => void;
-  readonly selected?: SelectedNotification;
-}) => {
-  if (selected === undefined) {
-    return (
-      <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
-        <Text color="fg.muted" fontSize="sm">
-          {isLoading ? LOADING_NOTIFICATIONS_LABEL : EMPTY_DETAIL_LABEL}
-        </Text>
-      </VStack>
-    );
-  }
-
-  return (
-    <HITLNotificationCard
-      detail={selected.item}
-      key={selected.item.task_instance.id}
-      onNavigate={onNavigate}
-      onResponded={onResponded}
-    />
-  );
 };
 
 export const NotificationsModal = ({
@@ -224,83 +50,25 @@ export const NotificationsModal = ({
   open,
 }: NotificationsModalProps) => {
   const queryClient = useQueryClient();
-  const [selected, setSelected] = useState<SelectedNotification | undefined>(undefined);
 
   const effectiveHitlIsLoading = open && hitlData === undefined && !hitlIsError;
-  const notifications = getNotifications({ hitlData });
-
-  const selectedNotificationKey = selected === undefined ? undefined : getNotificationKey(selected);
-  const selectedNotificationIndex = notifications.findIndex(
-    (notification) => getNotificationKey(notification) === selectedNotificationKey,
-  );
-  const hasNextNotification =
-    selectedNotificationIndex === -1
-      ? notifications.length > 0
-      : selectedNotificationIndex < notifications.length - 1;
-  const hasPreviousNotification =
-    selectedNotificationIndex === -1 ? notifications.length > 0 : selectedNotificationIndex > 0;
-  const visibleSelectedNotification = isSelectedNotificationStillInFetchedData({
+  const isLoadingHitlNotifications = hitlIsLoading || effectiveHitlIsLoading;
+  const {
+    canNavigateNotifications,
+    handleNextNotification,
+    handlePreviousNotification,
+    handleSelect,
+    hasNextNotification,
+    hasPreviousNotification,
+    selectedNotificationKey,
+    selectNextNotification,
+    visibleSelectedNotification,
+  } = useNotificationSelection({
     hitlData,
-    hitlIsLoading: hitlIsLoading || effectiveHitlIsLoading,
-    selectedNotification: selected,
-  })
-    ? selected
-    : undefined;
-
-  useEffect(() => {
-    if (!open || selected !== undefined) {
-      return;
-    }
-
-    const [firstNotification] = getNotifications({ hitlData });
-
-    if (firstNotification !== undefined) {
-      setSelected(firstNotification);
-    }
-  }, [hitlData, open, selected]);
-
-  useEffect(() => {
-    if (selectedNotificationIndex === -1) {
-      return;
-    }
-
-    const adjacentNotifications = [
-      notifications[selectedNotificationIndex - 1],
-      notifications[selectedNotificationIndex + 1],
-    ];
-
-    for (const notification of adjacentNotifications) {
-      if (notification?.type === "hitl") {
-        prefetchHitlDetail(queryClient, notification.item);
-      }
-    }
-  }, [notifications, queryClient, selectedNotificationIndex]);
-
-  const selectNextNotification = () => {
-    setSelected(
-      getNextNotificationAfterResponse({
-        notifications,
-        selectedNotificationKey,
-      }),
-    );
-  };
-
-  const handleNextNotification = () => {
-    setSelected(getNextNotification({ notifications, selectedNotificationKey }));
-  };
-
-  const handlePreviousNotification = () => {
-    setSelected(getPreviousNotification({ notifications, selectedNotificationKey }));
-  };
-
-  const handleSelect = (next: SelectedNotification) => {
-    setSelected((current) => {
-      const nextIsSelected =
-        current !== undefined && getNotificationKey(current) === getNotificationKey(next);
-
-      return nextIsSelected ? undefined : next;
-    });
-  };
+    isLoading: isLoadingHitlNotifications,
+    open,
+    queryClient,
+  });
 
   return (
     <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
@@ -319,7 +87,7 @@ export const NotificationsModal = ({
             <HStack gap={2}>
               {headerAction}
               <NotificationNavigation
-                canNavigateNotifications={notifications.length > 0}
+                canNavigateNotifications={canNavigateNotifications}
                 hasNextNotification={hasNextNotification}
                 hasPreviousNotification={hasPreviousNotification}
                 onNext={handleNextNotification}
@@ -353,7 +121,7 @@ export const NotificationsModal = ({
                 filterMode={filterMode}
                 hitlData={hitlData}
                 hitlIsError={hitlIsError}
-                hitlIsLoading={hitlIsLoading || effectiveHitlIsLoading}
+                hitlIsLoading={isLoadingHitlNotifications}
                 onSelect={handleSelect}
                 selectedKey={selectedNotificationKey}
               />
@@ -372,7 +140,7 @@ export const NotificationsModal = ({
               zIndex={1}
             >
               <NotificationDetailPane
-                isLoading={hitlIsLoading || effectiveHitlIsLoading}
+                isLoading={isLoadingHitlNotifications}
                 onNavigate={onClose}
                 onResponded={selectNextNotification}
                 selected={visibleSelectedNotification}
