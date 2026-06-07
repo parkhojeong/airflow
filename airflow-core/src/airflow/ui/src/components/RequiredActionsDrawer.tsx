@@ -27,68 +27,62 @@ const LOADING_LABEL = "Loading required actions...";
 const EMPTY_LABEL = "No required actions";
 
 type RequiredActionsDrawerProps = {
-  readonly details: Array<HITLDetail>;
+  readonly detail?: HITLDetail;
   readonly error?: unknown;
   readonly isError?: boolean;
   readonly isLoading?: boolean;
   readonly onClose: () => void;
   readonly open: boolean;
-  readonly selectedDetail?: HITLDetail;
 };
 
 export const RequiredActionsDrawer = ({
-  details,
+  detail,
   error,
   isError = false,
   isLoading = false,
   onClose,
   open,
-  selectedDetail,
-}: RequiredActionsDrawerProps) => {
-  const visibleSelected = selectedDetail ?? details[0];
-
-  return (
-    <Drawer.Root
-      lazyMount
-      onOpenChange={(event) => {
-        if (!event.open) {
-          onClose();
-        }
-      }}
-      open={open}
-      size="xl"
-      unmountOnExit
-    >
-      <Portal>
-        <Drawer.Backdrop />
-        <Drawer.Positioner>
-          <Drawer.Content>
-            <Drawer.Header>
-              <Drawer.Title>{REQUIRED_ACTIONS_LABEL}</Drawer.Title>
-            </Drawer.Header>
-            <Drawer.CloseTrigger asChild>
-              <CloseButton position="absolute" right={2} size="sm" top={2} />
-            </Drawer.CloseTrigger>
-            <Drawer.Body>
-              {isLoading ? (
-                <Text color="fg.muted" fontSize="sm">
-                  {LOADING_LABEL}
-                </Text>
-              ) : isError ? (
-                <ErrorAlert error={error} />
-              ) : visibleSelected === undefined ? (
-                <Text color="fg.muted" fontSize="sm">
-                  {EMPTY_LABEL}
-                </Text>
-              ) : (
-                <Box minW={0}>
-                  <HITLNotificationCard detail={visibleSelected} onNavigate={onClose} onResponded={onClose} />
-                </Box>
-              )}
-            </Drawer.Body>
-          </Drawer.Content>
-        </Drawer.Positioner>
-      </Portal>
-    </Drawer.Root>
-  );
-};
+}: RequiredActionsDrawerProps) => (
+  <Drawer.Root
+    lazyMount
+    onOpenChange={(event) => {
+      if (!event.open) {
+        onClose();
+      }
+    }}
+    open={open}
+    size="xl"
+    unmountOnExit
+  >
+    <Portal>
+      <Drawer.Backdrop />
+      <Drawer.Positioner>
+        <Drawer.Content>
+          <Drawer.Header>
+            <Drawer.Title>{REQUIRED_ACTIONS_LABEL}</Drawer.Title>
+          </Drawer.Header>
+          <Drawer.CloseTrigger asChild>
+            <CloseButton position="absolute" right={2} size="sm" top={2} />
+          </Drawer.CloseTrigger>
+          <Drawer.Body>
+            {isLoading ? (
+              <Text color="fg.muted" fontSize="sm">
+                {LOADING_LABEL}
+              </Text>
+            ) : isError ? (
+              <ErrorAlert error={error} />
+            ) : detail === undefined ? (
+              <Text color="fg.muted" fontSize="sm">
+                {EMPTY_LABEL}
+              </Text>
+            ) : (
+              <Box minW={0}>
+                <HITLNotificationCard detail={detail} onNavigate={onClose} onResponded={onClose} />
+              </Box>
+            )}
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer.Positioner>
+    </Portal>
+  </Drawer.Root>
+);

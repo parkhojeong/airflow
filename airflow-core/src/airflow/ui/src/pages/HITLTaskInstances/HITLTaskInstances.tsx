@@ -281,10 +281,9 @@ export const HITLTaskInstances = () => {
         total={data?.total_entries}
       />
       <RequiredActionsDrawer
-        details={selectedDetail === undefined ? [] : [selectedDetail]}
+        detail={selectedDetail}
         onClose={() => setSelectedDetail(undefined)}
         open={selectedDetail !== undefined}
-        selectedDetail={selectedDetail}
       />
     </VStack>
   );
