@@ -16,34 +16,54 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { ALL_ACTIONS_VALUE } from "src/components/RequiredActions/RequiredActionsFilter";
 import type { RequiredActionsFilterMode } from "src/components/RequiredActions/types";
-import { useAutoRefresh } from "src/utils";
 
-export const useHITLRequiredActionsQuery = ({
+import { useHITLCompletedQuery } from "./useHITLCompletedQuery";
+
+const getAllHitlData = ({
+  completedHitlData,
+  pendingHitlData,
+}: {
+  readonly completedHitlData: HITLDetailCollection;
+  readonly pendingHitlData?: HITLDetailCollection;
+}): HITLDetailCollection => ({
+  hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...completedHitlData.hitl_details],
+  total_entries: (pendingHitlData?.total_entries ?? 0) + completedHitlData.total_entries,
+});
+
+export const useHITLRequiredActionsModalData = ({
   dagId,
   filterMode,
   open,
+  pendingHitlData,
   runId,
 }: {
   readonly dagId?: string;
   readonly filterMode: RequiredActionsFilterMode;
   readonly open: boolean;
+  readonly pendingHitlData?: HITLDetailCollection;
   readonly runId?: string;
 }) => {
-  const refetchInterval = useAutoRefresh({ checkPendingRuns: open, dagId: open ? dagId : undefined });
   const showAllActions = filterMode === ALL_ACTIONS_VALUE;
+  const {
+    data: completedHitlData,
+    isError,
+    isLoading,
+  } = useHITLCompletedQuery({
+    dagId,
+    enabled: showAllActions,
+    open,
+    runId,
+  });
 
-  return useTaskInstanceServiceGetHitlDetails(
-    {
-      dagId: dagId ?? "~",
-      dagRunId: runId ?? "~",
-      orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
-      responseReceived: showAllActions ? undefined : false,
-      state: showAllActions ? undefined : ["deferred", "awaiting_input"],
-    },
-    undefined,
-    { enabled: open, refetchInterval },
-  );
+  return {
+    hitlData:
+      showAllActions && completedHitlData !== undefined
+        ? getAllHitlData({ completedHitlData, pendingHitlData })
+        : pendingHitlData,
+    isError,
+    isLoading,
+  };
 };

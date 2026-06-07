@@ -17,11 +17,10 @@
  * under the License.
  */
 import type { QueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 
-import { createRequiredActionNavigationHandlers } from "./utils/requiredActionNavigation";
 import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
 import {
   findSelectedHITLRequiredActionIndex,
@@ -32,17 +31,16 @@ import {
 } from "./utils/requiredActionSelection";
 import { isSelectedHITLRequiredActionStillInFetchedData } from "./utils/requiredActionVisibility";
 
-type RequiredActionSelectionState = {
+export type RequiredActionSelectionState = {
   readonly hasNextRequiredAction: boolean;
   readonly hasPreviousRequiredAction: boolean;
   readonly requiredActions: Array<SelectedHITLRequiredAction>;
-  readonly selected?: SelectedHITLRequiredAction;
   readonly selectedRequiredActionIndex: number;
   readonly selectedRequiredActionKey?: string;
   readonly visibleSelectedHITLRequiredAction?: SelectedHITLRequiredAction;
 };
 
-const computeRequiredActionSelectionState = ({
+export const getRequiredActionSelectionState = ({
   hitlData,
   isLoading,
   selected,
@@ -81,7 +79,7 @@ const computeRequiredActionSelectionState = ({
   };
 };
 
-const useClearMissingSelectedRequiredAction = ({
+export const useClearMissingSelectedRequiredAction = ({
   hitlData,
   isLoading,
   selectedRequiredActionIndex,
@@ -108,7 +106,7 @@ const useClearMissingSelectedRequiredAction = ({
   }, [hitlData, isLoading, selectedRequiredActionIndex, selectedRequiredActionKey, setSelected]);
 };
 
-const useAutoSelectFirstRequiredAction = ({
+export const useAutoSelectFirstRequiredAction = ({
   open,
   requiredActions,
   selected,
@@ -132,7 +130,7 @@ const useAutoSelectFirstRequiredAction = ({
   }, [open, requiredActions, selected, setSelected]);
 };
 
-const usePrefetchAdjacentRequiredActions = ({
+export const usePrefetchAdjacentRequiredActions = ({
   queryClient,
   requiredActions,
   selectedRequiredActionIndex,
@@ -157,78 +155,4 @@ const usePrefetchAdjacentRequiredActions = ({
       }
     }
   }, [requiredActions, queryClient, selectedRequiredActionIndex]);
-};
-
-export const useRequiredActionSelection = ({
-  hitlData,
-  isLoading,
-  open,
-  queryClient,
-}: {
-  readonly hitlData?: HITLDetailCollection;
-  readonly isLoading: boolean;
-  readonly open: boolean;
-  readonly queryClient: QueryClient;
-}) => {
-  const [selected, setSelected] = useState<SelectedHITLRequiredAction | undefined>(undefined);
-  const selectionState = computeRequiredActionSelectionState({
-    hitlData,
-    isLoading,
-    selected,
-  });
-  const {
-    hasNextRequiredAction,
-    hasPreviousRequiredAction,
-    requiredActions,
-    selectedRequiredActionIndex,
-    selectedRequiredActionKey,
-    visibleSelectedHITLRequiredAction,
-  } = selectionState;
-
-  useClearMissingSelectedRequiredAction({
-    hitlData,
-    isLoading,
-    selectedRequiredActionIndex,
-    selectedRequiredActionKey,
-    setSelected,
-  });
-  useAutoSelectFirstRequiredAction({
-    open,
-    requiredActions,
-    selected,
-    setSelected,
-  });
-  usePrefetchAdjacentRequiredActions({
-    queryClient,
-    requiredActions,
-    selectedRequiredActionIndex,
-  });
-
-  const { handleNextRequiredAction, handlePreviousRequiredAction, selectNextRequiredActionAfterResponse } =
-    createRequiredActionNavigationHandlers({
-      requiredActions,
-      selectedRequiredActionKey,
-      setSelected,
-    });
-
-  const handleSelect = (next: SelectedHITLRequiredAction) => {
-    setSelected((current) => {
-      const nextIsSelected =
-        current !== undefined && getHITLRequiredActionKey(current) === getHITLRequiredActionKey(next);
-
-      return nextIsSelected ? undefined : next;
-    });
-  };
-
-  return {
-    canNavigateRequiredActions: requiredActions.length > 0,
-    handleNextRequiredAction,
-    handlePreviousRequiredAction,
-    handleSelect,
-    hasNextRequiredAction,
-    hasPreviousRequiredAction,
-    selectedRequiredActionKey,
-    selectNextRequiredActionAfterResponse,
-    visibleSelectedHITLRequiredAction,
-  };
 };

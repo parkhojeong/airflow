@@ -45,6 +45,7 @@ const useNeedsReview = ({
     {
       dagId: dagId ?? "~",
       dagRunId: runId ?? "~",
+      orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
       responseReceived: false,
       state: ["deferred", "awaiting_input"],
       taskId,
@@ -132,6 +133,7 @@ export const NeedsReviewButtonWithModal = ({
         }
         onClose={onCloseRequiredActions}
         open={requiredActionsOpen}
+        pendingHitlData={hitlStatsData}
         runId={runId}
       />
     </>

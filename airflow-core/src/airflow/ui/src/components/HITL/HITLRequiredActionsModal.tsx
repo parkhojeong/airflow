@@ -17,16 +17,32 @@
  * under the License.
  */
 import { Box, Button, Heading, HStack } from "@chakra-ui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
-import { RequiredActionsFilter } from "src/components/RequiredActions/RequiredActionsFilter";
+import {
+  getRequiredActionsFilterMode,
+  PENDING_ACTIONS_VALUE,
+  RequiredActionsFilter,
+} from "src/components/RequiredActions/RequiredActionsFilter";
+import type { RequiredActionsFilterMode } from "src/components/RequiredActions/types";
 import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
 import { HITLRequiredActionsList } from "./HITLRequiredActionsList";
-import { useHITLRequiredActionsModalState } from "./useHITLRequiredActionsModalState";
+import { useHITLRequiredActionsModalData } from "./useHITLRequiredActionsModalData";
+import {
+  getRequiredActionSelectionState,
+  useAutoSelectFirstRequiredAction,
+  useClearMissingSelectedRequiredAction,
+  usePrefetchAdjacentRequiredActions,
+} from "./useRequiredActionSelectionEffects";
+import { createRequiredActionNavigationHandlers } from "./utils/requiredActionNavigation";
+import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
@@ -45,15 +61,79 @@ export const HITLRequiredActionsModal = ({
   headerAction,
   onClose,
   open,
+  pendingHitlData,
   runId,
 }: {
   readonly dagId?: string;
   readonly headerAction?: ReactNode;
   readonly onClose: () => void;
   readonly open: boolean;
+  readonly pendingHitlData?: HITLDetailCollection;
   readonly runId?: string;
 }) => {
-  const { detail, filter, list, navigation } = useHITLRequiredActionsModalState({ dagId, open, runId });
+  const queryClient = useQueryClient();
+  const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
+  const [selectedRequiredAction, setSelectedRequiredAction] = useState<
+    SelectedHITLRequiredAction | undefined
+  >(undefined);
+  const filterMode = getRequiredActionsFilterMode(selectedFilter);
+  const {
+    hitlData,
+    isError: hitlIsError,
+    isLoading: hitlIsLoading,
+  } = useHITLRequiredActionsModalData({
+    dagId,
+    filterMode,
+    open,
+    pendingHitlData,
+    runId,
+  });
+  const isLoadingHitlRequiredActions = hitlIsLoading || (open && hitlData === undefined && !hitlIsError);
+  const {
+    hasNextRequiredAction,
+    hasPreviousRequiredAction,
+    requiredActions,
+    selectedRequiredActionIndex,
+    selectedRequiredActionKey,
+    visibleSelectedHITLRequiredAction,
+  } = getRequiredActionSelectionState({
+    hitlData,
+    isLoading: isLoadingHitlRequiredActions,
+    selected: selectedRequiredAction,
+  });
+
+  useClearMissingSelectedRequiredAction({
+    hitlData,
+    isLoading: isLoadingHitlRequiredActions,
+    selectedRequiredActionIndex,
+    selectedRequiredActionKey,
+    setSelected: setSelectedRequiredAction,
+  });
+  useAutoSelectFirstRequiredAction({
+    open,
+    requiredActions,
+    selected: selectedRequiredAction,
+    setSelected: setSelectedRequiredAction,
+  });
+  usePrefetchAdjacentRequiredActions({
+    queryClient,
+    requiredActions,
+    selectedRequiredActionIndex,
+  });
+  const { handleNextRequiredAction, handlePreviousRequiredAction, selectNextRequiredActionAfterResponse } =
+    createRequiredActionNavigationHandlers({
+      requiredActions,
+      selectedRequiredActionKey,
+      setSelected: setSelectedRequiredAction,
+    });
+  const handleSelect = (next: SelectedHITLRequiredAction) => {
+    setSelectedRequiredAction((current) => {
+      const nextIsSelected =
+        current !== undefined && getHITLRequiredActionKey(current) === getHITLRequiredActionKey(next);
+
+      return nextIsSelected ? undefined : next;
+    });
+  };
 
   return (
     <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
@@ -71,8 +151,14 @@ export const HITLRequiredActionsModal = ({
             </Heading>
             <HStack gap={2}>
               {headerAction}
-              <RequiredActionsFilter {...filter} />
-              <RequiredActionNavigation {...navigation} />
+              <RequiredActionsFilter onChange={setSelectedFilter} value={filterMode} />
+              <RequiredActionNavigation
+                canNavigateRequiredActions={requiredActions.length > 0}
+                hasNextRequiredAction={hasNextRequiredAction}
+                hasPreviousRequiredAction={hasPreviousRequiredAction}
+                onNext={handleNextRequiredAction}
+                onPrevious={handlePreviousRequiredAction}
+              />
             </HStack>
           </HStack>
         </Dialog.Header>
@@ -97,7 +183,14 @@ export const HITLRequiredActionsModal = ({
               width={{ base: "100%", lg: "770px", xl: "836px" }}
               zIndex={2}
             >
-              <HITLRequiredActionsList {...list} />
+              <HITLRequiredActionsList
+                filterMode={filterMode}
+                hitlData={hitlData}
+                hitlIsError={hitlIsError}
+                hitlIsLoading={isLoadingHitlRequiredActions}
+                onSelect={handleSelect}
+                selectedKey={selectedRequiredActionKey}
+              />
             </Box>
             <Box
               bg="bg"
@@ -112,7 +205,12 @@ export const HITLRequiredActionsModal = ({
               position="relative"
               zIndex={1}
             >
-              <HITLRequiredActionDetailPane {...detail} onNavigate={onClose} />
+              <HITLRequiredActionDetailPane
+                isLoading={isLoadingHitlRequiredActions}
+                onNavigate={onClose}
+                onResponded={selectNextRequiredActionAfterResponse}
+                selected={visibleSelectedHITLRequiredAction}
+              />
             </Box>
           </HStack>
         </Dialog.Body>

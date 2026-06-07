@@ -48,7 +48,12 @@ export const NeedsReviewBadge = ({ dagId, pendingActions }: Props) => {
           </StateBadge>
         </Button>
       </Tooltip>
-      <HITLRequiredActionsModal dagId={dagId} onClose={onClose} open={open} />
+      <HITLRequiredActionsModal
+        dagId={dagId}
+        onClose={onClose}
+        open={open}
+        pendingHitlData={{ hitl_details: pendingActions, total_entries: pendingActions.length }}
+      />
     </>
   );
 };
