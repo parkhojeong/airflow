@@ -107,7 +107,7 @@ export const HITLRequiredActionsModal = ({
     showAllActions && completedHitlData !== undefined
       ? getAllHitlData({ completedHitlData, pendingHitlData })
       : pendingHitlData;
-  const isLoadingHitlRequiredActions = hitlIsLoading || (open && hitlData === undefined && !hitlIsError);
+  const isLoadingCompletedHitlActions = showAllActions && hitlIsLoading;
   const {
     hasNextRequiredAction,
     hasPreviousRequiredAction,
@@ -205,7 +205,7 @@ export const HITLRequiredActionsModal = ({
                       completedHitlData?.hitl_details.length ?? 0,
                     )}
                     isError={hitlIsError}
-                    isLoading={isLoadingHitlRequiredActions}
+                    isLoading={isLoadingCompletedHitlActions}
                     onSelect={handleSelect}
                     selectedKey={selectedRequiredActionKey}
                   />
@@ -226,7 +226,6 @@ export const HITLRequiredActionsModal = ({
               zIndex={1}
             >
               <HITLRequiredActionDetailPane
-                isLoading={isLoadingHitlRequiredActions}
                 onNavigate={onClose}
                 onResponded={selectNextRequiredActionAfterResponse}
                 selected={visibleSelectedHITLRequiredAction}

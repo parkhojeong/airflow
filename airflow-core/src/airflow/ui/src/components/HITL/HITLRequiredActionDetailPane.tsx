@@ -22,15 +22,12 @@ import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const EMPTY_DETAIL_LABEL = "Select a required action to see details";
-const LOADING_REQUIRED_ACTIONS_LABEL = "Loading required actions...";
 
 export const HITLRequiredActionDetailPane = ({
-  isLoading,
   onNavigate,
   onResponded,
   selected,
 }: {
-  readonly isLoading: boolean;
   readonly onNavigate: () => void;
   readonly onResponded: () => void;
   readonly selected?: SelectedHITLRequiredAction;
@@ -39,7 +36,7 @@ export const HITLRequiredActionDetailPane = ({
     return (
       <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
         <Text color="fg.muted" fontSize="sm">
-          {isLoading ? LOADING_REQUIRED_ACTIONS_LABEL : EMPTY_DETAIL_LABEL}
+          {EMPTY_DETAIL_LABEL}
         </Text>
       </VStack>
     );
