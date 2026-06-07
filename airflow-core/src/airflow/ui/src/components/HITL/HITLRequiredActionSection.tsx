@@ -26,8 +26,8 @@ import {
 import { HITLRequiredActionsTable } from "./HITLRequiredActionsTable";
 import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
-const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
-const LOADING_HITL_LABEL = "Loading pending HITL actions...";
+const LOAD_HITL_ERROR_LABEL = "Unable to load HITL actions";
+const LOADING_HITL_LABEL = "Loading HITL actions...";
 
 export const HITLRequiredActionSection = ({
   details,
