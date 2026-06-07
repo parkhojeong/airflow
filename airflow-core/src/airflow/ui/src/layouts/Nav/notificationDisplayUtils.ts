@@ -37,35 +37,6 @@ export const getDagRunListDateFormat = (datetime: string, showSeconds = false, t
   return showSeconds ? DAG_RUN_META_DATE_WITH_SECONDS_FORMAT : DAG_RUN_META_DATE_FORMAT;
 };
 
-const DAG_RUN_TYPES = new Set([
-  "asset_materialization",
-  "asset_triggered",
-  "backfill",
-  "manual",
-  "operator_triggered",
-  "scheduled",
-]);
-
-export const getTimestamp = (datetime?: string) => {
-  const date = dayjs(datetime);
-
-  return date.isValid() ? date.valueOf() : 0;
-};
-
-export const getDagRunOrderTimestamp = (dagRunId: string, fallbackRunAfter?: string) => {
-  const [runType, runAfterWithSuffix] = dagRunId.split("__");
-
-  if (runType === undefined || runAfterWithSuffix === undefined || !DAG_RUN_TYPES.has(runType)) {
-    return getTimestamp(fallbackRunAfter);
-  }
-
-  const runAfter = dayjs(runAfterWithSuffix).isValid()
-    ? runAfterWithSuffix
-    : runAfterWithSuffix.replace(/_[^_]+$/u, "");
-
-  return getTimestamp(dayjs(runAfter).isValid() ? runAfter : fallbackRunAfter);
-};
-
 export const formatNotificationDetailTime = (datetime?: string, showSeconds = false, timezone = "UTC") => {
   if (datetime === undefined) {
     return undefined;

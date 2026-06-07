@@ -25,7 +25,7 @@ import { useTimezone } from "src/context/timezone";
 import { isHITLPending } from "src/utils/hitl";
 
 import { NotificationSection, NotificationTypeSection, StatusText } from "./NotificationsListComponents";
-import { getDagRunListDateFormat, getDagRunOrderTimestamp, getTimestamp } from "./notificationDisplayUtils";
+import { getDagRunListDateFormat } from "./notificationDisplayUtils";
 import { prefetchHitlDetail } from "./notificationPrefetchUtils";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load pending HITL actions";
@@ -58,24 +58,6 @@ type NotificationsListProps = {
 
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
-
-const compareStrings = (left: string, right: string) => left.localeCompare(right);
-
-const compareDates = (left?: string, right?: string) => getTimestamp(left) - getTimestamp(right);
-
-const compareHitlNotifications = (left: HITLDetail, right: HITLDetail) =>
-  compareStrings(left.task_instance.dag_id, right.task_instance.dag_id) ||
-  getDagRunOrderTimestamp(left.task_instance.dag_run_id, left.task_instance.run_after) -
-    getDagRunOrderTimestamp(right.task_instance.dag_run_id, right.task_instance.run_after) ||
-  compareDates(left.created_at, right.created_at) ||
-  compareStrings(left.task_instance.task_id, right.task_instance.task_id);
-
-export const getNotificationsInDisplayOrder = ({
-  hitlDetails,
-}: {
-  readonly hitlDetails: Array<HITLDetail>;
-}): Array<SelectedNotification> =>
-  [...hitlDetails].sort(compareHitlNotifications).map((item) => ({ item, type: "hitl" }) as const);
 
 const isPendingHitlDetail = (detail: HITLDetail) =>
   !detail.response_received && isHITLPending(detail.task_instance.state);
@@ -217,7 +199,7 @@ export const NotificationsList = ({
 }: NotificationsListProps) => {
   const queryClient = useQueryClient();
   const { selectedTimezone } = useTimezone();
-  const hitlDetails = [...(hitlData?.hitl_details ?? [])].sort(compareHitlNotifications);
+  const hitlDetails = hitlData?.hitl_details ?? [];
   const isShowingAllActions = filterMode === "all";
   const pendingHitlDetails = isShowingAllActions ? hitlDetails.filter(isPendingHitlDetail) : hitlDetails;
   const completedHitlDetails = isShowingAllActions

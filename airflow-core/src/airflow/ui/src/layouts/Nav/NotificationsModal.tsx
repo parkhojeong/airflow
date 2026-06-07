@@ -28,7 +28,6 @@ import { Dialog, Tooltip } from "src/components/ui";
 import { HITLNotificationCard } from "./HITLNotificationCard";
 import {
   getNotificationKey,
-  getNotificationsInDisplayOrder,
   type NotificationFilterMode,
   NotificationsList,
   type SelectedNotification,
@@ -78,9 +77,7 @@ const isSelectedNotificationStillInFetchedData = ({
 };
 
 const getNotifications = ({ hitlData }: { readonly hitlData?: HITLDetailCollection }) =>
-  getNotificationsInDisplayOrder({
-    hitlDetails: hitlData?.hitl_details ?? [],
-  });
+  (hitlData?.hitl_details ?? []).map((item) => ({ item, type: "hitl" }) as const);
 
 const getNextNotification = ({
   notifications,

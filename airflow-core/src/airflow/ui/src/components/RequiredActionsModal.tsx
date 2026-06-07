@@ -105,6 +105,7 @@ export const RequiredActionsModal = ({
     {
       dagId: dagId ?? "~",
       dagRunId: runId ?? "~",
+      orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
       responseReceived: showAllActions ? undefined : false,
       state: showAllActions ? undefined : ["deferred", "awaiting_input"],
     },
