@@ -28,7 +28,7 @@ import {
   RequiredActionsFilter,
 } from "./RequiredActionsFilter";
 import type { RequiredActionsFilterMode } from "./types";
-import { useRequiredActionsQuery } from "./useRequiredActionsQuery";
+import { useHITLRequiredActionsQuery } from "./useHITLRequiredActionsQuery";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
@@ -60,7 +60,7 @@ export const RequiredActionsModal = ({
     data: hitlData,
     isError: hitlIsError,
     isLoading: hitlIsLoading,
-  } = useRequiredActionsQuery({ dagId, filterMode: normalizedSelectedFilter, open, runId });
+  } = useHITLRequiredActionsQuery({ dagId, filterMode: normalizedSelectedFilter, open, runId });
 
   return (
     <RequiredActionsDialog

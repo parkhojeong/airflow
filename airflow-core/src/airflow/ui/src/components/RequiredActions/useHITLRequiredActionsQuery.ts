@@ -22,7 +22,7 @@ import { useAutoRefresh } from "src/utils";
 import { ALL_ACTIONS_VALUE } from "./RequiredActionsFilter";
 import type { RequiredActionsFilterMode } from "./types";
 
-export const useRequiredActionsQuery = ({
+export const useHITLRequiredActionsQuery = ({
   dagId,
   filterMode,
   open,
