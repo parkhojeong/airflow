@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Button, Heading, HStack } from "@chakra-ui/react";
+import { Box, Button, Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -34,7 +34,10 @@ import type { RequiredActionsFilterMode } from "src/components/RequiredActions/t
 import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
-import { HITLRequiredActionsList } from "./HITLRequiredActionsList";
+import {
+  CompletedHITLRequiredActionsSection,
+  PendingHITLRequiredActionsSection,
+} from "./HITLRequiredActionsSections";
 import {
   getRequiredActionSelectionState,
   useAutoSelectFirstRequiredAction,
@@ -109,7 +112,6 @@ export const HITLRequiredActionsModal = ({
     visibleSelectedHITLRequiredAction,
   } = getRequiredActionSelectionState({
     hitlData,
-    isLoading: isLoadingHitlRequiredActions,
     selected: selectedRequiredAction,
   });
 
@@ -182,14 +184,25 @@ export const HITLRequiredActionsModal = ({
               width={{ base: "100%", lg: "770px", xl: "836px" }}
               zIndex={2}
             >
-              <HITLRequiredActionsList
-                filterMode={filterMode}
-                hitlData={hitlData}
-                hitlIsError={hitlIsError}
-                hitlIsLoading={isLoadingHitlRequiredActions}
-                onSelect={handleSelect}
-                selectedKey={selectedRequiredActionKey}
-              />
+              <VStack alignItems="stretch" gap={4} width="100%">
+                <PendingHITLRequiredActionsSection
+                  details={pendingHitlData?.hitl_details ?? []}
+                  onSelect={handleSelect}
+                  selectedKey={selectedRequiredActionKey}
+                />
+                {showAllActions ? (
+                  <CompletedHITLRequiredActionsSection
+                    details={completedHitlData?.hitl_details ?? []}
+                    hasHITLDetails={
+                      (pendingHitlData?.total_entries ?? 0) + (completedHitlData?.total_entries ?? 0) > 0
+                    }
+                    hitlIsError={hitlIsError}
+                    hitlIsLoading={isLoadingHitlRequiredActions}
+                    onSelect={handleSelect}
+                    selectedKey={selectedRequiredActionKey}
+                  />
+                ) : undefined}
+              </VStack>
             </Box>
             <Box
               bg="bg"

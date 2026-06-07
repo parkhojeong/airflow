@@ -27,7 +27,6 @@ import {
   type SetSelectedHITLRequiredAction,
   type SelectedHITLRequiredAction,
 } from "./utils/requiredActionSelection";
-import { isSelectedHITLRequiredActionStillInFetchedData } from "./utils/requiredActionVisibility";
 
 export type RequiredActionSelectionState = {
   readonly hasNextRequiredAction: boolean;
@@ -40,11 +39,9 @@ export type RequiredActionSelectionState = {
 
 export const getRequiredActionSelectionState = ({
   hitlData,
-  isLoading,
   selected,
 }: {
   readonly hitlData?: HITLDetailCollection;
-  readonly isLoading: boolean;
   readonly selected?: SelectedHITLRequiredAction;
 }): RequiredActionSelectionState => {
   const requiredActions = getHITLRequiredActions({ hitlData });
@@ -59,13 +56,7 @@ export const getRequiredActionSelectionState = ({
       : selectedRequiredActionIndex < requiredActions.length - 1;
   const hasPreviousRequiredAction =
     selectedRequiredActionIndex === -1 ? requiredActions.length > 0 : selectedRequiredActionIndex > 0;
-  const visibleSelectedHITLRequiredAction = isSelectedHITLRequiredActionStillInFetchedData({
-    hitlData,
-    hitlIsLoading: isLoading,
-    selectedRequiredAction: selected,
-  })
-    ? selected
-    : undefined;
+  const visibleSelectedHITLRequiredAction = selectedRequiredActionIndex === -1 ? undefined : selected;
 
   return {
     hasNextRequiredAction,

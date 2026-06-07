@@ -33,16 +33,16 @@ export const HITLRequiredActionSection = ({
   details,
   emptyLabel,
   heading,
-  isError,
-  isLoading,
+  isError = false,
+  isLoading = false,
   onSelect,
   selectedKey,
 }: {
   readonly details: Array<HITLDetail>;
   readonly emptyLabel: string;
   readonly heading: string;
-  readonly isError: boolean;
-  readonly isLoading: boolean;
+  readonly isError?: boolean;
+  readonly isLoading?: boolean;
   readonly onSelect: (selection: SelectedHITLRequiredAction) => void;
   readonly selectedKey?: string;
 }) => (
