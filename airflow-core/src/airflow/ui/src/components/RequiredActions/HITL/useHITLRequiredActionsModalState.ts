@@ -17,16 +17,16 @@
  * under the License.
  */
 import { useQueryClient } from "@tanstack/react-query";
-import type { Dispatch, ReactNode, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 
-import { useHITLRequiredActionsQuery } from "./HITL/useHITLRequiredActionsQuery";
-import { useRequiredActionSelection } from "./HITL/useRequiredActionSelection";
-import type { SelectedHITLRequiredAction } from "./HITL/utils/requiredActionSelection";
-import { getRequiredActionsFilterMode, PENDING_ACTIONS_VALUE } from "./RequiredActionsFilter";
-import type { RequiredActionsFilterMode } from "./types";
+import { getRequiredActionsFilterMode, PENDING_ACTIONS_VALUE } from "../RequiredActionsFilter";
+import type { RequiredActionsFilterMode } from "../types";
+import { useHITLRequiredActionsQuery } from "./useHITLRequiredActionsQuery";
+import { useRequiredActionSelection } from "./useRequiredActionSelection";
+import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 type RequiredActionsFilterState = {
   readonly onChange: Dispatch<SetStateAction<RequiredActionsFilterMode>>;
@@ -56,26 +56,24 @@ type RequiredActionDetailState = {
   readonly selected?: SelectedHITLRequiredAction;
 };
 
-type RequiredActionsModalStateValue = {
+type HITLRequiredActionsModalState = {
   readonly detail: RequiredActionDetailState;
   readonly filter: RequiredActionsFilterState;
   readonly list: HITLRequiredActionsListState;
   readonly navigation: RequiredActionNavigationState;
 };
 
-type RequiredActionsModalStateProps = {
-  readonly children: (state: RequiredActionsModalStateValue) => ReactNode;
+type UseHITLRequiredActionsModalStateParams = {
   readonly dagId?: string;
   readonly open: boolean;
   readonly runId?: string;
 };
 
-export const RequiredActionsModalState = ({
-  children,
+export const useHITLRequiredActionsModalState = ({
   dagId,
   open,
   runId,
-}: RequiredActionsModalStateProps) => {
+}: UseHITLRequiredActionsModalStateParams): HITLRequiredActionsModalState => {
   const queryClient = useQueryClient();
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
@@ -104,7 +102,7 @@ export const RequiredActionsModalState = ({
     queryClient,
   });
 
-  return children({
+  return {
     detail: {
       isLoading: isLoadingHitlRequiredActions,
       onResponded: selectNextRequiredActionAfterResponse,
@@ -129,5 +127,5 @@ export const RequiredActionsModalState = ({
       onNext: handleNextRequiredAction,
       onPrevious: handlePreviousRequiredAction,
     },
-  });
+  };
 };
