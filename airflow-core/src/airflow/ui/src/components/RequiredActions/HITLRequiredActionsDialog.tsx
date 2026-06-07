@@ -62,7 +62,7 @@ export const HITLRequiredActionsDialog = ({
     hasNextRequiredAction,
     hasPreviousRequiredAction,
     selectedRequiredActionKey,
-    selectNextRequiredAction,
+    selectNextRequiredActionAfterResponse,
     visibleSelectedHITLRequiredAction,
   } = useRequiredActionSelection({
     hitlData,
@@ -143,7 +143,7 @@ export const HITLRequiredActionsDialog = ({
               <RequiredActionDetailPane
                 isLoading={isLoadingHitlRequiredActions}
                 onNavigate={onClose}
-                onResponded={selectNextRequiredAction}
+                onResponded={selectNextRequiredActionAfterResponse}
                 selected={visibleSelectedHITLRequiredAction}
               />
             </Box>

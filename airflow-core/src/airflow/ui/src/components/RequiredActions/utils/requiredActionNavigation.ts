@@ -79,7 +79,7 @@ export const getNextRequiredActionAfterResponse = ({
   return remainingRequiredActions[selectedRequiredActionIndex] ?? remainingRequiredActions[0];
 };
 
-export const buildRequiredActionNavigation = ({
+export const createRequiredActionNavigationHandlers = ({
   requiredActions,
   selectedRequiredActionKey,
   setSelected,
@@ -88,7 +88,7 @@ export const buildRequiredActionNavigation = ({
   readonly selectedRequiredActionKey?: string;
   readonly setSelected: SetSelectedHITLRequiredAction;
 }) => {
-  const selectNextRequiredAction = () => {
+  const selectNextRequiredActionAfterResponse = () => {
     setSelected(
       getNextRequiredActionAfterResponse({
         requiredActions,
@@ -108,6 +108,6 @@ export const buildRequiredActionNavigation = ({
   return {
     handleNextRequiredAction,
     handlePreviousRequiredAction,
-    selectNextRequiredAction,
+    selectNextRequiredActionAfterResponse,
   };
 };
