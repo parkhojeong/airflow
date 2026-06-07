@@ -25,7 +25,6 @@ import { HITLNotificationCard } from "src/layouts/Nav/HITLNotificationCard";
 const REQUIRED_ACTIONS_LABEL = "Required actions";
 const LOADING_LABEL = "Loading required actions...";
 const EMPTY_LABEL = "No required actions";
-const SELECT_LABEL = "Select a required action to see details";
 
 type RequiredActionsDrawerProps = {
   readonly details: Array<HITLDetail>;
@@ -77,23 +76,13 @@ export const RequiredActionsDrawer = ({
                 </Text>
               ) : isError ? (
                 <ErrorAlert error={error} />
-              ) : details.length === 0 ? (
+              ) : visibleSelected === undefined ? (
                 <Text color="fg.muted" fontSize="sm">
                   {EMPTY_LABEL}
                 </Text>
               ) : (
                 <Box minW={0}>
-                  {visibleSelected === undefined ? (
-                    <Text color="fg.muted" fontSize="sm">
-                      {SELECT_LABEL}
-                    </Text>
-                  ) : (
-                    <HITLNotificationCard
-                      detail={visibleSelected}
-                      onNavigate={onClose}
-                      onResponded={onClose}
-                    />
-                  )}
+                  <HITLNotificationCard detail={visibleSelected} onNavigate={onClose} onResponded={onClose} />
                 </Box>
               )}
             </Drawer.Body>
