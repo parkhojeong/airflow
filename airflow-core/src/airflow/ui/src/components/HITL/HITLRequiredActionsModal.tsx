@@ -21,9 +21,11 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
 import {
+  ALL_ACTIONS_VALUE,
   getRequiredActionsFilterMode,
   PENDING_ACTIONS_VALUE,
   RequiredActionsFilter,
@@ -33,7 +35,6 @@ import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
 import { HITLRequiredActionsList } from "./HITLRequiredActionsList";
-import { useHITLRequiredActionsModalData } from "./useHITLRequiredActionsModalData";
 import {
   getRequiredActionSelectionState,
   useAutoSelectFirstRequiredAction,
@@ -44,6 +45,17 @@ import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./uti
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
 const REQUIRED_ACTIONS_LABEL = "Required actions";
+
+const getAllHitlData = ({
+  completedHitlData,
+  pendingHitlData,
+}: {
+  readonly completedHitlData: HITLDetailCollection;
+  readonly pendingHitlData?: HITLDetailCollection;
+}): HITLDetailCollection => ({
+  hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...completedHitlData.hitl_details],
+  total_entries: (pendingHitlData?.total_entries ?? 0) + completedHitlData.total_entries,
+});
 
 export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: () => void }) => (
   <Button asChild size="sm" variant="outline">
@@ -73,17 +85,21 @@ export const HITLRequiredActionsModal = ({
     SelectedHITLRequiredAction | undefined
   >(undefined);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
+  const showAllActions = filterMode === ALL_ACTIONS_VALUE;
   const {
-    hitlData,
+    data: completedHitlData,
     isError: hitlIsError,
     isLoading: hitlIsLoading,
-  } = useHITLRequiredActionsModalData({
-    dagId,
-    filterMode,
-    open,
-    pendingHitlData,
-    runId,
+  } = useTaskInstanceServiceGetHitlDetails({
+    dagId: dagId ?? "~",
+    dagRunId: runId ?? "~",
+    orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
+    responseReceived: true,
   });
+  const hitlData =
+    showAllActions && completedHitlData !== undefined
+      ? getAllHitlData({ completedHitlData, pendingHitlData })
+      : pendingHitlData;
   const isLoadingHitlRequiredActions = hitlIsLoading || (open && hitlData === undefined && !hitlIsError);
   const {
     hasNextRequiredAction,
