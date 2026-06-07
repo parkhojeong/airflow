@@ -19,30 +19,18 @@
 import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { ErrorAlert } from "src/components/ErrorAlert";
 import { HITLNotificationCard } from "src/layouts/Nav/HITLNotificationCard";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";
-const LOADING_LABEL = "Loading required actions...";
 const EMPTY_LABEL = "No required actions";
 
 type RequiredActionsDrawerProps = {
   readonly detail?: HITLDetail;
-  readonly error?: unknown;
-  readonly isError?: boolean;
-  readonly isLoading?: boolean;
   readonly onClose: () => void;
   readonly open: boolean;
 };
 
-export const RequiredActionsDrawer = ({
-  detail,
-  error,
-  isError = false,
-  isLoading = false,
-  onClose,
-  open,
-}: RequiredActionsDrawerProps) => (
+export const RequiredActionsDrawer = ({ detail, onClose, open }: RequiredActionsDrawerProps) => (
   <Drawer.Root
     lazyMount
     onOpenChange={(event) => {
@@ -65,13 +53,7 @@ export const RequiredActionsDrawer = ({
             <CloseButton position="absolute" right={2} size="sm" top={2} />
           </Drawer.CloseTrigger>
           <Drawer.Body>
-            {isLoading ? (
-              <Text color="fg.muted" fontSize="sm">
-                {LOADING_LABEL}
-              </Text>
-            ) : isError ? (
-              <ErrorAlert error={error} />
-            ) : detail === undefined ? (
+            {detail === undefined ? (
               <Text color="fg.muted" fontSize="sm">
                 {EMPTY_LABEL}
               </Text>
