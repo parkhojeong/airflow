@@ -37,7 +37,6 @@ import { useHITLRequiredActionsModalData } from "./useHITLRequiredActionsModalDa
 import {
   getRequiredActionSelectionState,
   useAutoSelectFirstRequiredAction,
-  useClearMissingSelectedRequiredAction,
 } from "./useRequiredActionSelectionEffects";
 import { createRequiredActionNavigationHandlers } from "./utils/requiredActionNavigation";
 import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
@@ -90,7 +89,6 @@ export const HITLRequiredActionsModal = ({
     hasNextRequiredAction,
     hasPreviousRequiredAction,
     requiredActions,
-    selectedRequiredActionIndex,
     selectedRequiredActionKey,
     visibleSelectedHITLRequiredAction,
   } = getRequiredActionSelectionState({
@@ -99,18 +97,11 @@ export const HITLRequiredActionsModal = ({
     selected: selectedRequiredAction,
   });
 
-  useClearMissingSelectedRequiredAction({
-    hitlData,
-    isLoading: isLoadingHitlRequiredActions,
-    selectedRequiredActionIndex,
-    selectedRequiredActionKey,
-    setSelected: setSelectedRequiredAction,
-  });
   useAutoSelectFirstRequiredAction({
     open,
     requiredActions,
-    selected: selectedRequiredAction,
     setSelected: setSelectedRequiredAction,
+    visibleSelected: visibleSelectedHITLRequiredAction,
   });
   const { handleNextRequiredAction, handlePreviousRequiredAction, selectNextRequiredActionAfterResponse } =
     createRequiredActionNavigationHandlers({

@@ -77,46 +77,19 @@ export const getRequiredActionSelectionState = ({
   };
 };
 
-export const useClearMissingSelectedRequiredAction = ({
-  hitlData,
-  isLoading,
-  selectedRequiredActionIndex,
-  selectedRequiredActionKey,
-  setSelected,
-}: {
-  readonly hitlData?: HITLDetailCollection;
-  readonly isLoading: boolean;
-  readonly selectedRequiredActionIndex: number;
-  readonly selectedRequiredActionKey?: string;
-  readonly setSelected: SetSelectedHITLRequiredAction;
-}) => {
-  useEffect(() => {
-    if (
-      selectedRequiredActionKey === undefined ||
-      isLoading ||
-      hitlData === undefined ||
-      selectedRequiredActionIndex !== -1
-    ) {
-      return;
-    }
-
-    setSelected(undefined);
-  }, [hitlData, isLoading, selectedRequiredActionIndex, selectedRequiredActionKey, setSelected]);
-};
-
 export const useAutoSelectFirstRequiredAction = ({
   open,
   requiredActions,
-  selected,
   setSelected,
+  visibleSelected,
 }: {
   readonly open: boolean;
   readonly requiredActions: Array<SelectedHITLRequiredAction>;
-  readonly selected?: SelectedHITLRequiredAction;
   readonly setSelected: SetSelectedHITLRequiredAction;
+  readonly visibleSelected?: SelectedHITLRequiredAction;
 }) => {
   useEffect(() => {
-    if (!open || selected !== undefined) {
+    if (!open || visibleSelected !== undefined) {
       return;
     }
 
@@ -125,5 +98,5 @@ export const useAutoSelectFirstRequiredAction = ({
     if (firstRequiredAction !== undefined) {
       setSelected(firstRequiredAction);
     }
-  }, [open, requiredActions, selected, setSelected]);
+  }, [open, requiredActions, setSelected, visibleSelected]);
 };
