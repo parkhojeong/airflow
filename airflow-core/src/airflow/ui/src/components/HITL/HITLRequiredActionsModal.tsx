@@ -17,7 +17,6 @@
  * under the License.
  */
 import { Box, Button, Heading, HStack } from "@chakra-ui/react";
-import { useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -39,7 +38,6 @@ import {
   getRequiredActionSelectionState,
   useAutoSelectFirstRequiredAction,
   useClearMissingSelectedRequiredAction,
-  usePrefetchAdjacentRequiredActions,
 } from "./useRequiredActionSelectionEffects";
 import { createRequiredActionNavigationHandlers } from "./utils/requiredActionNavigation";
 import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
@@ -71,7 +69,6 @@ export const HITLRequiredActionsModal = ({
   readonly pendingHitlData?: HITLDetailCollection;
   readonly runId?: string;
 }) => {
-  const queryClient = useQueryClient();
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
   const [selectedRequiredAction, setSelectedRequiredAction] = useState<
     SelectedHITLRequiredAction | undefined
@@ -114,11 +111,6 @@ export const HITLRequiredActionsModal = ({
     requiredActions,
     selected: selectedRequiredAction,
     setSelected: setSelectedRequiredAction,
-  });
-  usePrefetchAdjacentRequiredActions({
-    queryClient,
-    requiredActions,
-    selectedRequiredActionIndex,
   });
   const { handleNextRequiredAction, handlePreviousRequiredAction, selectNextRequiredActionAfterResponse } =
     createRequiredActionNavigationHandlers({

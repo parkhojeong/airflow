@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { QueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 
-import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
 import {
   findSelectedHITLRequiredActionIndex,
   getHITLRequiredActionKey,
@@ -128,31 +126,4 @@ export const useAutoSelectFirstRequiredAction = ({
       setSelected(firstRequiredAction);
     }
   }, [open, requiredActions, selected, setSelected]);
-};
-
-export const usePrefetchAdjacentRequiredActions = ({
-  queryClient,
-  requiredActions,
-  selectedRequiredActionIndex,
-}: {
-  readonly queryClient: QueryClient;
-  readonly requiredActions: Array<SelectedHITLRequiredAction>;
-  readonly selectedRequiredActionIndex: number;
-}) => {
-  useEffect(() => {
-    if (selectedRequiredActionIndex === -1) {
-      return;
-    }
-
-    const adjacentRequiredActions = [
-      requiredActions[selectedRequiredActionIndex - 1],
-      requiredActions[selectedRequiredActionIndex + 1],
-    ];
-
-    for (const requiredAction of adjacentRequiredActions) {
-      if (requiredAction !== undefined) {
-        prefetchHitlDetail(queryClient, requiredAction.item);
-      }
-    }
-  }, [requiredActions, queryClient, selectedRequiredActionIndex]);
 };
