@@ -19,7 +19,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export const useRequiredActionsRouteModalSync = ({
+export const useHITLReviewRouteModalSync = ({
   onClose,
   onOpen,
 }: {
@@ -29,23 +29,23 @@ export const useRequiredActionsRouteModalSync = ({
   const location = useLocation();
   const navigate = useNavigate();
   const openedFromRouteRef = useRef(false);
-  const isRequiredActionsRoute = location.pathname.endsWith("/required_actions");
+  const isHITLReviewRoute = location.pathname.endsWith("/required_actions");
 
   useEffect(() => {
-    if (isRequiredActionsRoute) {
+    if (isHITLReviewRoute) {
       openedFromRouteRef.current = true;
       onOpen();
     } else if (openedFromRouteRef.current) {
       openedFromRouteRef.current = false;
       onClose();
     }
-  }, [isRequiredActionsRoute, onClose, onOpen]);
+  }, [isHITLReviewRoute, onClose, onOpen]);
 
-  const onCloseRequiredActions = () => {
+  const onCloseHITLReview = () => {
     openedFromRouteRef.current = false;
     onClose();
 
-    if (isRequiredActionsRoute) {
+    if (isHITLReviewRoute) {
       const redirectPath = location.pathname.replace(/\/required_actions$/u, "") || "/";
 
       void Promise.resolve(navigate(redirectPath, { replace: true }));
@@ -53,6 +53,6 @@ export const useRequiredActionsRouteModalSync = ({
   };
 
   return {
-    onCloseRequiredActions,
+    onCloseHITLReview,
   };
 };

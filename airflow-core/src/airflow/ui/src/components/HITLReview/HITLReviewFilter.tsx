@@ -18,31 +18,31 @@
  */
 import { Button, Group } from "@chakra-ui/react";
 
-import type { RequiredActionsFilterMode } from "./types";
+import type { HITLReviewFilterMode } from "./types";
 
 const PENDING_ACTIONS_LABEL = "Pending";
 const ALL_ACTIONS_LABEL = "All";
 
-export const PENDING_ACTIONS_VALUE = "pending" satisfies RequiredActionsFilterMode;
-export const ALL_ACTIONS_VALUE = "all" satisfies RequiredActionsFilterMode;
+export const PENDING_REVIEWS_VALUE = "pending" satisfies HITLReviewFilterMode;
+export const ALL_REVIEWS_VALUE = "all" satisfies HITLReviewFilterMode;
 
-const REQUIRED_ACTION_FILTER_OPTIONS: Array<{ label: string; value: RequiredActionsFilterMode }> = [
-  { label: PENDING_ACTIONS_LABEL, value: PENDING_ACTIONS_VALUE },
-  { label: ALL_ACTIONS_LABEL, value: ALL_ACTIONS_VALUE },
+const HITL_REVIEW_FILTER_OPTIONS: Array<{ label: string; value: HITLReviewFilterMode }> = [
+  { label: PENDING_ACTIONS_LABEL, value: PENDING_REVIEWS_VALUE },
+  { label: ALL_ACTIONS_LABEL, value: ALL_REVIEWS_VALUE },
 ];
 
-export const getRequiredActionsFilterMode = (value?: string): RequiredActionsFilterMode =>
-  value === ALL_ACTIONS_VALUE ? ALL_ACTIONS_VALUE : PENDING_ACTIONS_VALUE;
+export const getHITLReviewFilterMode = (value?: string): HITLReviewFilterMode =>
+  value === ALL_REVIEWS_VALUE ? ALL_REVIEWS_VALUE : PENDING_REVIEWS_VALUE;
 
-export const RequiredActionsFilter = ({
+export const HITLReviewFilter = ({
   onChange,
   value,
 }: {
-  readonly onChange: (value: RequiredActionsFilterMode) => void;
-  readonly value: RequiredActionsFilterMode;
+  readonly onChange: (value: HITLReviewFilterMode) => void;
+  readonly value: HITLReviewFilterMode;
 }) => (
   <Group backgroundColor="bg.muted" borderColor="border.emphasized" borderRadius={8} borderWidth={1} p={0.5}>
-    {REQUIRED_ACTION_FILTER_OPTIONS.map((option) => {
+    {HITL_REVIEW_FILTER_OPTIONS.map((option) => {
       const selected = value === option.value;
 
       return (

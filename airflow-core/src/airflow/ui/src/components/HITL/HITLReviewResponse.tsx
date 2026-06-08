@@ -28,7 +28,7 @@ type HITLResponseFormDetail = {
   readonly task_instance: TaskInstanceHistoryResponse;
 } & Omit<HITLDetailHistory, "task_instance">;
 
-export const HITLRequiredActionResponse = ({
+export const HITLReviewResponse = ({
   error,
   hitlDetail,
   isError,

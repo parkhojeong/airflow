@@ -31,7 +31,7 @@ export const StatusText = ({
   </Text>
 );
 
-export const RequiredActionSection = ({ children }: { readonly children: ReactNode }) => (
+export const HITLReviewSection = ({ children }: { readonly children: ReactNode }) => (
   <VStack
     alignItems="stretch"
     bg="bg"
@@ -47,7 +47,7 @@ export const RequiredActionSection = ({ children }: { readonly children: ReactNo
   </VStack>
 );
 
-export const RequiredActionTypeSection = ({
+export const HITLReviewTypeSection = ({
   children,
   heading,
 }: {

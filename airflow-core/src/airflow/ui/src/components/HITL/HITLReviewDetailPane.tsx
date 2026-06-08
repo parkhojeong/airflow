@@ -20,11 +20,11 @@ import { Text, VStack } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 
-import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
+import { HITLReviewDetailCard } from "./HITLReviewDetailCard";
 
 const EMPTY_DETAIL_LABEL = "Select a required action to see details";
 
-export const HITLRequiredActionDetailPane = ({
+export const HITLReviewDetailPane = ({
   onNavigate,
   onResponded,
   selected,
@@ -44,7 +44,7 @@ export const HITLRequiredActionDetailPane = ({
   }
 
   return (
-    <HITLRequiredActionCard
+    <HITLReviewDetailCard
       detail={selected}
       key={selected.task_instance.id}
       onNavigate={onNavigate}

@@ -22,18 +22,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
-import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
 import {
-  ALL_ACTIONS_VALUE,
-  getRequiredActionsFilterMode,
-  PENDING_ACTIONS_VALUE,
-  RequiredActionsFilter,
-} from "src/components/RequiredActions/RequiredActionsFilter";
-import type { RequiredActionsFilterMode } from "src/components/RequiredActions/types";
+  ALL_REVIEWS_VALUE,
+  getHITLReviewFilterMode,
+  HITLReviewFilter,
+  PENDING_REVIEWS_VALUE,
+} from "src/components/HITLReview/HITLReviewFilter";
+import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation";
+import type { HITLReviewFilterMode } from "src/components/HITLReview/types";
 import { Dialog } from "src/components/ui";
 
-import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
-import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
+import { HITLReviewDetailPane } from "./HITLReviewDetailPane";
+import { HITLReviewListSection } from "./HITLReviewListSection";
 import { useHITLActionSelection } from "./useHITLActionSelection";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
@@ -47,7 +47,7 @@ const COMPLETED_HITL_LABEL = "Completed HITL";
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
 
-export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: () => void }) => (
+export const ViewAllHITLReviewsButton = ({ onClick }: { readonly onClick: () => void }) => (
   <Button asChild size="sm" variant="outline">
     <Link onClick={onClick} to={REQUIRED_ACTIONS_LINK}>
       {VIEW_ALL_REQUIRED_ACTIONS_LABEL}
@@ -55,7 +55,7 @@ export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: ()
   </Button>
 );
 
-export const HITLRequiredActionsModal = ({
+export const HITLReviewModal = ({
   headerAction,
   hitlData,
   onClose,
@@ -66,13 +66,13 @@ export const HITLRequiredActionsModal = ({
   readonly onClose: () => void;
   readonly open: boolean;
 }) => {
-  const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
-  const filterMode = getRequiredActionsFilterMode(selectedFilter);
+  const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>(PENDING_REVIEWS_VALUE);
+  const filterMode = getHITLReviewFilterMode(selectedFilter);
   const hitlDetails = hitlData?.hitl_details ?? [];
   const completedHitlDetails = hitlDetails.filter((detail) => detail.response_received);
   const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
   const enabledFilter = completedHitlDetails.length > 0;
-  const showAllActions = enabledFilter && filterMode === ALL_ACTIONS_VALUE;
+  const showAllActions = enabledFilter && filterMode === ALL_REVIEWS_VALUE;
   const actions = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
   const { onNext, onPrevious, onResponded, onSelect, selectedKey, selectionState } = useHITLActionSelection({
     actions,
@@ -96,12 +96,12 @@ export const HITLRequiredActionsModal = ({
             <HStack gap={2}>
               {headerAction}
               {enabledFilter ? (
-                <RequiredActionsFilter onChange={setSelectedFilter} value={filterMode} />
+                <HITLReviewFilter onChange={setSelectedFilter} value={filterMode} />
               ) : undefined}
-              <RequiredActionNavigation
-                canNavigateRequiredActions={actions.length > 0}
-                hasNextRequiredAction={selectionState.hasNext}
-                hasPreviousRequiredAction={selectionState.hasPrevious}
+              <HITLReviewNavigation
+                canNavigate={actions.length > 0}
+                hasNext={selectionState.hasNext}
+                hasPrevious={selectionState.hasPrevious}
                 onNext={onNext}
                 onPrevious={onPrevious}
               />
@@ -130,7 +130,7 @@ export const HITLRequiredActionsModal = ({
               zIndex={2}
             >
               <VStack alignItems="stretch" gap={4} width="100%">
-                <HITLRequiredActionSection
+                <HITLReviewListSection
                   details={pendingHitlDetails}
                   emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
                   heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}
@@ -138,7 +138,7 @@ export const HITLRequiredActionsModal = ({
                   selectedKey={selectedKey}
                 />
                 {showAllActions ? (
-                  <HITLRequiredActionSection
+                  <HITLReviewListSection
                     details={completedHitlDetails}
                     emptyLabel={NO_COMPLETED_HITL_ACTIONS_LABEL}
                     heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}
@@ -161,7 +161,7 @@ export const HITLRequiredActionsModal = ({
               position="relative"
               zIndex={1}
             >
-              <HITLRequiredActionDetailPane
+              <HITLReviewDetailPane
                 onNavigate={onClose}
                 onResponded={onResponded}
                 selected={selectionState.selected}

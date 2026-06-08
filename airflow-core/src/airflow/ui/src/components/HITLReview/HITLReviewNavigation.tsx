@@ -21,27 +21,27 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import { Tooltip } from "src/components/ui";
 
-const NEXT_REQUIRED_ACTION_LABEL = "Next";
-const PREVIOUS_REQUIRED_ACTION_LABEL = "Prev";
+const NEXT_REVIEW_LABEL = "Next";
+const PREVIOUS_REVIEW_LABEL = "Prev";
 
-export const RequiredActionNavigation = ({
-  canNavigateRequiredActions,
-  hasNextRequiredAction,
-  hasPreviousRequiredAction,
+export const HITLReviewNavigation = ({
+  canNavigate,
+  hasNext,
+  hasPrevious,
   onNext,
   onPrevious,
 }: {
-  readonly canNavigateRequiredActions: boolean;
-  readonly hasNextRequiredAction: boolean;
-  readonly hasPreviousRequiredAction: boolean;
+  readonly canNavigate: boolean;
+  readonly hasNext: boolean;
+  readonly hasPrevious: boolean;
   readonly onNext: () => void;
   readonly onPrevious: () => void;
 }) => (
   <HStack gap={1}>
-    <Tooltip content={PREVIOUS_REQUIRED_ACTION_LABEL}>
+    <Tooltip content={PREVIOUS_REVIEW_LABEL}>
       <IconButton
-        aria-label={PREVIOUS_REQUIRED_ACTION_LABEL}
-        disabled={!canNavigateRequiredActions || !hasPreviousRequiredAction}
+        aria-label={PREVIOUS_REVIEW_LABEL}
+        disabled={!canNavigate || !hasPrevious}
         onClick={onPrevious}
         size="xs"
         variant="ghost"
@@ -49,10 +49,10 @@ export const RequiredActionNavigation = ({
         <FiChevronLeft />
       </IconButton>
     </Tooltip>
-    <Tooltip content={NEXT_REQUIRED_ACTION_LABEL}>
+    <Tooltip content={NEXT_REVIEW_LABEL}>
       <IconButton
-        aria-label={NEXT_REQUIRED_ACTION_LABEL}
-        disabled={!canNavigateRequiredActions || !hasNextRequiredAction}
+        aria-label={NEXT_REVIEW_LABEL}
+        disabled={!canNavigate || !hasNext}
         onClick={onNext}
         size="xs"
         variant="ghost"

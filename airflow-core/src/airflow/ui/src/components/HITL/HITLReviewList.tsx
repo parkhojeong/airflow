@@ -65,7 +65,7 @@ const getHitlGroupIndices = (details: Array<HITLDetail>) =>
     return indices;
   }, []);
 
-export const HITLRequiredActionsTable = ({
+export const HITLReviewList = ({
   details,
   emptyLabel,
   onSelect,

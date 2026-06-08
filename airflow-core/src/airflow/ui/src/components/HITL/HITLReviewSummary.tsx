@@ -19,7 +19,7 @@
 import { Table, Text } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { MetaRow } from "src/components/RequiredActions/RequiredActionCard";
+import { HITLReviewMetaRow } from "src/components/HITLReview/HITLReviewMetaRow";
 import { useTimezone } from "src/context/timezone";
 
 import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay";
@@ -32,7 +32,7 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   return users.map((user) => user.name).join(", ");
 };
 
-export const HITLRequiredActionSummary = ({ detail }: { readonly detail: HITLDetail }) => {
+export const HITLReviewSummary = ({ detail }: { readonly detail: HITLDetail }) => {
   const { selectedTimezone } = useTimezone();
   const ti = detail.task_instance;
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
@@ -43,14 +43,14 @@ export const HITLRequiredActionSummary = ({ detail }: { readonly detail: HITLDet
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
       <Table.Body>
-        <MetaRow label="Dag ID" value={<Text truncate>{ti.dag_id}</Text>} />
-        <MetaRow label="Dag Run ID" value={<Text>{ti.dag_run_id}</Text>} />
-        <MetaRow label="Map index" value={<Text>{mappedIndex}</Text>} />
-        <MetaRow label="Task ID" value={<Text truncate>{ti.task_id}</Text>} />
-        <MetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
-        <MetaRow label="Attempt" value={<Text>{ti.try_number}</Text>} />
+        <HITLReviewMetaRow label="Dag ID" value={<Text truncate>{ti.dag_id}</Text>} />
+        <HITLReviewMetaRow label="Dag Run ID" value={<Text>{ti.dag_run_id}</Text>} />
+        <HITLReviewMetaRow label="Map index" value={<Text>{mappedIndex}</Text>} />
+        <HITLReviewMetaRow label="Task ID" value={<Text truncate>{ti.task_id}</Text>} />
+        <HITLReviewMetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
+        <HITLReviewMetaRow label="Attempt" value={<Text>{ti.try_number}</Text>} />
         {assignees === undefined ? undefined : (
-          <MetaRow label={assigneeLabel} value={<Text truncate>{assignees}</Text>} />
+          <HITLReviewMetaRow label={assigneeLabel} value={<Text truncate>{assignees}</Text>} />
         )}
       </Table.Body>
     </Table.Root>

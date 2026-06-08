@@ -28,7 +28,7 @@ import type { HITLDetail } from "openapi/requests/types.gen";
 import { DataTable } from "src/components/DataTable";
 import { useTableURLState } from "src/components/DataTable/useTableUrlState";
 import { ErrorAlert } from "src/components/ErrorAlert";
-import { HITLRequiredActionsDrawer } from "src/components/HITL/HITLRequiredActionsDrawer";
+import { HITLReviewDrawer } from "src/components/HITL/HITLReviewDrawer";
 import { StateBadge } from "src/components/StateBadge";
 import Time from "src/components/Time";
 import { TruncatedText } from "src/components/TruncatedText";
@@ -280,7 +280,7 @@ export const HITLTaskInstances = () => {
         onStateChange={setTableURLState}
         total={data?.total_entries}
       />
-      <HITLRequiredActionsDrawer
+      <HITLReviewDrawer
         detail={selectedDetail}
         onClose={() => setSelectedDetail(undefined)}
         open={selectedDetail !== undefined}

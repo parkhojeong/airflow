@@ -20,18 +20,18 @@ import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 
-import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
+import { HITLReviewDetailCard } from "./HITLReviewDetailCard";
 
 const REQUIRED_ACTIONS_LABEL = "Required actions";
 const EMPTY_LABEL = "No required actions";
 
-type HITLRequiredActionsDrawerProps = {
+type HITLReviewDrawerProps = {
   readonly detail?: HITLDetail;
   readonly onClose: () => void;
   readonly open: boolean;
 };
 
-export const HITLRequiredActionsDrawer = ({ detail, onClose, open }: HITLRequiredActionsDrawerProps) => (
+export const HITLReviewDrawer = ({ detail, onClose, open }: HITLReviewDrawerProps) => (
   <Drawer.Root
     lazyMount
     onOpenChange={(event) => {
@@ -60,7 +60,7 @@ export const HITLRequiredActionsDrawer = ({ detail, onClose, open }: HITLRequire
               </Text>
             ) : (
               <Box minW={0}>
-                <HITLRequiredActionCard detail={detail} onNavigate={onClose} onResponded={onClose} />
+                <HITLReviewDetailCard detail={detail} onNavigate={onClose} onResponded={onClose} />
               </Box>
             )}
           </Drawer.Body>

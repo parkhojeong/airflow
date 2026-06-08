@@ -18,17 +18,17 @@
  */
 import type { HITLDetail } from "openapi/requests/types.gen";
 import {
-  RequiredActionSection,
-  RequiredActionTypeSection,
+  HITLReviewSection,
+  HITLReviewTypeSection,
   StatusText,
-} from "src/components/RequiredActions/RequiredActionsListComponents";
+} from "src/components/HITLReview/HITLReviewListComponents";
 
-import { HITLRequiredActionsTable } from "./HITLRequiredActionsTable";
+import { HITLReviewList } from "./HITLReviewList";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load HITL actions";
 const LOADING_HITL_LABEL = "Loading HITL actions...";
 
-export const HITLRequiredActionSection = ({
+export const HITLReviewListSection = ({
   details,
   emptyLabel,
   heading,
@@ -45,20 +45,20 @@ export const HITLRequiredActionSection = ({
   readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => (
-  <RequiredActionTypeSection heading={heading}>
-    <RequiredActionSection>
+  <HITLReviewTypeSection heading={heading}>
+    <HITLReviewSection>
       {isLoading ? (
         <StatusText>{LOADING_HITL_LABEL}</StatusText>
       ) : isError ? (
         <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
       ) : (
-        <HITLRequiredActionsTable
+        <HITLReviewList
           details={details ?? []}
           emptyLabel={emptyLabel}
           onSelect={onSelect}
           selectedKey={selectedKey}
         />
       )}
-    </RequiredActionSection>
-  </RequiredActionTypeSection>
+    </HITLReviewSection>
+  </HITLReviewTypeSection>
 );

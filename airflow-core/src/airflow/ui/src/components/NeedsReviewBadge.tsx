@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { LuUserRoundPen } from "react-icons/lu";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { HITLRequiredActionsModal } from "src/components/HITL/HITLRequiredActionsModal";
+import { HITLReviewModal } from "src/components/HITL/HITLReviewModal";
 import { StateBadge } from "src/components/StateBadge";
 import { Tooltip } from "src/components/ui";
 
@@ -47,7 +47,7 @@ export const NeedsReviewBadge = ({ pendingActions }: Props) => {
           </StateBadge>
         </Button>
       </Tooltip>
-      <HITLRequiredActionsModal
+      <HITLReviewModal
         hitlData={{ hitl_details: pendingActions, total_entries: pendingActions.length }}
         onClose={onClose}
         open={open}

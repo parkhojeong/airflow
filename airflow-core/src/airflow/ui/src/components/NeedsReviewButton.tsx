@@ -22,11 +22,8 @@ import { LuUserRoundPen } from "react-icons/lu";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
-import {
-  HITLRequiredActionsModal,
-  ViewAllRequiredActionsButton,
-} from "src/components/HITL/HITLRequiredActionsModal";
-import { useRequiredActionsRouteModalSync } from "src/components/RequiredActions/useRequiredActionsModal";
+import { HITLReviewModal, ViewAllHITLReviewsButton } from "src/components/HITL/HITLReviewModal";
+import { useHITLReviewRouteModalSync } from "src/components/HITLReview/useHITLReviewModal";
 import { useAutoRefresh } from "src/utils/query";
 
 import { StatsCard } from "./StatsCard";
@@ -154,7 +151,7 @@ export const NeedsReviewButtonWithModal = ({
   readonly runId?: string;
 }) => {
   const { onClose, onOpen, open } = useDisclosure();
-  const { onCloseRequiredActions } = useRequiredActionsRouteModalSync({
+  const { onCloseHITLReview } = useHITLReviewRouteModalSync({
     onClose,
     onOpen,
   });
@@ -174,12 +171,12 @@ export const NeedsReviewButtonWithModal = ({
   return (
     <>
       <NeedsReviewButtonCard hitlTIsCount={hitlTIsCount} isLoading={isLoading} onClick={onOpen} />
-      <HITLRequiredActionsModal
+      <HITLReviewModal
         headerAction={
-          dagId === undefined ? <ViewAllRequiredActionsButton onClick={onCloseRequiredActions} /> : undefined
+          dagId === undefined ? <ViewAllHITLReviewsButton onClick={onCloseHITLReview} /> : undefined
         }
         hitlData={hitlData}
-        onClose={onCloseRequiredActions}
+        onClose={onCloseHITLReview}
         open={open}
       />
     </>

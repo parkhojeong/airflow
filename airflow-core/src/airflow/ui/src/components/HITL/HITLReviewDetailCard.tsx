@@ -23,12 +23,12 @@ import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
 import { getTaskInstanceLink } from "src/utils/links";
 
-import { HITLRequiredActionResponse } from "./HITLRequiredActionResponse";
-import { HITLRequiredActionSummary } from "./HITLRequiredActionSummary";
+import { HITLReviewResponse } from "./HITLReviewResponse";
+import { HITLReviewSummary } from "./HITLReviewSummary";
 
 const OPEN_TASK_LABEL = "Open task";
 
-export const HITLRequiredActionCard = ({
+export const HITLReviewDetailCard = ({
   detail,
   onNavigate,
   onResponded,
@@ -55,7 +55,7 @@ export const HITLRequiredActionCard = ({
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <HITLRequiredActionSummary detail={detail} />
+      <HITLReviewSummary detail={detail} />
 
       <Button alignSelf="flex-end" asChild size="sm" variant="outline">
         <Link onClick={onNavigate} to={taskLink}>
@@ -63,7 +63,7 @@ export const HITLRequiredActionCard = ({
         </Link>
       </Button>
 
-      <HITLRequiredActionResponse
+      <HITLReviewResponse
         error={error}
         hitlDetail={hitlDetail}
         isError={isError}

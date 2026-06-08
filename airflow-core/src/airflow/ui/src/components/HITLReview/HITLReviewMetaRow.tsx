@@ -16,5 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { Table } from "@chakra-ui/react";
+import type { ReactNode } from "react";
 
-export type RequiredActionsFilterMode = "all" | "pending";
+export const HITLReviewMetaRow = ({
+  label,
+  value,
+}: {
+  readonly label: string;
+  readonly value: ReactNode;
+}) => (
+  <Table.Row>
+    <Table.Cell
+      as="th"
+      color="fg.subtle"
+      fontSize="xs"
+      fontWeight="normal"
+      px={2}
+      py={1.5}
+      scope="row"
+      w="30%"
+    >
+      {label}
+    </Table.Cell>
+    <Table.Cell fontSize="xs" px={2} py={1.5}>
+      {value}
+    </Table.Cell>
+  </Table.Row>
+);
