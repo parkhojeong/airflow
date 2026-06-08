@@ -24,7 +24,6 @@ import {
 } from "src/components/RequiredActions/RequiredActionsListComponents";
 
 import { HITLRequiredActionsTable } from "./HITLRequiredActionsTable";
-import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load HITL actions";
 const LOADING_HITL_LABEL = "Loading HITL actions...";
@@ -43,7 +42,7 @@ export const HITLRequiredActionSection = ({
   readonly heading: string;
   readonly isError?: boolean;
   readonly isLoading?: boolean;
-  readonly onSelect: (selection: SelectedHITLRequiredAction) => void;
+  readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => (
   <RequiredActionTypeSection heading={heading}>

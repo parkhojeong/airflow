@@ -18,7 +18,4 @@
  */
 import type { HITLDetail } from "openapi/requests/types.gen";
 
-export type SelectedHITLRequiredAction = { readonly item: HITLDetail };
-
-export const getHITLRequiredActionKey = (selection: SelectedHITLRequiredAction): string =>
-  `hitl:${selection.item.task_instance.id}`;
+export const getHITLRequiredActionKey = (detail: HITLDetail): string => `hitl:${detail.task_instance.id}`;

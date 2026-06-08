@@ -18,8 +18,9 @@
  */
 import { Text, VStack } from "@chakra-ui/react";
 
+import type { HITLDetail } from "openapi/requests/types.gen";
+
 import { HITLRequiredActionCard } from "./HITLRequiredActionCard";
-import type { SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const EMPTY_DETAIL_LABEL = "Select a required action to see details";
 
@@ -30,7 +31,7 @@ export const HITLRequiredActionDetailPane = ({
 }: {
   readonly onNavigate: () => void;
   readonly onResponded: () => void;
-  readonly selected?: SelectedHITLRequiredAction;
+  readonly selected?: HITLDetail;
 }) => {
   if (selected === undefined) {
     return (
@@ -44,8 +45,8 @@ export const HITLRequiredActionDetailPane = ({
 
   return (
     <HITLRequiredActionCard
-      detail={selected.item}
-      key={selected.item.task_instance.id}
+      detail={selected}
+      key={selected.task_instance.id}
       onNavigate={onNavigate}
       onResponded={onResponded}
     />

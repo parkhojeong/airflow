@@ -25,7 +25,7 @@ import { useTimezone } from "src/context/timezone";
 
 import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
 import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
-import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
+import { getHITLRequiredActionKey } from "./utils/requiredActionSelection";
 
 const CREATED_AT_LABEL = "Created at";
 const DAG_ID_LABEL = "Dag ID";
@@ -73,7 +73,7 @@ export const HITLRequiredActionsTable = ({
 }: {
   readonly details: Array<HITLDetail>;
   readonly emptyLabel: string;
-  readonly onSelect: (selection: SelectedHITLRequiredAction) => void;
+  readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => {
   const queryClient = useQueryClient();
@@ -96,7 +96,7 @@ export const HITLRequiredActionsTable = ({
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
-            const key = getHITLRequiredActionKey({ item: detail });
+            const key = getHITLRequiredActionKey(detail);
             const selected = selectedKey === key;
             const ti = detail.task_instance;
             const mappedIndex =
@@ -110,7 +110,7 @@ export const HITLRequiredActionsTable = ({
                 bg={selected ? "bg.muted" : undefined}
                 cursor="pointer"
                 key={key}
-                onClick={() => onSelect({ item: detail })}
+                onClick={() => onSelect(detail)}
                 onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
               >
                 <Table.Cell

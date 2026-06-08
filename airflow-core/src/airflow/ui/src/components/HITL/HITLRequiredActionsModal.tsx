@@ -21,7 +21,7 @@ import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import type { HITLDetailCollection } from "openapi/requests/types.gen";
+import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
 import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
 import {
   ALL_ACTIONS_VALUE,
@@ -34,7 +34,7 @@ import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
-import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
+import { getHITLRequiredActionKey } from "./utils/requiredActionSelection";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
@@ -69,9 +69,7 @@ export const HITLRequiredActionsModal = ({
   readonly pendingHitlData?: HITLDetailCollection;
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
-  const [selectedRequiredAction, setSelectedRequiredAction] = useState<
-    SelectedHITLRequiredAction | undefined
-  >(undefined);
+  const [selectedRequiredAction, setSelectedRequiredAction] = useState<HITLDetail | undefined>(undefined);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
   const showAllActions = filterMode === ALL_ACTIONS_VALUE;
   const allHitlData = showAllActions
@@ -79,7 +77,7 @@ export const HITLRequiredActionsModal = ({
         hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...(completedHitlData?.hitl_details ?? [])],
       }
     : pendingHitlData;
-  const requiredActions = (allHitlData?.hitl_details ?? []).map((item) => ({ item }));
+  const requiredActions = allHitlData?.hitl_details ?? [];
   const selectedRequiredActionKey =
     selectedRequiredAction === undefined ? undefined : getHITLRequiredActionKey(selectedRequiredAction);
   const selectedRequiredActionIndex =
@@ -96,20 +94,19 @@ export const HITLRequiredActionsModal = ({
     selectedRequiredActionIndex === -1 ? requiredActions.length > 0 : selectedRequiredActionIndex > 0;
   const visibleSelectedHITLRequiredAction =
     selectedRequiredActionIndex === -1 ? undefined : selectedRequiredAction;
+  const firstRequiredAction = showAllActions
+    ? (pendingHitlData?.hitl_details[0] ?? completedHitlData?.hitl_details[0])
+    : pendingHitlData?.hitl_details[0];
 
   useEffect(() => {
-    if (!open || visibleSelectedHITLRequiredAction !== undefined) {
+    if (!open || visibleSelectedHITLRequiredAction !== undefined || firstRequiredAction === undefined) {
       return;
     }
 
-    const [firstRequiredAction] = requiredActions;
+    setSelectedRequiredAction(firstRequiredAction);
+  }, [firstRequiredAction, open, visibleSelectedHITLRequiredAction]);
 
-    if (firstRequiredAction !== undefined) {
-      setSelectedRequiredAction(firstRequiredAction);
-    }
-  }, [open, requiredActions, visibleSelectedHITLRequiredAction]);
-
-  const handleSelect = (next: SelectedHITLRequiredAction) => {
+  const handleSelect = (next: HITLDetail) => {
     setSelectedRequiredAction((current) => {
       const nextIsSelected =
         current !== undefined && getHITLRequiredActionKey(current) === getHITLRequiredActionKey(next);
