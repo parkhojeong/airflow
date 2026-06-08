@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box } from "@chakra-ui/react";
+import { Box, useDisclosure } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { LuUserRoundPen } from "react-icons/lu";
 
@@ -25,7 +25,7 @@ import {
   HITLRequiredActionsModal,
   ViewAllRequiredActionsButton,
 } from "src/components/HITL/HITLRequiredActionsModal";
-import { useRequiredActionsModal } from "src/components/RequiredActions/useRequiredActionsModal";
+import { useRequiredActionsRouteModalSync } from "src/components/RequiredActions/useRequiredActionsModal";
 import { useAutoRefresh } from "src/utils/query";
 
 import { StatsCard } from "./StatsCard";
@@ -138,31 +138,29 @@ export const NeedsReviewButtonWithModal = ({
   readonly dagId?: string;
   readonly runId?: string;
 }) => {
-  const { onCloseRequiredActions, onOpenRequiredActions, requiredActionsOpen } = useRequiredActionsModal(
-    dagId === undefined ? "/" : runId === undefined ? `/dags/${dagId}` : `/dags/${dagId}/runs/${runId}`,
-  );
+  const { onClose, onOpen, open } = useDisclosure();
+  const { onCloseRequiredActions } = useRequiredActionsRouteModalSync({
+    onClose,
+    onOpen,
+  });
   const { isLoading, pendingHitlData } = usePendingHitl({ dagId, runId });
   const { completedHitlData } = useCompletedHitl({
     dagId,
-    enabled: requiredActionsOpen,
+    enabled: open,
     runId,
   });
   const hitlTIsCount = pendingHitlData?.hitl_details.length ?? 0;
 
   return (
     <>
-      <NeedsReviewButtonCard
-        hitlTIsCount={hitlTIsCount}
-        isLoading={isLoading}
-        onClick={onOpenRequiredActions}
-      />
+      <NeedsReviewButtonCard hitlTIsCount={hitlTIsCount} isLoading={isLoading} onClick={onOpen} />
       <HITLRequiredActionsModal
         completedHitlData={completedHitlData}
         headerAction={
           dagId === undefined ? <ViewAllRequiredActionsButton onClick={onCloseRequiredActions} /> : undefined
         }
         onClose={onCloseRequiredActions}
-        open={requiredActionsOpen}
+        open={open}
         pendingHitlData={pendingHitlData}
       />
     </>

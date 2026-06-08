@@ -16,43 +16,43 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useDisclosure } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export const useRequiredActionsModal = (redirectPath: string) => {
+export const useRequiredActionsRouteModalSync = ({
+  onClose,
+  onOpen,
+}: {
+  readonly onClose: () => void;
+  readonly onOpen: () => void;
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    onClose: onCloseRequiredActionsModal,
-    onOpen: onOpenRequiredActions,
-    open: requiredActionsOpen,
-  } = useDisclosure();
-  const isRequiredActionsRoute = location.pathname.endsWith("/required_actions");
   const openedFromRouteRef = useRef(false);
+  const isRequiredActionsRoute = location.pathname.endsWith("/required_actions");
 
   useEffect(() => {
     if (isRequiredActionsRoute) {
       openedFromRouteRef.current = true;
-      onOpenRequiredActions();
+      onOpen();
     } else if (openedFromRouteRef.current) {
       openedFromRouteRef.current = false;
-      onCloseRequiredActionsModal();
+      onClose();
     }
-  }, [isRequiredActionsRoute, onCloseRequiredActionsModal, onOpenRequiredActions]);
+  }, [isRequiredActionsRoute, onClose, onOpen]);
 
   const onCloseRequiredActions = () => {
     openedFromRouteRef.current = false;
-    onCloseRequiredActionsModal();
+    onClose();
 
     if (isRequiredActionsRoute) {
+      const redirectPath = location.pathname.replace(/\/required_actions$/u, "") || "/";
+
       void Promise.resolve(navigate(redirectPath, { replace: true }));
     }
   };
 
   return {
     onCloseRequiredActions,
-    onOpenRequiredActions,
-    requiredActionsOpen,
   };
 };
