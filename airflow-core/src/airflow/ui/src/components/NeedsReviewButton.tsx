@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { LuUserRoundPen } from "react-icons/lu";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
+import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import {
   HITLRequiredActionsModal,
   ViewAllRequiredActionsButton,
@@ -87,6 +88,20 @@ const useCompletedHitl = ({
   return { completedHitlData };
 };
 
+const getCombinedHitlData = ({
+  completedHitlData,
+  pendingHitlData,
+}: {
+  readonly completedHitlData?: HITLDetailCollection;
+  readonly pendingHitlData?: HITLDetailCollection;
+}): HITLDetailCollection | undefined =>
+  pendingHitlData === undefined && completedHitlData === undefined
+    ? undefined
+    : {
+        hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...(completedHitlData?.hitl_details ?? [])],
+        total_entries: (pendingHitlData?.total_entries ?? 0) + (completedHitlData?.total_entries ?? 0),
+      };
+
 const NeedsReviewButtonCard = ({
   hitlTIsCount,
   isLoading,
@@ -143,11 +158,16 @@ export const NeedsReviewButtonWithModal = ({
     onClose,
     onOpen,
   });
+  const shouldFetchCompletedHitl = dagId !== undefined && runId === undefined;
   const { isLoading, pendingHitlData } = usePendingHitl({ dagId, runId });
   const { completedHitlData } = useCompletedHitl({
     dagId,
-    enabled: open,
+    enabled: open && shouldFetchCompletedHitl,
     runId,
+  });
+  const hitlData = getCombinedHitlData({
+    completedHitlData: shouldFetchCompletedHitl ? completedHitlData : undefined,
+    pendingHitlData,
   });
   const hitlTIsCount = pendingHitlData?.hitl_details.length ?? 0;
 
@@ -155,13 +175,12 @@ export const NeedsReviewButtonWithModal = ({
     <>
       <NeedsReviewButtonCard hitlTIsCount={hitlTIsCount} isLoading={isLoading} onClick={onOpen} />
       <HITLRequiredActionsModal
-        completedHitlData={completedHitlData}
         headerAction={
           dagId === undefined ? <ViewAllRequiredActionsButton onClick={onCloseRequiredActions} /> : undefined
         }
+        hitlData={hitlData}
         onClose={onCloseRequiredActions}
         open={open}
-        pendingHitlData={pendingHitlData}
       />
     </>
   );

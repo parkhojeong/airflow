@@ -56,28 +56,27 @@ export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: ()
 );
 
 export const HITLRequiredActionsModal = ({
-  completedHitlData,
   headerAction,
+  hitlData,
   onClose,
   open,
-  pendingHitlData,
 }: {
-  readonly completedHitlData?: HITLDetailCollection;
   readonly headerAction?: ReactNode;
+  readonly hitlData?: HITLDetailCollection;
   readonly onClose: () => void;
   readonly open: boolean;
-  readonly pendingHitlData?: HITLDetailCollection;
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
   const [selectedRequiredAction, setSelectedRequiredAction] = useState<HITLDetail | undefined>(undefined);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
-  const showAllActions = filterMode === ALL_ACTIONS_VALUE;
-  const allHitlData = showAllActions
-    ? {
-        hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...(completedHitlData?.hitl_details ?? [])],
-      }
-    : pendingHitlData;
-  const requiredActions = allHitlData?.hitl_details ?? [];
+  const pendingHitlDetails = hitlData?.hitl_details.filter((detail) => !detail.response_received) ?? [];
+  const completedHitlDetails = hitlData?.hitl_details.filter((detail) => detail.response_received) ?? [];
+  const hasCompletedActions = completedHitlDetails.length > 0;
+  const enabledFilter = hasCompletedActions;
+  const showAllActions = enabledFilter && filterMode === ALL_ACTIONS_VALUE;
+  const requiredActions = showAllActions
+    ? [...pendingHitlDetails, ...completedHitlDetails]
+    : pendingHitlDetails;
   const selectedRequiredActionKey =
     selectedRequiredAction === undefined ? undefined : getHITLRequiredActionKey(selectedRequiredAction);
   const selectedRequiredActionIndex =
@@ -94,9 +93,7 @@ export const HITLRequiredActionsModal = ({
     selectedRequiredActionIndex === -1 ? requiredActions.length > 0 : selectedRequiredActionIndex > 0;
   const visibleSelectedHITLRequiredAction =
     selectedRequiredActionIndex === -1 ? undefined : selectedRequiredAction;
-  const firstRequiredAction = showAllActions
-    ? (pendingHitlData?.hitl_details[0] ?? completedHitlData?.hitl_details[0])
-    : pendingHitlData?.hitl_details[0];
+  const [firstRequiredAction] = requiredActions;
 
   useEffect(() => {
     if (!open || visibleSelectedHITLRequiredAction !== undefined || firstRequiredAction === undefined) {
@@ -156,7 +153,9 @@ export const HITLRequiredActionsModal = ({
             </Heading>
             <HStack gap={2}>
               {headerAction}
-              <RequiredActionsFilter onChange={setSelectedFilter} value={filterMode} />
+              {enabledFilter ? (
+                <RequiredActionsFilter onChange={setSelectedFilter} value={filterMode} />
+              ) : undefined}
               <RequiredActionNavigation
                 canNavigateRequiredActions={requiredActions.length > 0}
                 hasNextRequiredAction={hasNextRequiredAction}
@@ -190,20 +189,17 @@ export const HITLRequiredActionsModal = ({
             >
               <VStack alignItems="stretch" gap={4} width="100%">
                 <HITLRequiredActionSection
-                  details={pendingHitlData?.hitl_details}
+                  details={pendingHitlDetails}
                   emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
-                  heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlData?.hitl_details.length ?? 0)}
+                  heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}
                   onSelect={handleSelect}
                   selectedKey={selectedRequiredActionKey}
                 />
                 {showAllActions ? (
                   <HITLRequiredActionSection
-                    details={completedHitlData?.hitl_details}
+                    details={completedHitlDetails}
                     emptyLabel={NO_COMPLETED_HITL_ACTIONS_LABEL}
-                    heading={getSectionLabel(
-                      COMPLETED_HITL_LABEL,
-                      completedHitlData?.hitl_details.length ?? 0,
-                    )}
+                    heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}
                     onSelect={handleSelect}
                     selectedKey={selectedRequiredActionKey}
                   />
