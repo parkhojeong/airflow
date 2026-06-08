@@ -21,7 +21,6 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
 import {
@@ -73,19 +72,17 @@ export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: ()
 );
 
 export const HITLRequiredActionsModal = ({
-  dagId,
+  completedHitlData,
   headerAction,
   onClose,
   open,
   pendingHitlData,
-  runId,
 }: {
-  readonly dagId?: string;
+  readonly completedHitlData?: HITLDetailCollection;
   readonly headerAction?: ReactNode;
   readonly onClose: () => void;
   readonly open: boolean;
   readonly pendingHitlData?: HITLDetailCollection;
-  readonly runId?: string;
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
   const [selectedRequiredAction, setSelectedRequiredAction] = useState<
@@ -93,21 +90,10 @@ export const HITLRequiredActionsModal = ({
   >(undefined);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
   const showAllActions = filterMode === ALL_ACTIONS_VALUE;
-  const {
-    data: completedHitlData,
-    isError: hitlIsError,
-    isLoading: hitlIsLoading,
-  } = useTaskInstanceServiceGetHitlDetails({
-    dagId: dagId ?? "~",
-    dagRunId: runId ?? "~",
-    orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
-    responseReceived: true,
-  });
   const hitlData =
     showAllActions && completedHitlData !== undefined
       ? getAllHitlData({ completedHitlData, pendingHitlData })
       : pendingHitlData;
-  const isLoadingCompletedHitlActions = showAllActions && hitlIsLoading;
   const {
     hasNextRequiredAction,
     hasPreviousRequiredAction,
@@ -204,8 +190,6 @@ export const HITLRequiredActionsModal = ({
                       COMPLETED_HITL_LABEL,
                       completedHitlData?.hitl_details.length ?? 0,
                     )}
-                    isError={hitlIsError}
-                    isLoading={isLoadingCompletedHitlActions}
                     onSelect={handleSelect}
                     selectedKey={selectedRequiredActionKey}
                   />

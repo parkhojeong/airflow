@@ -26,11 +26,10 @@ import { StateBadge } from "src/components/StateBadge";
 import { Tooltip } from "src/components/ui";
 
 type Props = {
-  readonly dagId: string;
   readonly pendingActions: Array<HITLDetail>;
 };
 
-export const NeedsReviewBadge = ({ dagId, pendingActions }: Props) => {
+export const NeedsReviewBadge = ({ pendingActions }: Props) => {
   const { t: translate } = useTranslation("hitl");
   const { onClose, onOpen, open } = useDisclosure();
 
@@ -49,7 +48,6 @@ export const NeedsReviewBadge = ({ dagId, pendingActions }: Props) => {
         </Button>
       </Tooltip>
       <HITLRequiredActionsModal
-        dagId={dagId}
         onClose={onClose}
         open={open}
         pendingHitlData={{ hitl_details: pendingActions, total_entries: pendingActions.length }}

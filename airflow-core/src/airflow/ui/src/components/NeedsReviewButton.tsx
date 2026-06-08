@@ -30,7 +30,7 @@ import { useAutoRefresh } from "src/utils/query";
 
 import { StatsCard } from "./StatsCard";
 
-const useNeedsReview = ({
+const usePendingHitl = ({
   dagId,
   runId,
   taskId,
@@ -41,7 +41,7 @@ const useNeedsReview = ({
 }) => {
   const refetchInterval = useAutoRefresh({ checkPendingRuns: true, dagId });
 
-  const { data: hitlStatsData, isLoading } = useTaskInstanceServiceGetHitlDetails(
+  const { data: pendingHitlData, isLoading } = useTaskInstanceServiceGetHitlDetails(
     {
       dagId: dagId ?? "~",
       dagRunId: runId ?? "~",
@@ -57,9 +57,34 @@ const useNeedsReview = ({
   );
 
   return {
-    hitlStatsData,
     isLoading,
+    pendingHitlData,
   };
+};
+
+const useCompletedHitl = ({
+  dagId,
+  enabled,
+  runId,
+}: {
+  readonly dagId?: string;
+  readonly enabled: boolean;
+  readonly runId?: string;
+}) => {
+  const { data: completedHitlData } = useTaskInstanceServiceGetHitlDetails(
+    {
+      dagId: dagId ?? "~",
+      dagRunId: runId ?? "~",
+      orderBy: ["dag_id", "run_after", "created_at", "task_display_name"],
+      responseReceived: true,
+    },
+    undefined,
+    {
+      enabled,
+    },
+  );
+
+  return { completedHitlData };
 };
 
 const NeedsReviewButtonCard = ({
@@ -100,8 +125,8 @@ export const NeedsReviewButton = ({
   readonly runId?: string;
   readonly taskId?: string;
 }) => {
-  const { hitlStatsData, isLoading } = useNeedsReview({ dagId, runId, taskId });
-  const hitlTIsCount = hitlStatsData?.hitl_details.length ?? 0;
+  const { isLoading, pendingHitlData } = usePendingHitl({ dagId, runId, taskId });
+  const hitlTIsCount = pendingHitlData?.hitl_details.length ?? 0;
 
   return <NeedsReviewButtonCard hitlTIsCount={hitlTIsCount} isLoading={isLoading} />;
 };
@@ -116,8 +141,13 @@ export const NeedsReviewButtonWithModal = ({
   const { onCloseRequiredActions, onOpenRequiredActions, requiredActionsOpen } = useRequiredActionsModal(
     dagId === undefined ? "/" : runId === undefined ? `/dags/${dagId}` : `/dags/${dagId}/runs/${runId}`,
   );
-  const { hitlStatsData, isLoading } = useNeedsReview({ dagId, runId });
-  const hitlTIsCount = hitlStatsData?.hitl_details.length ?? 0;
+  const { isLoading, pendingHitlData } = usePendingHitl({ dagId, runId });
+  const { completedHitlData } = useCompletedHitl({
+    dagId,
+    enabled: requiredActionsOpen,
+    runId,
+  });
+  const hitlTIsCount = pendingHitlData?.hitl_details.length ?? 0;
 
   return (
     <>
@@ -127,14 +157,13 @@ export const NeedsReviewButtonWithModal = ({
         onClick={onOpenRequiredActions}
       />
       <HITLRequiredActionsModal
-        dagId={dagId}
+        completedHitlData={completedHitlData}
         headerAction={
           dagId === undefined ? <ViewAllRequiredActionsButton onClick={onCloseRequiredActions} /> : undefined
         }
         onClose={onCloseRequiredActions}
         open={requiredActionsOpen}
-        pendingHitlData={hitlStatsData}
-        runId={runId}
+        pendingHitlData={pendingHitlData}
       />
     </>
   );
