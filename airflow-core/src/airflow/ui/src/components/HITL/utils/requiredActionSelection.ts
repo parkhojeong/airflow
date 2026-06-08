@@ -18,4 +18,65 @@
  */
 import type { HITLDetail } from "openapi/requests/types.gen";
 
-export const getHITLRequiredActionKey = (detail: HITLDetail): string => `hitl:${detail.task_instance.id}`;
+export const getHITLRequiredActionKey = (detail?: HITLDetail): string | undefined =>
+  detail === undefined ? undefined : `hitl:${detail.task_instance.id}`;
+
+export const getRequiredActionSelectionState = ({
+  requiredActions,
+  selectedRequiredActionKey,
+}: {
+  readonly requiredActions: Array<HITLDetail>;
+  readonly selectedRequiredActionKey?: string;
+}): {
+  readonly hasNextRequiredAction: boolean;
+  readonly hasPreviousRequiredAction: boolean;
+  readonly selectedRequiredAction?: HITLDetail;
+  readonly selectedRequiredActionIndex: number;
+} => {
+  const selectedRequiredActionIndex =
+    selectedRequiredActionKey === undefined
+      ? -1
+      : requiredActions.findIndex(
+          (requiredAction) => getHITLRequiredActionKey(requiredAction) === selectedRequiredActionKey,
+        );
+
+  if (selectedRequiredActionIndex === -1) {
+    return {
+      hasNextRequiredAction: requiredActions.length > 0,
+      hasPreviousRequiredAction: requiredActions.length > 0,
+      selectedRequiredAction: undefined,
+      selectedRequiredActionIndex,
+    };
+  }
+
+  return {
+    hasNextRequiredAction: selectedRequiredActionIndex < requiredActions.length - 1,
+    hasPreviousRequiredAction: selectedRequiredActionIndex > 0,
+    selectedRequiredAction: requiredActions[selectedRequiredActionIndex],
+    selectedRequiredActionIndex,
+  };
+};
+
+export const getRequiredActionToSelect = ({
+  direction,
+  requiredActions,
+  selectedRequiredActionIndex,
+}: {
+  readonly direction: "next" | "previous";
+  readonly requiredActions: Array<HITLDetail>;
+  readonly selectedRequiredActionIndex: number;
+}): HITLDetail | undefined => {
+  if (direction === "previous") {
+    if (selectedRequiredActionIndex === -1) {
+      return requiredActions.at(-1);
+    }
+
+    return requiredActions[selectedRequiredActionIndex - 1];
+  }
+
+  if (selectedRequiredActionIndex === -1) {
+    return requiredActions[0];
+  }
+
+  return requiredActions[selectedRequiredActionIndex + 1];
+};

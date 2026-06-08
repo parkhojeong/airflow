@@ -18,10 +18,10 @@
  */
 import { Box, Button, Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import type { HITLDetail, HITLDetailCollection } from "openapi/requests/types.gen";
+import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { RequiredActionNavigation } from "src/components/RequiredActions/RequiredActionNavigation";
 import {
   ALL_ACTIONS_VALUE,
@@ -34,7 +34,7 @@ import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
-import { getHITLRequiredActionKey } from "./utils/requiredActionSelection";
+import { useHITLRequiredActionSelection } from "./useHITLRequiredActionSelection";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
@@ -67,75 +67,25 @@ export const HITLRequiredActionsModal = ({
   readonly open: boolean;
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<RequiredActionsFilterMode>(PENDING_ACTIONS_VALUE);
-  const [selectedRequiredAction, setSelectedRequiredAction] = useState<HITLDetail | undefined>(undefined);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
-  const pendingHitlDetails = hitlData?.hitl_details.filter((detail) => !detail.response_received) ?? [];
-  const completedHitlDetails = hitlData?.hitl_details.filter((detail) => detail.response_received) ?? [];
-  const hasCompletedActions = completedHitlDetails.length > 0;
-  const enabledFilter = hasCompletedActions;
+  const hitlDetails = hitlData?.hitl_details ?? [];
+  const completedHitlDetails = hitlDetails.filter((detail) => detail.response_received);
+  const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
+  const enabledFilter = completedHitlDetails.length > 0;
   const showAllActions = enabledFilter && filterMode === ALL_ACTIONS_VALUE;
   const requiredActions = showAllActions
     ? [...pendingHitlDetails, ...completedHitlDetails]
     : pendingHitlDetails;
-  const selectedRequiredActionKey =
-    selectedRequiredAction === undefined ? undefined : getHITLRequiredActionKey(selectedRequiredAction);
-  const selectedRequiredActionIndex =
-    selectedRequiredActionKey === undefined
-      ? -1
-      : requiredActions.findIndex(
-          (requiredAction) => getHITLRequiredActionKey(requiredAction) === selectedRequiredActionKey,
-        );
-  const hasNextRequiredAction =
-    selectedRequiredActionIndex === -1
-      ? requiredActions.length > 0
-      : selectedRequiredActionIndex < requiredActions.length - 1;
-  const hasPreviousRequiredAction =
-    selectedRequiredActionIndex === -1 ? requiredActions.length > 0 : selectedRequiredActionIndex > 0;
-  const visibleSelectedHITLRequiredAction =
-    selectedRequiredActionIndex === -1 ? undefined : selectedRequiredAction;
-  const [firstRequiredAction] = requiredActions;
-
-  useEffect(() => {
-    if (!open || visibleSelectedHITLRequiredAction !== undefined || firstRequiredAction === undefined) {
-      return;
-    }
-
-    setSelectedRequiredAction(firstRequiredAction);
-  }, [firstRequiredAction, open, visibleSelectedHITLRequiredAction]);
-
-  const handleSelect = (next: HITLDetail) => {
-    setSelectedRequiredAction((current) => {
-      const nextIsSelected =
-        current !== undefined && getHITLRequiredActionKey(current) === getHITLRequiredActionKey(next);
-
-      return nextIsSelected ? undefined : next;
-    });
-  };
-  const handleNextRequiredAction = () => {
-    setSelectedRequiredAction(
-      selectedRequiredActionIndex === -1
-        ? requiredActions[0]
-        : requiredActions[selectedRequiredActionIndex + 1],
-    );
-  };
-  const handlePreviousRequiredAction = () => {
-    setSelectedRequiredAction(
-      selectedRequiredActionIndex === -1
-        ? requiredActions.at(-1)
-        : requiredActions[selectedRequiredActionIndex - 1],
-    );
-  };
-  const selectNextRequiredActionAfterResponse = () => {
-    const remainingRequiredActions = requiredActions.filter(
-      (requiredAction) => getHITLRequiredActionKey(requiredAction) !== selectedRequiredActionKey,
-    );
-
-    setSelectedRequiredAction(
-      selectedRequiredActionIndex === -1
-        ? remainingRequiredActions[0]
-        : (remainingRequiredActions[selectedRequiredActionIndex] ?? remainingRequiredActions[0]),
-    );
-  };
+  const {
+    handleNextRequiredAction,
+    handlePreviousRequiredAction,
+    handleSelect,
+    hasNextRequiredAction,
+    hasPreviousRequiredAction,
+    selectedRequiredAction,
+    selectedRequiredActionKey,
+    selectNextRequiredActionAfterResponse,
+  } = useHITLRequiredActionSelection({ open, requiredActions });
 
   return (
     <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
@@ -222,7 +172,7 @@ export const HITLRequiredActionsModal = ({
               <HITLRequiredActionDetailPane
                 onNavigate={onClose}
                 onResponded={selectNextRequiredActionAfterResponse}
-                selected={visibleSelectedHITLRequiredAction}
+                selected={selectedRequiredAction}
               />
             </Box>
           </HStack>
