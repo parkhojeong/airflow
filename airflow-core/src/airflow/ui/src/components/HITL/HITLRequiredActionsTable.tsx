@@ -23,9 +23,9 @@ import type { HITLDetail } from "openapi/requests/types.gen";
 import Time from "src/components/Time";
 import { useTimezone } from "src/context/timezone";
 
+import { getHITLActionKey } from "./utils/actionSelection";
 import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
 import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
-import { getHITLRequiredActionKey } from "./utils/requiredActionSelection";
 
 const CREATED_AT_LABEL = "Created at";
 const DAG_ID_LABEL = "Dag ID";
@@ -96,7 +96,7 @@ export const HITLRequiredActionsTable = ({
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
-            const key = getHITLRequiredActionKey(detail);
+            const key = getHITLActionKey(detail);
             const selected = selectedKey === key;
             const ti = detail.task_instance;
             const mappedIndex =

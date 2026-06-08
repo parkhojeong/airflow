@@ -34,7 +34,7 @@ import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
-import { useHITLRequiredActionSelection } from "./useHITLRequiredActionSelection";
+import { useHITLActionSelection } from "./useHITLActionSelection";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
@@ -73,19 +73,11 @@ export const HITLRequiredActionsModal = ({
   const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
   const enabledFilter = completedHitlDetails.length > 0;
   const showAllActions = enabledFilter && filterMode === ALL_ACTIONS_VALUE;
-  const requiredActions = showAllActions
-    ? [...pendingHitlDetails, ...completedHitlDetails]
-    : pendingHitlDetails;
-  const {
-    handleNextRequiredAction,
-    handlePreviousRequiredAction,
-    handleSelect,
-    hasNextRequiredAction,
-    hasPreviousRequiredAction,
-    selectedRequiredAction,
-    selectedRequiredActionKey,
-    selectNextRequiredActionAfterResponse,
-  } = useHITLRequiredActionSelection({ open, requiredActions });
+  const actions = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
+  const { onNext, onPrevious, onResponded, onSelect, selectedKey, selectionState } = useHITLActionSelection({
+    actions,
+    open,
+  });
 
   return (
     <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
@@ -107,11 +99,11 @@ export const HITLRequiredActionsModal = ({
                 <RequiredActionsFilter onChange={setSelectedFilter} value={filterMode} />
               ) : undefined}
               <RequiredActionNavigation
-                canNavigateRequiredActions={requiredActions.length > 0}
-                hasNextRequiredAction={hasNextRequiredAction}
-                hasPreviousRequiredAction={hasPreviousRequiredAction}
-                onNext={handleNextRequiredAction}
-                onPrevious={handlePreviousRequiredAction}
+                canNavigateRequiredActions={actions.length > 0}
+                hasNextRequiredAction={selectionState.hasNext}
+                hasPreviousRequiredAction={selectionState.hasPrevious}
+                onNext={onNext}
+                onPrevious={onPrevious}
               />
             </HStack>
           </HStack>
@@ -142,16 +134,16 @@ export const HITLRequiredActionsModal = ({
                   details={pendingHitlDetails}
                   emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
                   heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}
-                  onSelect={handleSelect}
-                  selectedKey={selectedRequiredActionKey}
+                  onSelect={onSelect}
+                  selectedKey={selectedKey}
                 />
                 {showAllActions ? (
                   <HITLRequiredActionSection
                     details={completedHitlDetails}
                     emptyLabel={NO_COMPLETED_HITL_ACTIONS_LABEL}
                     heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}
-                    onSelect={handleSelect}
-                    selectedKey={selectedRequiredActionKey}
+                    onSelect={onSelect}
+                    selectedKey={selectedKey}
                   />
                 ) : undefined}
               </VStack>
@@ -171,8 +163,8 @@ export const HITLRequiredActionsModal = ({
             >
               <HITLRequiredActionDetailPane
                 onNavigate={onClose}
-                onResponded={selectNextRequiredActionAfterResponse}
-                selected={selectedRequiredAction}
+                onResponded={onResponded}
+                selected={selectionState.selected}
               />
             </Box>
           </HStack>
