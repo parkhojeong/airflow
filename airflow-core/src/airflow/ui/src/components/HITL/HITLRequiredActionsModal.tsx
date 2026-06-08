@@ -18,7 +18,7 @@
  */
 import { Box, Button, Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
@@ -34,11 +34,6 @@ import { Dialog } from "src/components/ui";
 
 import { HITLRequiredActionDetailPane } from "./HITLRequiredActionDetailPane";
 import { HITLRequiredActionSection } from "./HITLRequiredActionSection";
-import {
-  getRequiredActionSelectionState,
-  useAutoSelectFirstRequiredAction,
-} from "./useRequiredActionSelectionEffects";
-import { createRequiredActionNavigationHandlers } from "./utils/requiredActionNavigation";
 import { getHITLRequiredActionKey, type SelectedHITLRequiredAction } from "./utils/requiredActionSelection";
 
 const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
@@ -51,17 +46,6 @@ const COMPLETED_HITL_LABEL = "Completed HITL";
 
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
-
-const getAllHitlData = ({
-  completedHitlData,
-  pendingHitlData,
-}: {
-  readonly completedHitlData: HITLDetailCollection;
-  readonly pendingHitlData?: HITLDetailCollection;
-}): HITLDetailCollection => ({
-  hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...completedHitlData.hitl_details],
-  total_entries: (pendingHitlData?.total_entries ?? 0) + completedHitlData.total_entries,
-});
 
 export const ViewAllRequiredActionsButton = ({ onClick }: { readonly onClick: () => void }) => (
   <Button asChild size="sm" variant="outline">
@@ -90,33 +74,41 @@ export const HITLRequiredActionsModal = ({
   >(undefined);
   const filterMode = getRequiredActionsFilterMode(selectedFilter);
   const showAllActions = filterMode === ALL_ACTIONS_VALUE;
-  const hitlData =
-    showAllActions && completedHitlData !== undefined
-      ? getAllHitlData({ completedHitlData, pendingHitlData })
-      : pendingHitlData;
-  const {
-    hasNextRequiredAction,
-    hasPreviousRequiredAction,
-    requiredActions,
-    selectedRequiredActionKey,
-    visibleSelectedHITLRequiredAction,
-  } = getRequiredActionSelectionState({
-    hitlData,
-    selected: selectedRequiredAction,
-  });
+  const allHitlData = showAllActions
+    ? {
+        hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...(completedHitlData?.hitl_details ?? [])],
+      }
+    : pendingHitlData;
+  const requiredActions = (allHitlData?.hitl_details ?? []).map((item) => ({ item }));
+  const selectedRequiredActionKey =
+    selectedRequiredAction === undefined ? undefined : getHITLRequiredActionKey(selectedRequiredAction);
+  const selectedRequiredActionIndex =
+    selectedRequiredActionKey === undefined
+      ? -1
+      : requiredActions.findIndex(
+          (requiredAction) => getHITLRequiredActionKey(requiredAction) === selectedRequiredActionKey,
+        );
+  const hasNextRequiredAction =
+    selectedRequiredActionIndex === -1
+      ? requiredActions.length > 0
+      : selectedRequiredActionIndex < requiredActions.length - 1;
+  const hasPreviousRequiredAction =
+    selectedRequiredActionIndex === -1 ? requiredActions.length > 0 : selectedRequiredActionIndex > 0;
+  const visibleSelectedHITLRequiredAction =
+    selectedRequiredActionIndex === -1 ? undefined : selectedRequiredAction;
 
-  useAutoSelectFirstRequiredAction({
-    open,
-    requiredActions,
-    setSelected: setSelectedRequiredAction,
-    visibleSelected: visibleSelectedHITLRequiredAction,
-  });
-  const { handleNextRequiredAction, handlePreviousRequiredAction, selectNextRequiredActionAfterResponse } =
-    createRequiredActionNavigationHandlers({
-      requiredActions,
-      selectedRequiredActionKey,
-      setSelected: setSelectedRequiredAction,
-    });
+  useEffect(() => {
+    if (!open || visibleSelectedHITLRequiredAction !== undefined) {
+      return;
+    }
+
+    const [firstRequiredAction] = requiredActions;
+
+    if (firstRequiredAction !== undefined) {
+      setSelectedRequiredAction(firstRequiredAction);
+    }
+  }, [open, requiredActions, visibleSelectedHITLRequiredAction]);
+
   const handleSelect = (next: SelectedHITLRequiredAction) => {
     setSelectedRequiredAction((current) => {
       const nextIsSelected =
@@ -124,6 +116,31 @@ export const HITLRequiredActionsModal = ({
 
       return nextIsSelected ? undefined : next;
     });
+  };
+  const handleNextRequiredAction = () => {
+    setSelectedRequiredAction(
+      selectedRequiredActionIndex === -1
+        ? requiredActions[0]
+        : requiredActions[selectedRequiredActionIndex + 1],
+    );
+  };
+  const handlePreviousRequiredAction = () => {
+    setSelectedRequiredAction(
+      selectedRequiredActionIndex === -1
+        ? requiredActions.at(-1)
+        : requiredActions[selectedRequiredActionIndex - 1],
+    );
+  };
+  const selectNextRequiredActionAfterResponse = () => {
+    const remainingRequiredActions = requiredActions.filter(
+      (requiredAction) => getHITLRequiredActionKey(requiredAction) !== selectedRequiredActionKey,
+    );
+
+    setSelectedRequiredAction(
+      selectedRequiredActionIndex === -1
+        ? remainingRequiredActions[0]
+        : (remainingRequiredActions[selectedRequiredActionIndex] ?? remainingRequiredActions[0]),
+    );
   };
 
   return (

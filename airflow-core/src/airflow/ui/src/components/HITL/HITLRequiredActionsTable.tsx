@@ -96,7 +96,7 @@ export const HITLRequiredActionsTable = ({
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
-            const key = getHITLRequiredActionKey({ item: detail, type: "hitl" });
+            const key = getHITLRequiredActionKey({ item: detail });
             const selected = selectedKey === key;
             const ti = detail.task_instance;
             const mappedIndex =
@@ -110,7 +110,7 @@ export const HITLRequiredActionsTable = ({
                 bg={selected ? "bg.muted" : undefined}
                 cursor="pointer"
                 key={key}
-                onClick={() => onSelect({ item: detail, type: "hitl" })}
+                onClick={() => onSelect({ item: detail })}
                 onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
               >
                 <Table.Cell
