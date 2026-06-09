@@ -151,7 +151,6 @@ export const HITLResponseForm = ({ hitlDetail, namespace = "hitl", onResponded }
             ))
           ) : hitlDetail.response_received ? undefined : (
             <Button
-              colorPalette="brand"
               disabled={errors || isSubmitting || !isPending}
               loading={isSubmitting}
               onClick={() => handleSubmit()}
