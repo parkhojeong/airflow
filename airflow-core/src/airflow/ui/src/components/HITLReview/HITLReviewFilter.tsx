@@ -19,7 +19,7 @@
 import { Button, Group } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
-import type { HITLReviewFilterMode } from "./types";
+export type HITLReviewFilterMode = "all" | "pending";
 
 export const PENDING_REVIEWS_VALUE = "pending" satisfies HITLReviewFilterMode;
 export const ALL_REVIEWS_VALUE = "all" satisfies HITLReviewFilterMode;

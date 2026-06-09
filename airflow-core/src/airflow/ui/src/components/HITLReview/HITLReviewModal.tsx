@@ -29,10 +29,10 @@ import {
   getHITLReviewFilterMode,
   HITLReviewFilter,
   PENDING_REVIEWS_VALUE,
+  type HITLReviewFilterMode,
 } from "src/components/HITLReview/HITLReviewFilter.tsx";
 import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
-import type { HITLReviewFilterMode } from "src/components/HITLReview/types.ts";
-import { Dialog } from "src/components/ui";
+import { Dialog } from "src/components/ui/Dialog";
 
 import { HITLReviewListSection } from "./HITLReviewListSection.tsx";
 import { useHITLActionSelection } from "./useHITLActionSelection.ts";
