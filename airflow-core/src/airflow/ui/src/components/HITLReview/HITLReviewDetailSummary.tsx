@@ -27,14 +27,6 @@ import { getRelativeTime } from "src/utils/datetimeUtils.ts";
 
 import { getHitlReviewDetailDateFormat } from "./utils/requiredActionDisplay.ts";
 
-const formatAssignees = (users: HITLDetail["assigned_users"]) => {
-  if (users === undefined || users.length === 0) {
-    return undefined;
-  }
-
-  return users.map((user) => user.name).join(", ");
-};
-
 const HITLReviewRow = ({ label, value }: { readonly label: string; readonly value: ReactNode }) => (
   <Table.Row>
     <Table.Cell
@@ -60,10 +52,6 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
   const { selectedTimezone } = useTimezone();
   const ti = detail.task_instance;
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
-  const assignees = formatAssignees(detail.assigned_users);
-  const assigneeLabel = translate(
-    detail.assigned_users?.length === 1 ? "review.fields.assignee" : "review.fields.assignees",
-  );
 
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
@@ -85,9 +73,6 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
           }
         />
         <HITLReviewRow label={translate("review.fields.attempt")} value={<Text>{ti.try_number}</Text>} />
-        {assignees === undefined ? undefined : (
-          <HITLReviewRow label={assigneeLabel} value={<Text truncate>{assignees}</Text>} />
-        )}
       </Table.Body>
     </Table.Root>
   );
