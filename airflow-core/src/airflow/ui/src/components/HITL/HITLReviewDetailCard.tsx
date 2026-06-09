@@ -20,11 +20,10 @@ import { Button, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
 import type { HITLDetail } from "openapi/requests/types.gen";
+import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
 import { getTaskInstanceLink } from "src/utils/links";
 
-import { HITLReviewResponse } from "./HITLReviewResponse";
 import { HITLReviewSummary } from "./HITLReviewSummary";
 
 export const HITLReviewDetailCard = ({
@@ -37,19 +36,6 @@ export const HITLReviewDetailCard = ({
   readonly onResponded?: () => void;
 }) => {
   const { t: translate } = useTranslation("hitl");
-  const {
-    data: hitlDetail,
-    error,
-    isError,
-    isLoading,
-  } = useTaskInstanceServiceGetHitlDetailTryDetail({
-    dagId: detail.task_instance.dag_id,
-    dagRunId: detail.task_instance.dag_run_id,
-    mapIndex: detail.task_instance.map_index,
-    taskId: detail.task_instance.task_id,
-    tryNumber: detail.task_instance.try_number,
-  });
-
   const ti = detail.task_instance;
   const taskLink = `${getTaskInstanceLink(ti)}/required_actions`;
 
@@ -63,14 +49,7 @@ export const HITLReviewDetailCard = ({
         </Link>
       </Button>
 
-      <HITLReviewResponse
-        error={error}
-        hitlDetail={hitlDetail}
-        isError={isError}
-        isLoading={isLoading}
-        namespace={`hitl:${ti.id}`}
-        onResponded={onResponded}
-      />
+      <HITLResponseForm hitlDetail={detail} namespace={`hitl:${ti.id}`} onResponded={onResponded} />
     </VStack>
   );
 };

@@ -17,7 +17,6 @@
  * under the License.
  */
 import { Table, Text } from "@chakra-ui/react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
@@ -26,7 +25,6 @@ import { useTimezone } from "src/context/timezone";
 
 import { getHITLActionKey } from "./utils/actionSelection";
 import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
-import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
 
 const HITL_COL_SPAN = 5;
 const GROUP_COLORS = ["green.500", "purple.500"];
@@ -72,7 +70,6 @@ export const HITLReviewList = ({
   readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => {
-  const queryClient = useQueryClient();
   const { t: translate } = useTranslation("hitl");
   const { selectedTimezone } = useTimezone();
   const groupIndices = getHitlGroupIndices(details);
@@ -108,7 +105,6 @@ export const HITLReviewList = ({
                 cursor="pointer"
                 key={key}
                 onClick={() => onSelect(detail)}
-                onMouseEnter={() => prefetchHitlDetail(queryClient, detail)}
               >
                 <Table.Cell
                   borderLeftColor={groupColor}
