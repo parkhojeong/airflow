@@ -17,6 +17,9 @@
  * under the License.
  */
 import { Table, Text } from "@chakra-ui/react";
+import dayjs from "dayjs";
+import tz from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -25,7 +28,11 @@ import Time from "src/components/Time.tsx";
 import { useTimezone } from "src/context/timezone";
 import { getRelativeTime } from "src/utils/datetimeUtils.ts";
 
-import { getHitlReviewDetailDateFormat } from "./utils/requiredActionDisplay.ts";
+dayjs.extend(utc);
+dayjs.extend(tz);
+
+const getHitlReviewDetailDateFormat = (datetime: string, timezone: string) =>
+  dayjs(datetime).tz(timezone).isSame(dayjs().tz(timezone), "day") ? "HH:mm:ss" : "ddd, MMM D, HH:mm:ss";
 
 const HITLReviewRow = ({ label, value }: { readonly label: string; readonly value: ReactNode }) => (
   <Table.Row>

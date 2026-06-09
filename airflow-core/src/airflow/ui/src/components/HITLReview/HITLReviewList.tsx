@@ -17,16 +17,25 @@
  * under the License.
  */
 import { Table, Text } from "@chakra-ui/react";
+import dayjs from "dayjs";
+import tz from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import Time from "src/components/Time.tsx";
 import { useTimezone } from "src/context/timezone";
 
-import { getHitlReviewListDateFormat } from "./utils/requiredActionDisplay.ts";
+dayjs.extend(utc);
+dayjs.extend(tz);
 
-const HITL_COL_SPAN = 5;
-const GROUP_COLORS = ["green.500", "purple.500"];
+const getHitlReviewListDateFormat = (datetime: string, showSeconds: boolean, timezone: string) => {
+  if (dayjs(datetime).tz(timezone).isSame(dayjs().tz(timezone), "day")) {
+    return `HH:mm${showSeconds ? ":ss" : ""}`;
+  }
+
+  return `MMM D, HH:mm${showSeconds ? ":ss" : ""}`;
+};
 
 const TableColumnHeader = ({ children, width }: { readonly children: string; readonly width?: string }) => (
   <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={width}>
@@ -86,7 +95,7 @@ export const HITLReviewList = ({
       </Table.Header>
       <Table.Body>
         {details.length === 0 ? (
-          <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
+          <EmptyRow colSpan={5} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
             const key = detail.task_instance.id;
@@ -94,7 +103,7 @@ export const HITLReviewList = ({
             const ti = detail.task_instance;
             const mappedIndex =
               ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
-            const groupColor = GROUP_COLORS[(groupIndices[index] ?? 0) % GROUP_COLORS.length];
+            const groupColor = ["green.500", "purple.500"][(groupIndices[index] ?? 0) % 2];
 
             return (
               <Table.Row
