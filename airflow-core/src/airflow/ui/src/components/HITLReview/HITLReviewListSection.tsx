@@ -16,12 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { Heading, Text, VStack } from "@chakra-ui/react";
+
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
-import {
-  HITLReviewSection,
-  HITLReviewTypeSection,
-  StatusText,
-} from "src/components/HITLReview/HITLReviewListComponents.tsx";
 
 import { HITLReviewList } from "./HITLReviewList.tsx";
 
@@ -45,12 +42,29 @@ export const HITLReviewListSection = ({
   readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => (
-  <HITLReviewTypeSection heading={heading}>
-    <HITLReviewSection>
+  <VStack alignItems="stretch" gap={2} minW={0} width="100%">
+    <Heading px={2} size="sm">
+      {heading}
+    </Heading>
+    <VStack
+      alignItems="stretch"
+      bg="bg"
+      borderColor="border"
+      borderRadius="md"
+      borderWidth={1}
+      gap={0}
+      minW={0}
+      overflow="hidden"
+      width="100%"
+    >
       {isLoading ? (
-        <StatusText>{LOADING_HITL_LABEL}</StatusText>
+        <Text color="fg.error" fontSize="sm" px={3} py={2}>
+          {LOADING_HITL_LABEL}
+        </Text>
       ) : isError ? (
-        <StatusText tone="error">{LOAD_HITL_ERROR_LABEL}</StatusText>
+        <Text color="fg.error" fontSize="sm" px={3} py={2}>
+          {LOAD_HITL_ERROR_LABEL}
+        </Text>
       ) : (
         <HITLReviewList
           details={details ?? []}
@@ -59,6 +73,6 @@ export const HITLReviewListSection = ({
           selectedKey={selectedKey}
         />
       )}
-    </HITLReviewSection>
-  </HITLReviewTypeSection>
+    </VStack>
+  </VStack>
 );
