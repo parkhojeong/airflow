@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen.ts";
-import { HITLReviewDetailCard } from "src/components/HITLReview/HITLReviewDetailCard.tsx";
+import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
 import {
   ALL_REVIEWS_VALUE,
   getHITLReviewFilterMode,
@@ -161,7 +161,7 @@ export const HITLReviewModal = ({
               position="relative"
               zIndex={1}
             >
-              <HITLReviewDetailCard
+              <HITLReviewDetail
                 detail={selectionState.selected}
                 onNavigate={onClose}
                 onResponded={onResponded}

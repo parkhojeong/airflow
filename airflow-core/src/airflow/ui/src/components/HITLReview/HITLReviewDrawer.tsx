@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
-import { HITLReviewDetailCard } from "./HITLReviewDetailCard.tsx";
+import { HITLReviewDetail } from "./HITLReviewDetail.tsx";
 
 type HITLReviewDrawerProps = {
   readonly detail?: HITLDetail;
@@ -61,7 +61,7 @@ export const HITLReviewDrawer = ({ detail, onClose, open }: HITLReviewDrawerProp
                 </Text>
               ) : (
                 <Box minW={0}>
-                  <HITLReviewDetailCard detail={detail} onNavigate={onClose} onResponded={onClose} />
+                  <HITLReviewDetail detail={detail} onNavigate={onClose} onResponded={onClose} />
                 </Box>
               )}
             </Drawer.Body>

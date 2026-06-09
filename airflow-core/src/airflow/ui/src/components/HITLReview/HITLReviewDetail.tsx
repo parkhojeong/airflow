@@ -26,7 +26,7 @@ import { getTaskInstanceLink } from "src/utils/links.ts";
 
 import { HITLReviewSummary } from "./HITLReviewSummary.tsx";
 
-export const HITLReviewDetailCard = ({
+export const HITLReviewDetail = ({
   detail,
   onNavigate,
   onResponded,
