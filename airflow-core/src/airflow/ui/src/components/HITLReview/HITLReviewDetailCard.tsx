@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, VStack } from "@chakra-ui/react";
+import { Button, Text, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -31,11 +31,22 @@ export const HITLReviewDetailCard = ({
   onNavigate,
   onResponded,
 }: {
-  readonly detail: HITLDetail;
+  readonly detail?: HITLDetail;
   readonly onNavigate?: () => void;
   readonly onResponded?: () => void;
 }) => {
   const { t: translate } = useTranslation("hitl");
+
+  if (detail === undefined) {
+    return (
+      <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
+        <Text color="fg.muted" fontSize="sm">
+          {translate("review.selectRequiredAction")}
+        </Text>
+      </VStack>
+    );
+  }
+
   const ti = detail.task_instance;
   const taskLink = `${getTaskInstanceLink(ti)}/required_actions`;
 

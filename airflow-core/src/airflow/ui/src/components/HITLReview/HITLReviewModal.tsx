@@ -23,6 +23,7 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen.ts";
+import { HITLReviewDetailCard } from "src/components/HITLReview/HITLReviewDetailCard.tsx";
 import {
   ALL_REVIEWS_VALUE,
   getHITLReviewFilterMode,
@@ -33,7 +34,6 @@ import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNaviga
 import type { HITLReviewFilterMode } from "src/components/HITLReview/types.ts";
 import { Dialog } from "src/components/ui";
 
-import { HITLReviewDetailPane } from "./HITLReviewDetailPane.tsx";
 import { HITLReviewListSection } from "./HITLReviewListSection.tsx";
 import { useHITLActionSelection } from "./useHITLActionSelection.ts";
 
@@ -161,10 +161,10 @@ export const HITLReviewModal = ({
               position="relative"
               zIndex={1}
             >
-              <HITLReviewDetailPane
+              <HITLReviewDetailCard
+                detail={selectionState.selected}
                 onNavigate={onClose}
                 onResponded={onResponded}
-                selected={selectionState.selected}
               />
             </Box>
           </HStack>
