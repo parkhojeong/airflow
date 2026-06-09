@@ -20,53 +20,6 @@ import { useEffect, useState } from "react";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
-const getNavigationState = ({
-  hitlDetails,
-  selectedKey,
-}: {
-  readonly hitlDetails: Array<HITLDetail>;
-  readonly selectedKey?: string;
-}): {
-  readonly hasNext: boolean;
-  readonly hasPrevious: boolean;
-  readonly index: number;
-} => {
-  const index = hitlDetails.findIndex((hitlDetail) => hitlDetail.task_instance.id === selectedKey);
-
-  if (selectedKey === undefined || index === -1) {
-    return {
-      hasNext: false,
-      hasPrevious: false,
-      index: -1,
-    };
-  }
-
-  return {
-    hasNext: index < hitlDetails.length - 1,
-    hasPrevious: index > 0,
-    index,
-  };
-};
-
-const getHitl = ({
-  direction,
-  hitlDetails,
-  index,
-}: {
-  readonly direction: "next" | "previous";
-  readonly hitlDetails: Array<HITLDetail>;
-  readonly index: number;
-}): HITLDetail | undefined => {
-  if (direction === "previous" && index === 0) {
-    return undefined;
-  }
-  if (direction === "next" && index === hitlDetails.length - 1) {
-    return undefined;
-  }
-
-  return direction === "previous" ? hitlDetails[index - 1] : hitlDetails[index + 1];
-};
-
 export const useHITLSelection = ({
   hitlDetails,
   open,
@@ -84,45 +37,37 @@ export const useHITLSelection = ({
 
     setSelectedKey(hitl.task_instance.id);
   };
-  const selectionState = getNavigationState({
-    hitlDetails,
-    selectedKey,
-  });
-  const [firstHitl] = hitlDetails;
+  const index = hitlDetails.findIndex((hitlDetail) => hitlDetail.task_instance.id === selectedKey);
+  const hasNext = index === -1 ? false : index < hitlDetails.length - 1;
+  const hasPrevious = index === -1 ? false : index > 0;
 
   useEffect(() => {
-    if (!open || selectionState.index !== -1 || firstHitl === undefined) {
+    if (!open || index !== -1 || hitlDetails.length === 0) {
       return;
     }
 
-    selectHitl(firstHitl);
-  }, [firstHitl, open, selectionState.index]);
+    selectHitl(hitlDetails[0]);
+  }, [hitlDetails, open, index]);
 
   const onNext = () => {
-    const hitl = getHitl({
-      direction: "next",
-      hitlDetails,
-      index: selectionState.index,
-    });
-
-    selectHitl(hitl);
+    if (hasNext) {
+      selectHitl(hitlDetails[index + 1]);
+    }
   };
-  const onPrevious = () => {
-    const hitl = getHitl({
-      direction: "previous",
-      hitlDetails,
-      index: selectionState.index,
-    });
 
-    selectHitl(hitl);
+  const onPrevious = () => {
+    if (hasPrevious) {
+      selectHitl(hitlDetails[index - 1]);
+    }
   };
 
   return {
+    hasNext,
+    hasPrevious,
     onNext,
     onPrevious,
-    onResponded: onNext,
     onSelect: selectHitl,
+    selectedIndex: index,
     selectedKey,
-    selectionState,
   };
 };

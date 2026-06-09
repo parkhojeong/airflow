@@ -67,10 +67,12 @@ export const HITLReviewModal = ({
   const enabledFilter = completedHitlDetails.length > 0;
   const showAllActions = enabledFilter && selectedFilter === HITLReviewFilterMode.ALL;
   const visibleHitls = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
-  const { onNext, onPrevious, onResponded, onSelect, selectedKey, selectionState } = useHITLSelection({
-    hitlDetails: visibleHitls,
-    open,
-  });
+  const { hasNext, hasPrevious, onNext, onPrevious, onSelect, selectedIndex, selectedKey } = useHITLSelection(
+    {
+      hitlDetails: visibleHitls,
+      open,
+    },
+  );
 
   return (
     <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
@@ -92,8 +94,8 @@ export const HITLReviewModal = ({
                 <HITLReviewFilter onChange={setSelectedFilter} value={selectedFilter} />
               ) : undefined}
               <HITLReviewNavigation
-                hasNext={selectionState.hasNext}
-                hasPrevious={selectionState.hasPrevious}
+                hasNext={hasNext}
+                hasPrevious={hasPrevious}
                 onNext={onNext}
                 onPrevious={onPrevious}
               />
@@ -154,9 +156,9 @@ export const HITLReviewModal = ({
               zIndex={1}
             >
               <HITLReviewDetail
-                detail={visibleHitls[selectionState.index]}
+                detail={visibleHitls[selectedIndex]}
                 onNavigate={onClose}
-                onResponded={onResponded}
+                onResponded={onNext}
               />
             </Box>
           </HStack>
