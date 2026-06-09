@@ -18,9 +18,9 @@
  */
 import { useEffect, useState } from "react";
 
-import type { HITLDetail } from "openapi/requests/types.gen";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
-import { getActionToSelect, getHITLActionKey, getSelectionState } from "./utils/actionSelection";
+import { getActionToSelect, getHITLActionKey, getSelectionState } from "./utils/actionSelection.ts";
 
 export const useHITLActionSelection = ({
   actions,

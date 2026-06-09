@@ -22,7 +22,7 @@ import { LuUserRoundPen } from "react-icons/lu";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
-import { HITLReviewModal, ViewAllHITLReviewsButton } from "src/components/HITL/HITLReviewModal";
+import { HITLReviewModal, ViewAllHITLReviewsButton } from "src/components/HITLReview/HITLReviewModal.tsx";
 import { useHITLReviewRouteModalSync } from "src/components/HITLReview/useHITLReviewModal";
 import { useAutoRefresh } from "src/utils/query";
 

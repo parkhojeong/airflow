@@ -22,20 +22,20 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import type { HITLDetailCollection } from "openapi/requests/types.gen";
+import type { HITLDetailCollection } from "openapi/requests/types.gen.ts";
 import {
   ALL_REVIEWS_VALUE,
   getHITLReviewFilterMode,
   HITLReviewFilter,
   PENDING_REVIEWS_VALUE,
-} from "src/components/HITLReview/HITLReviewFilter";
-import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation";
-import type { HITLReviewFilterMode } from "src/components/HITLReview/types";
+} from "src/components/HITLReview/HITLReviewFilter.tsx";
+import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
+import type { HITLReviewFilterMode } from "src/components/HITLReview/types.ts";
 import { Dialog } from "src/components/ui";
 
-import { HITLReviewDetailPane } from "./HITLReviewDetailPane";
-import { HITLReviewListSection } from "./HITLReviewListSection";
-import { useHITLActionSelection } from "./useHITLActionSelection";
+import { HITLReviewDetailPane } from "./HITLReviewDetailPane.tsx";
+import { HITLReviewListSection } from "./HITLReviewListSection.tsx";
+import { useHITLActionSelection } from "./useHITLActionSelection.ts";
 
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
 

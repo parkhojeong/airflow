@@ -19,9 +19,9 @@
 import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
-import type { HITLDetail } from "openapi/requests/types.gen";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
-import { HITLReviewDetailCard } from "./HITLReviewDetailCard";
+import { HITLReviewDetailCard } from "./HITLReviewDetailCard.tsx";
 
 type HITLReviewDrawerProps = {
   readonly detail?: HITLDetail;

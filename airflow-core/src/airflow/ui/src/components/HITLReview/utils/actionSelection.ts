@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { HITLDetail } from "openapi/requests/types.gen";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
 export const getHITLActionKey = (detail?: HITLDetail): string | undefined =>
   detail === undefined ? undefined : `hitl:${detail.task_instance.id}`;

@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 import { LuUserRoundPen } from "react-icons/lu";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
-import { HITLReviewModal } from "src/components/HITL/HITLReviewModal";
+import { HITLReviewModal } from "src/components/HITLReview/HITLReviewModal.tsx";
 import { StateBadge } from "src/components/StateBadge";
 import { Tooltip } from "src/components/ui";
 

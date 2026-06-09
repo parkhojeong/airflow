@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import type { HITLDetail } from "openapi/requests/types.gen";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import {
   HITLReviewSection,
   HITLReviewTypeSection,
   StatusText,
-} from "src/components/HITLReview/HITLReviewListComponents";
+} from "src/components/HITLReview/HITLReviewListComponents.tsx";
 
-import { HITLReviewList } from "./HITLReviewList";
+import { HITLReviewList } from "./HITLReviewList.tsx";
 
 const LOAD_HITL_ERROR_LABEL = "Unable to load HITL actions";
 const LOADING_HITL_LABEL = "Loading HITL actions...";

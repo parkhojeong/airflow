@@ -28,7 +28,7 @@ import type { HITLDetail } from "openapi/requests/types.gen";
 import { DataTable } from "src/components/DataTable";
 import { useTableURLState } from "src/components/DataTable/useTableUrlState";
 import { ErrorAlert } from "src/components/ErrorAlert";
-import { HITLReviewDrawer } from "src/components/HITL/HITLReviewDrawer";
+import { HITLReviewDrawer } from "src/components/HITLReview/HITLReviewDrawer.tsx";
 import { StateBadge } from "src/components/StateBadge";
 import Time from "src/components/Time";
 import { TruncatedText } from "src/components/TruncatedText";

@@ -20,7 +20,7 @@ import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-import { getRelativeTime } from "src/utils/datetimeUtils";
+import { getRelativeTime } from "src/utils/datetimeUtils.ts";
 
 dayjs.extend(utc);
 dayjs.extend(tz);

@@ -19,11 +19,11 @@
 import { Table, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
-import type { HITLDetail } from "openapi/requests/types.gen";
-import { HITLReviewMetaRow } from "src/components/HITLReview/HITLReviewMetaRow";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
+import { HITLReviewMetaRow } from "src/components/HITLReview/HITLReviewMetaRow.tsx";
 import { useTimezone } from "src/context/timezone";
 
-import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay";
+import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay.ts";
 
 const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   if (users === undefined || users.length === 0) {

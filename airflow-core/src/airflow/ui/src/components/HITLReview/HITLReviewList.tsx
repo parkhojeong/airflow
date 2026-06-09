@@ -19,12 +19,12 @@
 import { Table, Text } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
-import type { HITLDetail } from "openapi/requests/types.gen";
-import Time from "src/components/Time";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
+import Time from "src/components/Time.tsx";
 import { useTimezone } from "src/context/timezone";
 
-import { getHITLActionKey } from "./utils/actionSelection";
-import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
+import { getHITLActionKey } from "./utils/actionSelection.ts";
+import { getDagRunListDateFormat } from "./utils/requiredActionDisplay.ts";
 
 const HITL_COL_SPAN = 5;
 const GROUP_COLORS = ["green.500", "purple.500"];

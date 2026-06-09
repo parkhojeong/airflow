@@ -20,11 +20,11 @@ import { Button, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-import type { HITLDetail } from "openapi/requests/types.gen";
-import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
-import { getTaskInstanceLink } from "src/utils/links";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
+import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm.tsx";
+import { getTaskInstanceLink } from "src/utils/links.ts";
 
-import { HITLReviewSummary } from "./HITLReviewSummary";
+import { HITLReviewSummary } from "./HITLReviewSummary.tsx";
 
 export const HITLReviewDetailCard = ({
   detail,
