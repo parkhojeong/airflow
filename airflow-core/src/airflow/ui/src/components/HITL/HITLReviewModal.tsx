@@ -19,6 +19,7 @@
 import { Box, Button, Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
@@ -36,24 +37,22 @@ import { HITLReviewDetailPane } from "./HITLReviewDetailPane";
 import { HITLReviewListSection } from "./HITLReviewListSection";
 import { useHITLActionSelection } from "./useHITLActionSelection";
 
-const VIEW_ALL_REQUIRED_ACTIONS_LABEL = "View all required actions";
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
-const REQUIRED_ACTIONS_LABEL = "Required actions";
-const NO_REQUIRED_ACTIONS_LABEL = "No required actions";
-const NO_COMPLETED_HITL_ACTIONS_LABEL = "No completed HITL actions";
-const PENDING_HITL_LABEL = "Pending HITL";
-const COMPLETED_HITL_LABEL = "Completed HITL";
 
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
 
-export const ViewAllHITLReviewsButton = ({ onClick }: { readonly onClick: () => void }) => (
-  <Button asChild size="sm" variant="outline">
-    <Link onClick={onClick} to={REQUIRED_ACTIONS_LINK}>
-      {VIEW_ALL_REQUIRED_ACTIONS_LABEL}
-    </Link>
-  </Button>
-);
+export const ViewAllHITLReviewsButton = ({ onClick }: { readonly onClick: () => void }) => {
+  const { t: translate } = useTranslation("hitl");
+
+  return (
+    <Button asChild size="sm" variant="outline">
+      <Link onClick={onClick} to={REQUIRED_ACTIONS_LINK}>
+        {translate("review.viewAll")}
+      </Link>
+    </Button>
+  );
+};
 
 export const HITLReviewModal = ({
   headerAction,
@@ -66,6 +65,7 @@ export const HITLReviewModal = ({
   readonly onClose: () => void;
   readonly open: boolean;
 }) => {
+  const { t: translate } = useTranslation("hitl");
   const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>(PENDING_REVIEWS_VALUE);
   const filterMode = getHITLReviewFilterMode(selectedFilter);
   const hitlDetails = hitlData?.hitl_details ?? [];
@@ -91,7 +91,7 @@ export const HITLReviewModal = ({
         <Dialog.Header>
           <HStack justifyContent="space-between" pr={8} width="100%">
             <Heading flexShrink={0} size="md">
-              {REQUIRED_ACTIONS_LABEL}
+              {translate("requiredAction_other")}
             </Heading>
             <HStack gap={2}>
               {headerAction}
@@ -132,16 +132,16 @@ export const HITLReviewModal = ({
               <VStack alignItems="stretch" gap={4} width="100%">
                 <HITLReviewListSection
                   details={pendingHitlDetails}
-                  emptyLabel={NO_REQUIRED_ACTIONS_LABEL}
-                  heading={getSectionLabel(PENDING_HITL_LABEL, pendingHitlDetails.length)}
+                  emptyLabel={translate("review.emptyRequiredActions")}
+                  heading={getSectionLabel(translate("review.pendingHitl"), pendingHitlDetails.length)}
                   onSelect={onSelect}
                   selectedKey={selectedKey}
                 />
                 {showAllActions ? (
                   <HITLReviewListSection
                     details={completedHitlDetails}
-                    emptyLabel={NO_COMPLETED_HITL_ACTIONS_LABEL}
-                    heading={getSectionLabel(COMPLETED_HITL_LABEL, completedHitlDetails.length)}
+                    emptyLabel={translate("review.emptyCompletedHitl")}
+                    heading={getSectionLabel(translate("review.completedHitl"), completedHitlDetails.length)}
                     onSelect={onSelect}
                     selectedKey={selectedKey}
                   />

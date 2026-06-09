@@ -17,12 +17,10 @@
  * under the License.
  */
 import { HStack, IconButton } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import { Tooltip } from "src/components/ui";
-
-const NEXT_REVIEW_LABEL = "Next";
-const PREVIOUS_REVIEW_LABEL = "Prev";
 
 export const HITLReviewNavigation = ({
   canNavigate,
@@ -36,29 +34,35 @@ export const HITLReviewNavigation = ({
   readonly hasPrevious: boolean;
   readonly onNext: () => void;
   readonly onPrevious: () => void;
-}) => (
-  <HStack gap={1}>
-    <Tooltip content={PREVIOUS_REVIEW_LABEL}>
-      <IconButton
-        aria-label={PREVIOUS_REVIEW_LABEL}
-        disabled={!canNavigate || !hasPrevious}
-        onClick={onPrevious}
-        size="xs"
-        variant="ghost"
-      >
-        <FiChevronLeft />
-      </IconButton>
-    </Tooltip>
-    <Tooltip content={NEXT_REVIEW_LABEL}>
-      <IconButton
-        aria-label={NEXT_REVIEW_LABEL}
-        disabled={!canNavigate || !hasNext}
-        onClick={onNext}
-        size="xs"
-        variant="ghost"
-      >
-        <FiChevronRight />
-      </IconButton>
-    </Tooltip>
-  </HStack>
-);
+}) => {
+  const { t: translate } = useTranslation("hitl");
+  const previousLabel = translate("review.navigation.previous");
+  const nextLabel = translate("review.navigation.next");
+
+  return (
+    <HStack gap={1}>
+      <Tooltip content={previousLabel}>
+        <IconButton
+          aria-label={previousLabel}
+          disabled={!canNavigate || !hasPrevious}
+          onClick={onPrevious}
+          size="xs"
+          variant="ghost"
+        >
+          <FiChevronLeft />
+        </IconButton>
+      </Tooltip>
+      <Tooltip content={nextLabel}>
+        <IconButton
+          aria-label={nextLabel}
+          disabled={!canNavigate || !hasNext}
+          onClick={onNext}
+          size="xs"
+          variant="ghost"
+        >
+          <FiChevronRight />
+        </IconButton>
+      </Tooltip>
+    </HStack>
+  );
+};

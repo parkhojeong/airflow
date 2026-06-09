@@ -18,6 +18,7 @@
  */
 import { Table, Text } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 import Time from "src/components/Time";
@@ -27,11 +28,6 @@ import { getHITLActionKey } from "./utils/actionSelection";
 import { getDagRunListDateFormat } from "./utils/requiredActionDisplay";
 import { prefetchHitlDetail } from "./utils/requiredActionPrefetch";
 
-const CREATED_AT_LABEL = "Created at";
-const DAG_ID_LABEL = "Dag ID";
-const DAG_RUN_LABEL = "Dag Run";
-const MAP_INDEX_LABEL = "Map Index";
-const TASK_ID_LABEL = "Task ID";
 const HITL_COL_SPAN = 5;
 const GROUP_COLORS = ["green.500", "purple.500"];
 
@@ -77,6 +73,7 @@ export const HITLReviewList = ({
   readonly selectedKey?: string;
 }) => {
   const queryClient = useQueryClient();
+  const { t: translate } = useTranslation("hitl");
   const { selectedTimezone } = useTimezone();
   const groupIndices = getHitlGroupIndices(details);
 
@@ -84,11 +81,11 @@ export const HITLReviewList = ({
     <Table.Root size="sm" tableLayout="fixed" width="100%">
       <Table.Header>
         <Table.Row>
-          <TableColumnHeader width="30%">{DAG_ID_LABEL}</TableColumnHeader>
-          <TableColumnHeader width="76px">{DAG_RUN_LABEL}</TableColumnHeader>
-          <TableColumnHeader width="76px">{MAP_INDEX_LABEL}</TableColumnHeader>
-          <TableColumnHeader>{TASK_ID_LABEL}</TableColumnHeader>
-          <TableColumnHeader width="88px">{CREATED_AT_LABEL}</TableColumnHeader>
+          <TableColumnHeader width="30%">{translate("review.fields.dagId")}</TableColumnHeader>
+          <TableColumnHeader width="76px">{translate("review.fields.dagRun")}</TableColumnHeader>
+          <TableColumnHeader width="76px">{translate("review.fields.mapIndex")}</TableColumnHeader>
+          <TableColumnHeader>{translate("review.fields.taskId")}</TableColumnHeader>
+          <TableColumnHeader width="88px">{translate("review.fields.createdAt")}</TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>

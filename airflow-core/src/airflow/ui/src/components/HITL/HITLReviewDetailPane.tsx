@@ -17,12 +17,11 @@
  * under the License.
  */
 import { Text, VStack } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 
 import { HITLReviewDetailCard } from "./HITLReviewDetailCard";
-
-const EMPTY_DETAIL_LABEL = "Select a required action to see details";
 
 export const HITLReviewDetailPane = ({
   onNavigate,
@@ -33,11 +32,13 @@ export const HITLReviewDetailPane = ({
   readonly onResponded: () => void;
   readonly selected?: HITLDetail;
 }) => {
+  const { t: translate } = useTranslation("hitl");
+
   if (selected === undefined) {
     return (
       <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
         <Text color="fg.muted" fontSize="sm">
-          {EMPTY_DETAIL_LABEL}
+          {translate("review.selectRequiredAction")}
         </Text>
       </VStack>
     );

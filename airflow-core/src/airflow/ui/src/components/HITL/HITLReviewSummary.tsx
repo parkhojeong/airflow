@@ -17,6 +17,7 @@
  * under the License.
  */
 import { Table, Text } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 import { HITLReviewMetaRow } from "src/components/HITLReview/HITLReviewMetaRow";
@@ -33,22 +34,34 @@ const formatAssignees = (users: HITLDetail["assigned_users"]) => {
 };
 
 export const HITLReviewSummary = ({ detail }: { readonly detail: HITLDetail }) => {
+  const { t: translate } = useTranslation("hitl");
   const { selectedTimezone } = useTimezone();
   const ti = detail.task_instance;
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
   const assignees = formatAssignees(detail.assigned_users);
-  const assigneeLabel = detail.assigned_users?.length === 1 ? "Assignee" : "Assignees";
+  const assigneeLabel = translate(
+    detail.assigned_users?.length === 1 ? "review.fields.assignee" : "review.fields.assignees",
+  );
   const requestedTime = formatRequiredActionDetailTime(detail.created_at, true, selectedTimezone);
 
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
       <Table.Body>
-        <HITLReviewMetaRow label="Dag ID" value={<Text truncate>{ti.dag_id}</Text>} />
-        <HITLReviewMetaRow label="Dag Run ID" value={<Text>{ti.dag_run_id}</Text>} />
-        <HITLReviewMetaRow label="Map index" value={<Text>{mappedIndex}</Text>} />
-        <HITLReviewMetaRow label="Task ID" value={<Text truncate>{ti.task_id}</Text>} />
-        <HITLReviewMetaRow label="Created at" value={<Text>{requestedTime ?? "-"}</Text>} />
-        <HITLReviewMetaRow label="Attempt" value={<Text>{ti.try_number}</Text>} />
+        <HITLReviewMetaRow
+          label={translate("review.fields.dagId")}
+          value={<Text truncate>{ti.dag_id}</Text>}
+        />
+        <HITLReviewMetaRow label={translate("review.fields.dagRunId")} value={<Text>{ti.dag_run_id}</Text>} />
+        <HITLReviewMetaRow label={translate("review.fields.mapIndex")} value={<Text>{mappedIndex}</Text>} />
+        <HITLReviewMetaRow
+          label={translate("review.fields.taskId")}
+          value={<Text truncate>{ti.task_id}</Text>}
+        />
+        <HITLReviewMetaRow
+          label={translate("review.fields.createdAt")}
+          value={<Text>{requestedTime ?? "-"}</Text>}
+        />
+        <HITLReviewMetaRow label={translate("review.fields.attempt")} value={<Text>{ti.try_number}</Text>} />
         {assignees === undefined ? undefined : (
           <HITLReviewMetaRow label={assigneeLabel} value={<Text truncate>{assignees}</Text>} />
         )}

@@ -17,13 +17,11 @@
  * under the License.
  */
 import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen";
 
 import { HITLReviewDetailCard } from "./HITLReviewDetailCard";
-
-const REQUIRED_ACTIONS_LABEL = "Required actions";
-const EMPTY_LABEL = "No required actions";
 
 type HITLReviewDrawerProps = {
   readonly detail?: HITLDetail;
@@ -31,41 +29,45 @@ type HITLReviewDrawerProps = {
   readonly open: boolean;
 };
 
-export const HITLReviewDrawer = ({ detail, onClose, open }: HITLReviewDrawerProps) => (
-  <Drawer.Root
-    lazyMount
-    onOpenChange={(event) => {
-      if (!event.open) {
-        onClose();
-      }
-    }}
-    open={open}
-    size="xl"
-    unmountOnExit
-  >
-    <Portal>
-      <Drawer.Backdrop />
-      <Drawer.Positioner>
-        <Drawer.Content>
-          <Drawer.Header>
-            <Drawer.Title>{REQUIRED_ACTIONS_LABEL}</Drawer.Title>
-          </Drawer.Header>
-          <Drawer.CloseTrigger asChild>
-            <CloseButton position="absolute" right={2} size="sm" top={2} />
-          </Drawer.CloseTrigger>
-          <Drawer.Body>
-            {detail === undefined ? (
-              <Text color="fg.muted" fontSize="sm">
-                {EMPTY_LABEL}
-              </Text>
-            ) : (
-              <Box minW={0}>
-                <HITLReviewDetailCard detail={detail} onNavigate={onClose} onResponded={onClose} />
-              </Box>
-            )}
-          </Drawer.Body>
-        </Drawer.Content>
-      </Drawer.Positioner>
-    </Portal>
-  </Drawer.Root>
-);
+export const HITLReviewDrawer = ({ detail, onClose, open }: HITLReviewDrawerProps) => {
+  const { t: translate } = useTranslation("hitl");
+
+  return (
+    <Drawer.Root
+      lazyMount
+      onOpenChange={(event) => {
+        if (!event.open) {
+          onClose();
+        }
+      }}
+      open={open}
+      size="xl"
+      unmountOnExit
+    >
+      <Portal>
+        <Drawer.Backdrop />
+        <Drawer.Positioner>
+          <Drawer.Content>
+            <Drawer.Header>
+              <Drawer.Title>{translate("requiredAction_other")}</Drawer.Title>
+            </Drawer.Header>
+            <Drawer.CloseTrigger asChild>
+              <CloseButton position="absolute" right={2} size="sm" top={2} />
+            </Drawer.CloseTrigger>
+            <Drawer.Body>
+              {detail === undefined ? (
+                <Text color="fg.muted" fontSize="sm">
+                  {translate("review.emptyRequiredActions")}
+                </Text>
+              ) : (
+                <Box minW={0}>
+                  <HITLReviewDetailCard detail={detail} onNavigate={onClose} onResponded={onClose} />
+                </Box>
+              )}
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer.Positioner>
+      </Portal>
+    </Drawer.Root>
+  );
+};

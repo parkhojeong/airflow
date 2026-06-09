@@ -24,6 +24,35 @@
     "success": "{{taskId}} response successful",
     "title": "Human Task Instance - {{taskId}}"
   },
+  "review": {
+    "completedHitl": "Completed HITL",
+    "emptyCompletedHitl": "No completed HITL actions",
+    "emptyRequiredActions": "No required actions",
+    "fields": {
+      "assignee": "Assignee",
+      "assignees": "Assignees",
+      "attempt": "Attempt",
+      "createdAt": "Created at",
+      "dagId": "Dag ID",
+      "dagRun": "Dag Run",
+      "dagRunId": "Dag Run ID",
+      "mapIndex": "Map index",
+      "taskId": "Task ID"
+    },
+    "filter": {
+      "all": "All",
+      "pending": "Pending"
+    },
+    "loadingResponseForm": "Loading response form...",
+    "navigation": {
+      "next": "Next",
+      "previous": "Previous"
+    },
+    "openTask": "Open task",
+    "pendingHitl": "Pending HITL",
+    "selectRequiredAction": "Select a required action to see details",
+    "viewAll": "View all required actions"
+  },
   "state": {
     "approvalReceived": "Approval Received",
     "approvalRequired": "Approval Required",

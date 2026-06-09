@@ -17,6 +17,7 @@
  * under the License.
  */
 import { Button, VStack } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetailTryDetail } from "openapi/queries";
@@ -25,8 +26,6 @@ import { getTaskInstanceLink } from "src/utils/links";
 
 import { HITLReviewResponse } from "./HITLReviewResponse";
 import { HITLReviewSummary } from "./HITLReviewSummary";
-
-const OPEN_TASK_LABEL = "Open task";
 
 export const HITLReviewDetailCard = ({
   detail,
@@ -37,6 +36,7 @@ export const HITLReviewDetailCard = ({
   readonly onNavigate?: () => void;
   readonly onResponded?: () => void;
 }) => {
+  const { t: translate } = useTranslation("hitl");
   const {
     data: hitlDetail,
     error,
@@ -59,7 +59,7 @@ export const HITLReviewDetailCard = ({
 
       <Button alignSelf="flex-end" asChild size="sm" variant="outline">
         <Link onClick={onNavigate} to={taskLink}>
-          {OPEN_TASK_LABEL}
+          {translate("review.openTask")}
         </Link>
       </Button>
 

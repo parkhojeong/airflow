@@ -17,12 +17,11 @@
  * under the License.
  */
 import { Skeleton, Text, VStack } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 import type { HITLDetailHistory, TaskInstanceHistoryResponse } from "openapi/requests/types.gen";
 import { ErrorAlert } from "src/components/ErrorAlert";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm";
-
-const LOADING_RESPONSE_LABEL = "Loading response form...";
 
 type HITLResponseFormDetail = {
   readonly task_instance: TaskInstanceHistoryResponse;
@@ -43,6 +42,8 @@ export const HITLReviewResponse = ({
   readonly namespace: string;
   readonly onResponded?: () => void;
 }) => {
+  const { t: translate } = useTranslation("hitl");
+
   if (isError) {
     return <ErrorAlert error={error} />;
   }
@@ -51,7 +52,7 @@ export const HITLReviewResponse = ({
     return (
       <VStack alignItems="stretch" gap={2}>
         <Text color="fg.muted" fontSize="sm">
-          {LOADING_RESPONSE_LABEL}
+          {translate("review.loadingResponseForm")}
         </Text>
         <Skeleton height="80px" />
       </VStack>

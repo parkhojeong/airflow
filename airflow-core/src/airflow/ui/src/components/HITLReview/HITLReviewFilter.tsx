@@ -17,18 +17,16 @@
  * under the License.
  */
 import { Button, Group } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 import type { HITLReviewFilterMode } from "./types";
-
-const PENDING_ACTIONS_LABEL = "Pending";
-const ALL_ACTIONS_LABEL = "All";
 
 export const PENDING_REVIEWS_VALUE = "pending" satisfies HITLReviewFilterMode;
 export const ALL_REVIEWS_VALUE = "all" satisfies HITLReviewFilterMode;
 
-const HITL_REVIEW_FILTER_OPTIONS: Array<{ label: string; value: HITLReviewFilterMode }> = [
-  { label: PENDING_ACTIONS_LABEL, value: PENDING_REVIEWS_VALUE },
-  { label: ALL_ACTIONS_LABEL, value: ALL_REVIEWS_VALUE },
+const HITL_REVIEW_FILTER_OPTIONS: Array<{ labelKey: string; value: HITLReviewFilterMode }> = [
+  { labelKey: "review.filter.pending", value: PENDING_REVIEWS_VALUE },
+  { labelKey: "review.filter.all", value: ALL_REVIEWS_VALUE },
 ];
 
 export const getHITLReviewFilterMode = (value?: string): HITLReviewFilterMode =>
@@ -40,27 +38,37 @@ export const HITLReviewFilter = ({
 }: {
   readonly onChange: (value: HITLReviewFilterMode) => void;
   readonly value: HITLReviewFilterMode;
-}) => (
-  <Group backgroundColor="bg.muted" borderColor="border.emphasized" borderRadius={8} borderWidth={1} p={0.5}>
-    {HITL_REVIEW_FILTER_OPTIONS.map((option) => {
-      const selected = value === option.value;
+}) => {
+  const { t: translate } = useTranslation("hitl");
 
-      return (
-        <Button
-          _hover={{ backgroundColor: "bg.emphasized" }}
-          bg={selected ? "bg.panel" : undefined}
-          borderColor={selected ? "border.emphasized" : "transparent"}
-          borderWidth={selected ? 1 : 0}
-          key={option.value}
-          minH={6}
-          onClick={() => onChange(option.value)}
-          px={2}
-          size="xs"
-          variant="ghost"
-        >
-          {option.label}
-        </Button>
-      );
-    })}
-  </Group>
-);
+  return (
+    <Group
+      backgroundColor="bg.muted"
+      borderColor="border.emphasized"
+      borderRadius={8}
+      borderWidth={1}
+      p={0.5}
+    >
+      {HITL_REVIEW_FILTER_OPTIONS.map((option) => {
+        const selected = value === option.value;
+
+        return (
+          <Button
+            _hover={{ backgroundColor: "bg.emphasized" }}
+            bg={selected ? "bg.panel" : undefined}
+            borderColor={selected ? "border.emphasized" : "transparent"}
+            borderWidth={selected ? 1 : 0}
+            key={option.value}
+            minH={6}
+            onClick={() => onChange(option.value)}
+            px={2}
+            size="xs"
+            variant="ghost"
+          >
+            {translate(option.labelKey)}
+          </Button>
+        );
+      })}
+    </Group>
+  );
+};
