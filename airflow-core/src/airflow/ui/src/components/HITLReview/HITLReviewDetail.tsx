@@ -24,7 +24,7 @@ import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import { HITLResponseForm } from "src/pages/HITLTaskInstances/HITLResponseForm.tsx";
 import { getTaskInstanceLink } from "src/utils/links.ts";
 
-import { HITLReviewSummary } from "./HITLReviewSummary.tsx";
+import { HITLReviewDetailSummary } from "./HITLReviewDetailSummary.tsx";
 
 export const HITLReviewDetail = ({
   detail,
@@ -52,7 +52,7 @@ export const HITLReviewDetail = ({
 
   return (
     <VStack alignItems="stretch" gap={4} width="100%">
-      <HITLReviewSummary detail={detail} />
+      <HITLReviewDetailSummary detail={detail} />
 
       <Button alignSelf="flex-end" asChild size="sm" variant="outline">
         <Link onClick={onNavigate} to={taskLink}>

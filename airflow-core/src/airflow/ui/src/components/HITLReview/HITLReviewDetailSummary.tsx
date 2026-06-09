@@ -53,7 +53,7 @@ const HITLReviewRow = ({ label, value }: { readonly label: string; readonly valu
   </Table.Row>
 );
 
-export const HITLReviewSummary = ({ detail }: { readonly detail: HITLDetail }) => {
+export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetail }) => {
   const { t: translate } = useTranslation("hitl");
   const { selectedTimezone } = useTimezone();
   const ti = detail.task_instance;
