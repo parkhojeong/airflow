@@ -24,13 +24,7 @@ import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
-import {
-  ALL_REVIEWS_VALUE,
-  getHITLReviewFilterMode,
-  HITLReviewFilter,
-  PENDING_REVIEWS_VALUE,
-  type HITLReviewFilterMode,
-} from "src/components/HITLReview/HITLReviewFilter.tsx";
+import HITLReviewFilter, { HITLReviewFilterMode } from "src/components/HITLReview/HITLReviewFilter.tsx";
 import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
 import { Dialog } from "src/components/ui/Dialog";
 
@@ -66,13 +60,12 @@ export const HITLReviewModal = ({
   readonly open: boolean;
 }) => {
   const { t: translate } = useTranslation("hitl");
-  const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>(PENDING_REVIEWS_VALUE);
-  const filterMode = getHITLReviewFilterMode(selectedFilter);
+  const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>(HITLReviewFilterMode.PENDING);
   const hitlDetails = hitlData?.hitl_details ?? [];
   const completedHitlDetails = hitlDetails.filter((detail) => detail.response_received);
   const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
   const enabledFilter = completedHitlDetails.length > 0;
-  const showAllActions = enabledFilter && filterMode === ALL_REVIEWS_VALUE;
+  const showAllActions = enabledFilter && selectedFilter === HITLReviewFilterMode.ALL;
   const actions = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
   const { onNext, onPrevious, onResponded, onSelect, selectedKey, selectionState } = useHITLActionSelection({
     actions,
@@ -96,7 +89,7 @@ export const HITLReviewModal = ({
             <HStack gap={2}>
               {headerAction}
               {enabledFilter ? (
-                <HITLReviewFilter onChange={setSelectedFilter} value={filterMode} />
+                <HITLReviewFilter onChange={setSelectedFilter} value={selectedFilter} />
               ) : undefined}
               <HITLReviewNavigation
                 canNavigate={actions.length > 0}

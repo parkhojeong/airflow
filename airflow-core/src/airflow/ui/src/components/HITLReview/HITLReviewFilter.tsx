@@ -19,20 +19,16 @@
 import { Button, Group } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
-export type HITLReviewFilterMode = "all" | "pending";
-
-export const PENDING_REVIEWS_VALUE = "pending" satisfies HITLReviewFilterMode;
-export const ALL_REVIEWS_VALUE = "all" satisfies HITLReviewFilterMode;
+export enum HITLReviewFilterMode {
+  ALL = "all",
+  PENDING = "pending",
+}
 
 const HITL_REVIEW_FILTER_OPTIONS: Array<{ labelKey: string; value: HITLReviewFilterMode }> = [
-  { labelKey: "review.filter.pending", value: PENDING_REVIEWS_VALUE },
-  { labelKey: "review.filter.all", value: ALL_REVIEWS_VALUE },
+  { labelKey: "review.filter.pending", value: HITLReviewFilterMode.PENDING },
+  { labelKey: "review.filter.all", value: HITLReviewFilterMode.ALL },
 ];
-
-export const getHITLReviewFilterMode = (value?: string): HITLReviewFilterMode =>
-  value === ALL_REVIEWS_VALUE ? ALL_REVIEWS_VALUE : PENDING_REVIEWS_VALUE;
-
-export const HITLReviewFilter = ({
+const HITLReviewFilter = ({
   onChange,
   value,
 }: {
@@ -72,3 +68,5 @@ export const HITLReviewFilter = ({
     </Group>
   );
 };
+
+export default HITLReviewFilter;
