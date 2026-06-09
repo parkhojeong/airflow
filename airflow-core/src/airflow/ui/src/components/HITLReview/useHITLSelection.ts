@@ -20,8 +20,6 @@ import { useEffect, useState } from "react";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
-import { getHITLDetailKey } from "./utils/actionSelection.ts";
-
 const getNavigationState = ({
   hitlDetails,
   selectedKey,
@@ -33,7 +31,7 @@ const getNavigationState = ({
   readonly hasPrevious: boolean;
   readonly index: number;
 } => {
-  const index = hitlDetails.findIndex((hitlDetail) => getHITLDetailKey(hitlDetail) === selectedKey);
+  const index = hitlDetails.findIndex((hitlDetail) => hitlDetail.task_instance.id === selectedKey);
 
   if (selectedKey === undefined || index === -1) {
     return {
@@ -84,7 +82,7 @@ export const useHITLSelection = ({
       return;
     }
 
-    setSelectedKey(getHITLDetailKey(hitl));
+    setSelectedKey(hitl.task_instance.id);
   };
   const selectionState = getNavigationState({
     hitlDetails,
