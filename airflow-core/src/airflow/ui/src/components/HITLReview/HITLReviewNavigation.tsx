@@ -23,13 +23,11 @@ import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Tooltip } from "src/components/ui";
 
 export const HITLReviewNavigation = ({
-  canNavigate,
   hasNext,
   hasPrevious,
   onNext,
   onPrevious,
 }: {
-  readonly canNavigate: boolean;
   readonly hasNext: boolean;
   readonly hasPrevious: boolean;
   readonly onNext: () => void;
@@ -44,7 +42,7 @@ export const HITLReviewNavigation = ({
       <Tooltip content={previousLabel}>
         <IconButton
           aria-label={previousLabel}
-          disabled={!canNavigate || !hasPrevious}
+          disabled={!hasPrevious}
           onClick={onPrevious}
           size="xs"
           variant="ghost"
@@ -53,13 +51,7 @@ export const HITLReviewNavigation = ({
         </IconButton>
       </Tooltip>
       <Tooltip content={nextLabel}>
-        <IconButton
-          aria-label={nextLabel}
-          disabled={!canNavigate || !hasNext}
-          onClick={onNext}
-          size="xs"
-          variant="ghost"
-        >
+        <IconButton aria-label={nextLabel} disabled={!hasNext} onClick={onNext} size="xs" variant="ghost">
           <FiChevronRight />
         </IconButton>
       </Tooltip>

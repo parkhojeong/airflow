@@ -29,7 +29,7 @@ import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNaviga
 import { Dialog } from "src/components/ui/Dialog";
 
 import { HITLReviewListSection } from "./HITLReviewListSection.tsx";
-import { useHITLActionSelection } from "./useHITLActionSelection.ts";
+import { useHITLSelection } from "./useHITLSelection.ts";
 
 const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
 
@@ -66,9 +66,9 @@ export const HITLReviewModal = ({
   const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
   const enabledFilter = completedHitlDetails.length > 0;
   const showAllActions = enabledFilter && selectedFilter === HITLReviewFilterMode.ALL;
-  const actions = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
-  const { onNext, onPrevious, onResponded, onSelect, selectedKey, selectionState } = useHITLActionSelection({
-    actions,
+  const visibleHitls = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
+  const { onNext, onPrevious, onResponded, onSelect, selectedKey, selectionState } = useHITLSelection({
+    hitlDetails: visibleHitls,
     open,
   });
 
@@ -92,7 +92,6 @@ export const HITLReviewModal = ({
                 <HITLReviewFilter onChange={setSelectedFilter} value={selectedFilter} />
               ) : undefined}
               <HITLReviewNavigation
-                canNavigate={actions.length > 0}
                 hasNext={selectionState.hasNext}
                 hasPrevious={selectionState.hasPrevious}
                 onNext={onNext}
@@ -155,7 +154,7 @@ export const HITLReviewModal = ({
               zIndex={1}
             >
               <HITLReviewDetail
-                detail={selectionState.selected}
+                detail={visibleHitls[selectionState.index]}
                 onNavigate={onClose}
                 onResponded={onResponded}
               />

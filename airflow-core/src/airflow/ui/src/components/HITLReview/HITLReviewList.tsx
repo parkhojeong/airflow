@@ -23,7 +23,7 @@ import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import Time from "src/components/Time.tsx";
 import { useTimezone } from "src/context/timezone";
 
-import { getHITLActionKey } from "./utils/actionSelection.ts";
+import { getHITLDetailKey } from "./utils/actionSelection.ts";
 import { getDagRunListDateFormat } from "./utils/requiredActionDisplay.ts";
 
 const HITL_COL_SPAN = 5;
@@ -90,7 +90,7 @@ export const HITLReviewList = ({
           <EmptyRow colSpan={HITL_COL_SPAN} label={emptyLabel} />
         ) : (
           details.map((detail, index) => {
-            const key = getHITLActionKey(detail);
+            const key = getHITLDetailKey(detail);
             const selected = selectedKey === key;
             const ti = detail.task_instance;
             const mappedIndex =
