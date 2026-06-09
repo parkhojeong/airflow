@@ -23,7 +23,7 @@ import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import Time from "src/components/Time.tsx";
 import { useTimezone } from "src/context/timezone";
 
-import { getDagRunListDateFormat } from "./utils/requiredActionDisplay.ts";
+import { getHitlReviewListDateFormat } from "./utils/requiredActionDisplay.ts";
 
 const HITL_COL_SPAN = 5;
 const GROUP_COLORS = ["green.500", "purple.500"];
@@ -120,7 +120,7 @@ export const HITLReviewList = ({
                   <Text fontSize="xs">
                     <Time
                       datetime={ti.run_after}
-                      format={getDagRunListDateFormat(ti.run_after, true, selectedTimezone)}
+                      format={getHitlReviewListDateFormat(ti.run_after, true, selectedTimezone)}
                     />
                   </Text>
                 </Table.Cell>
@@ -138,7 +138,7 @@ export const HITLReviewList = ({
                   <Text fontSize="xs">
                     <Time
                       datetime={detail.created_at}
-                      format={getDagRunListDateFormat(detail.created_at, false, selectedTimezone)}
+                      format={getHitlReviewListDateFormat(detail.created_at, false, selectedTimezone)}
                     />
                   </Text>
                 </Table.Cell>

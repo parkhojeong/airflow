@@ -20,40 +20,16 @@ import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-import { getRelativeTime } from "src/utils/datetimeUtils.ts";
-
 dayjs.extend(utc);
 dayjs.extend(tz);
 
-export const DAG_RUN_META_DATE_FORMAT = "MMM D, HH:mm";
-
-const DAG_RUN_META_DATE_WITH_SECONDS_FORMAT = "MMM D, HH:mm:ss";
-
-export const getDagRunListDateFormat = (datetime: string, showSeconds = false, timezone = "UTC") => {
+export const getHitlReviewListDateFormat = (datetime: string, showSeconds: boolean, timezone: string) => {
   if (dayjs(datetime).tz(timezone).isSame(dayjs().tz(timezone), "day")) {
-    return showSeconds ? "HH:mm:ss" : "HH:mm";
+    return `HH:mm${showSeconds ? ":ss" : ""}`;
   }
 
-  return showSeconds ? DAG_RUN_META_DATE_WITH_SECONDS_FORMAT : DAG_RUN_META_DATE_FORMAT;
+  return `MMM D, HH:mm${showSeconds ? ":ss" : ""}`;
 };
 
-export const formatRequiredActionDetailTime = (datetime?: string, showSeconds = false, timezone = "UTC") => {
-  if (datetime === undefined) {
-    return undefined;
-  }
-
-  const date = dayjs(datetime).tz(timezone);
-
-  if (!date.isValid()) {
-    return undefined;
-  }
-
-  const timeFormat = showSeconds ? "HH:mm:ss" : "HH:mm";
-  const dateTimeFormat = showSeconds ? "ddd, MMM D, HH:mm:ss" : "ddd, MMM D, HH:mm";
-  const timestamp = date.isSame(dayjs().tz(timezone), "day")
-    ? date.format(timeFormat)
-    : date.format(dateTimeFormat);
-  const relative = getRelativeTime(datetime);
-
-  return relative === "" ? timestamp : `${timestamp} (${relative})`;
-};
+export const getHitlReviewDetailDateFormat = (datetime: string, timezone: string) =>
+  dayjs(datetime).tz(timezone).isSame(dayjs().tz(timezone), "day") ? "HH:mm:ss" : "ddd, MMM D, HH:mm:ss";

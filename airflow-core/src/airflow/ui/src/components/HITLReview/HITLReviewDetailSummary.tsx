@@ -21,9 +21,11 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
+import Time from "src/components/Time.tsx";
 import { useTimezone } from "src/context/timezone";
+import { getRelativeTime } from "src/utils/datetimeUtils.ts";
 
-import { formatRequiredActionDetailTime } from "./utils/requiredActionDisplay.ts";
+import { getHitlReviewDetailDateFormat } from "./utils/requiredActionDisplay.ts";
 
 const formatAssignees = (users: HITLDetail["assigned_users"]) => {
   if (users === undefined || users.length === 0) {
@@ -62,7 +64,6 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
   const assigneeLabel = translate(
     detail.assigned_users?.length === 1 ? "review.fields.assignee" : "review.fields.assignees",
   );
-  const requestedTime = formatRequiredActionDetailTime(detail.created_at, true, selectedTimezone);
 
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
@@ -73,7 +74,15 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
         <HITLReviewRow label={translate("review.fields.taskId")} value={<Text truncate>{ti.task_id}</Text>} />
         <HITLReviewRow
           label={translate("review.fields.createdAt")}
-          value={<Text>{requestedTime ?? "-"}</Text>}
+          value={
+            <Text>
+              <Time
+                datetime={detail.created_at}
+                format={getHitlReviewDetailDateFormat(detail.created_at, selectedTimezone)}
+              />
+              {` (${getRelativeTime(detail.created_at)})`}
+            </Text>
+          }
         />
         <HITLReviewRow label={translate("review.fields.attempt")} value={<Text>{ti.try_number}</Text>} />
         {assignees === undefined ? undefined : (
