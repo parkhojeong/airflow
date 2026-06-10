@@ -16,11 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { HStack, IconButton } from "@chakra-ui/react";
+import { HStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
-import { Tooltip } from "src/components/ui";
+import { IconButton } from "src/components/ui";
 
 export const HITLReviewNavigation = ({
   hasNext,
@@ -39,22 +39,18 @@ export const HITLReviewNavigation = ({
 
   return (
     <HStack gap={1}>
-      <Tooltip content={previousLabel}>
-        <IconButton
-          aria-label={previousLabel}
-          disabled={!hasPrevious}
-          onClick={onPrevious}
-          size="xs"
-          variant="ghost"
-        >
-          <FiChevronLeft />
-        </IconButton>
-      </Tooltip>
-      <Tooltip content={nextLabel}>
-        <IconButton aria-label={nextLabel} disabled={!hasNext} onClick={onNext} size="xs" variant="ghost">
-          <FiChevronRight />
-        </IconButton>
-      </Tooltip>
+      <IconButton
+        disabled={!hasPrevious}
+        label={previousLabel}
+        onClick={onPrevious}
+        size="xs"
+        variant="ghost"
+      >
+        <FiChevronLeft />
+      </IconButton>
+      <IconButton disabled={!hasNext} label={nextLabel} onClick={onNext} size="xs" variant="ghost">
+        <FiChevronRight />
+      </IconButton>
     </HStack>
   );
 };
