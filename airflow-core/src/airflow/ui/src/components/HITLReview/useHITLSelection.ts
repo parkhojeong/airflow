@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
@@ -28,36 +28,26 @@ export const useHITLSelection = ({
   readonly open: boolean;
 }) => {
   const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
-  const selectHitl = (hitl?: HITLDetail) => {
-    if (hitl === undefined) {
-      setSelectedKey(undefined);
+  const selectedIndexFromKey = hitlDetails.findIndex(
+    (hitlDetail) => hitlDetail.task_instance.id === selectedKey,
+  );
+  const selectedIndex =
+    open && hitlDetails.length > 0 ? (selectedIndexFromKey === -1 ? 0 : selectedIndexFromKey) : -1;
+  const selectedDetail = selectedIndex === -1 ? undefined : hitlDetails[selectedIndex];
+  const hasNext = selectedIndex !== -1 && selectedIndex < hitlDetails.length - 1;
+  const hasPrevious = selectedIndex > 0;
 
-      return;
-    }
-
-    setSelectedKey(hitl.task_instance.id);
-  };
-  const index = hitlDetails.findIndex((hitlDetail) => hitlDetail.task_instance.id === selectedKey);
-  const hasNext = index === -1 ? false : index < hitlDetails.length - 1;
-  const hasPrevious = index === -1 ? false : index > 0;
-
-  useEffect(() => {
-    if (!open || index !== -1 || hitlDetails.length === 0) {
-      return;
-    }
-
-    selectHitl(hitlDetails[0]);
-  }, [hitlDetails, open, index]);
+  const selectHitl = (hitl?: HITLDetail) => setSelectedKey(hitl?.task_instance.id);
 
   const onNext = () => {
     if (hasNext) {
-      selectHitl(hitlDetails[index + 1]);
+      selectHitl(hitlDetails[selectedIndex + 1]);
     }
   };
 
   const onPrevious = () => {
     if (hasPrevious) {
-      selectHitl(hitlDetails[index - 1]);
+      selectHitl(hitlDetails[selectedIndex - 1]);
     }
   };
 
@@ -67,7 +57,7 @@ export const useHITLSelection = ({
     onNext,
     onPrevious,
     onSelect: selectHitl,
-    selectedIndex: index,
-    selectedKey,
+    selectedDetail,
+    selectedKey: selectedDetail?.task_instance.id,
   };
 };
