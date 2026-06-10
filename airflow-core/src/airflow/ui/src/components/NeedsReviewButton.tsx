@@ -143,12 +143,12 @@ export const NeedsReviewButton = ({
 
 export const NeedsReviewButtonWithModal = ({
   dagId,
+  includeCompletedHitl = false,
   runId,
-  seeCompletedHitl = false,
 }: {
   readonly dagId?: string;
+  readonly includeCompletedHitl?: boolean;
   readonly runId?: string;
-  readonly seeCompletedHitl?: boolean;
 }) => {
   const { onClose, onOpen, open } = useDisclosure();
   const { onCloseHITLReview } = useHITLReviewRouteModalSync({
@@ -158,7 +158,7 @@ export const NeedsReviewButtonWithModal = ({
   const { isLoading, pendingHitlData } = usePendingHitl({ dagId, runId });
   const { completedHitlData } = useCompletedHitl({
     dagId,
-    enabled: open && seeCompletedHitl,
+    enabled: open && includeCompletedHitl,
     runId,
   });
   const hitlTIsCount = pendingHitlData?.hitl_details.length ?? 0;

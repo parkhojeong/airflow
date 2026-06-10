@@ -18,16 +18,13 @@
  */
 import { useTranslation } from "react-i18next";
 
-import SegmentedControl from "src/components/ui/SegmentedControl";
+import { ButtonGroupToggle } from "src/components/ui/ButtonGroupToggle";
 
-export enum HITLReviewFilterMode {
-  ALL = "all",
-  PENDING = "pending",
-}
+export type HITLReviewFilterMode = "all" | "pending";
 
 const HITL_REVIEW_FILTER_OPTIONS: Array<{ labelKey: string; value: HITLReviewFilterMode }> = [
-  { labelKey: "review.filter.pending", value: HITLReviewFilterMode.PENDING },
-  { labelKey: "review.filter.all", value: HITLReviewFilterMode.ALL },
+  { labelKey: "review.filter.pending", value: "pending" },
+  { labelKey: "review.filter.all", value: "all" },
 ];
 const HITLReviewFilter = ({
   onChange,
@@ -39,17 +36,14 @@ const HITLReviewFilter = ({
   const { t: translate } = useTranslation("hitl");
 
   return (
-    <SegmentedControl
-      defaultValues={[value]}
-      onChange={([nextValue]) => {
-        if (nextValue !== undefined) {
-          onChange(nextValue as HITLReviewFilterMode);
-        }
-      }}
+    <ButtonGroupToggle<HITLReviewFilterMode>
+      onChange={onChange}
       options={HITL_REVIEW_FILTER_OPTIONS.map((option) => ({
         label: translate(option.labelKey),
         value: option.value,
       }))}
+      size="xs"
+      value={value}
     />
   );
 };

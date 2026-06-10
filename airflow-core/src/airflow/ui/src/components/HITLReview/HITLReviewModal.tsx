@@ -23,7 +23,7 @@ import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
-import HITLReviewFilter, { HITLReviewFilterMode } from "src/components/HITLReview/HITLReviewFilter.tsx";
+import HITLReviewFilter, { type HITLReviewFilterMode } from "src/components/HITLReview/HITLReviewFilter.tsx";
 import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
 import { Dialog } from "src/components/ui/Dialog";
 
@@ -45,11 +45,11 @@ export const HITLReviewModal = ({
   readonly open: boolean;
 }) => {
   const { t: translate } = useTranslation("hitl");
-  const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>(HITLReviewFilterMode.PENDING);
+  const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>("pending");
   const completedHitlDetails = hitlDetails.filter((detail) => detail.response_received);
   const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
   const enabledFilter = completedHitlDetails.length > 0;
-  const showAllActions = enabledFilter && selectedFilter === HITLReviewFilterMode.ALL;
+  const showAllActions = enabledFilter && selectedFilter === "all";
   const visibleHitls = showAllActions ? [...pendingHitlDetails, ...completedHitlDetails] : pendingHitlDetails;
   const { hasNext, hasPrevious, onNext, onPrevious, onSelect, selectedIndex, selectedKey } = useHITLSelection(
     {
