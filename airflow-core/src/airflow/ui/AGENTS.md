@@ -20,6 +20,7 @@ For e2e tests (Playwright), see [`tests/e2e/README.md`](tests/e2e/README.md).
 - **Shared components:** Place reusable components in `src/components/`. The `src/components/ui/` subdirectory is reserved for customized Chakra components only — do not put generic app components there.
 - **API calls:** Use the auto-generated clients in `openapi-gen/` (generated from the OpenAPI spec via `pnpm codegen`). Do not write raw `axios` calls against API endpoints by hand.
 - **No `useMemo` or `useCallback`:** The project uses the React compiler (`babel-plugin-react-compiler`), which handles memoization automatically. Do not add `useMemo` or `useCallback` manually — they are unnecessary and may interfere with the compiler's optimizations.
+.
 
 ## i18n
 
