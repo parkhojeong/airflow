@@ -23,15 +23,19 @@ import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
-import HITLReviewFilter, { type HITLReviewFilterMode } from "src/components/HITLReview/HITLReviewFilter.tsx";
 import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
+import { ButtonGroupToggle } from "src/components/ui/ButtonGroupToggle";
 import { Dialog } from "src/components/ui/Dialog";
 
 import { HITLReviewListSection } from "./HITLReviewListSection.tsx";
 import { useHITLSelection } from "./useHITLSelection.ts";
 
-const getSectionLabel = (label: string, count?: number) =>
-  count === undefined ? label : `${label} (${count})`;
+type HITLReviewFilterMode = "all" | "pending";
+
+const HITL_REVIEW_FILTER_OPTIONS: Array<{ labelKey: string; value: HITLReviewFilterMode }> = [
+  { labelKey: "review.filter.pending", value: "pending" },
+  { labelKey: "review.filter.all", value: "all" },
+];
 
 export const HITLReviewModal = ({
   headerAction,
@@ -75,7 +79,15 @@ export const HITLReviewModal = ({
             <HStack gap={2}>
               {headerAction}
               {enabledFilter ? (
-                <HITLReviewFilter onChange={setSelectedFilter} value={selectedFilter} />
+                <ButtonGroupToggle<HITLReviewFilterMode>
+                  onChange={setSelectedFilter}
+                  options={HITL_REVIEW_FILTER_OPTIONS.map((option) => ({
+                    label: translate(option.labelKey),
+                    value: option.value,
+                  }))}
+                  size="xs"
+                  value={selectedFilter}
+                />
               ) : undefined}
               <HITLReviewNavigation
                 hasNext={hasNext}
@@ -111,7 +123,7 @@ export const HITLReviewModal = ({
                 <HITLReviewListSection
                   details={pendingHitlDetails}
                   emptyLabel={translate("review.emptyRequiredActions")}
-                  heading={getSectionLabel(translate("review.pendingHitl"), pendingHitlDetails.length)}
+                  heading={`${translate("review.pendingHitl")} (${pendingHitlDetails.length})`}
                   onSelect={onSelect}
                   selectedKey={selectedKey}
                 />
@@ -119,7 +131,7 @@ export const HITLReviewModal = ({
                   <HITLReviewListSection
                     details={completedHitlDetails}
                     emptyLabel={translate("review.emptyCompletedHitl")}
-                    heading={getSectionLabel(translate("review.completedHitl"), completedHitlDetails.length)}
+                    heading={`${translate("review.completedHitl")} (${completedHitlDetails.length})`}
                     onSelect={onSelect}
                     selectedKey={selectedKey}
                   />
