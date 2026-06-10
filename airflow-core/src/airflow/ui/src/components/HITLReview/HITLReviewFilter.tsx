@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Button, Group } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
+
+import SegmentedControl from "src/components/ui/SegmentedControl";
 
 export enum HITLReviewFilterMode {
   ALL = "all",
@@ -38,34 +39,18 @@ const HITLReviewFilter = ({
   const { t: translate } = useTranslation("hitl");
 
   return (
-    <Group
-      backgroundColor="bg.muted"
-      borderColor="border.emphasized"
-      borderRadius={8}
-      borderWidth={1}
-      p={0.5}
-    >
-      {HITL_REVIEW_FILTER_OPTIONS.map((option) => {
-        const selected = value === option.value;
-
-        return (
-          <Button
-            _hover={{ backgroundColor: "bg.emphasized" }}
-            bg={selected ? "bg.panel" : undefined}
-            borderColor={selected ? "border.emphasized" : "transparent"}
-            borderWidth={selected ? 1 : 0}
-            key={option.value}
-            minH={6}
-            onClick={() => onChange(option.value)}
-            px={2}
-            size="xs"
-            variant="ghost"
-          >
-            {translate(option.labelKey)}
-          </Button>
-        );
-      })}
-    </Group>
+    <SegmentedControl
+      defaultValues={[value]}
+      onChange={([nextValue]) => {
+        if (nextValue !== undefined) {
+          onChange(nextValue as HITLReviewFilterMode);
+        }
+      }}
+      options={HITL_REVIEW_FILTER_OPTIONS.map((option) => ({
+        label: translate(option.labelKey),
+        value: option.value,
+      }))}
+    />
   );
 };
 
