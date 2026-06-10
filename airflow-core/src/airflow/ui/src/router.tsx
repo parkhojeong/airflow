@@ -91,7 +91,7 @@ export const routerConfig = [
         index: true,
       },
       {
-        element: <HITLTaskInstances />,
+        element: <HITLTaskInstances enableHITLReviewDrawer />,
         path: "required_actions",
       },
       {

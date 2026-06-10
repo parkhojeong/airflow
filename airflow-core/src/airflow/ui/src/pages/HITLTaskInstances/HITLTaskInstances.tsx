@@ -173,7 +173,11 @@ const taskInstanceColumns = ({
   },
 ];
 
-export const HITLTaskInstances = () => {
+export const HITLTaskInstances = ({
+  enableHITLReviewDrawer = false,
+}: {
+  readonly enableHITLReviewDrawer?: boolean;
+}) => {
   const { t: translate } = useTranslation("hitl");
   const { dagId, runId, taskId } = useParams();
   const [selectedDetail, setSelectedDetail] = useState<HITLDetail | undefined>(undefined);
@@ -264,7 +268,6 @@ export const HITLTaskInstances = () => {
     taskId,
     translate,
   });
-  const shouldOpenRowDrawer = dagId === undefined && runId === undefined && taskId === undefined;
 
   return (
     <VStack align="start">
@@ -276,15 +279,17 @@ export const HITLTaskInstances = () => {
         initialState={tableURLState}
         isLoading={isLoading}
         modelName="hitl:requiredAction"
-        onRowClick={shouldOpenRowDrawer ? (row) => setSelectedDetail(row.original) : undefined}
+        onRowClick={enableHITLReviewDrawer ? (row) => setSelectedDetail(row.original) : undefined}
         onStateChange={setTableURLState}
         total={data?.total_entries}
       />
-      <HITLReviewDrawer
-        detail={selectedDetail}
-        onClose={() => setSelectedDetail(undefined)}
-        open={selectedDetail !== undefined}
-      />
+      {enableHITLReviewDrawer ? (
+        <HITLReviewDrawer
+          detail={selectedDetail}
+          onClose={() => setSelectedDetail(undefined)}
+          open={selectedDetail !== undefined}
+        />
+      ) : null}
     </VStack>
   );
 };

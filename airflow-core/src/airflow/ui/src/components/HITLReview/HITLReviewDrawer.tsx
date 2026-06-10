@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, CloseButton, Drawer, Portal, Text } from "@chakra-ui/react";
+import { Box, CloseButton, Drawer, Portal } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
@@ -55,15 +55,9 @@ export const HITLReviewDrawer = ({ detail, onClose, open }: HITLReviewDrawerProp
               <CloseButton position="absolute" right={2} size="sm" top={2} />
             </Drawer.CloseTrigger>
             <Drawer.Body>
-              {detail === undefined ? (
-                <Text color="fg.muted" fontSize="sm">
-                  {translate("review.emptyRequiredActions")}
-                </Text>
-              ) : (
-                <Box minW={0}>
-                  <HITLReviewDetail detail={detail} onNavigate={onClose} onResponded={onClose} />
-                </Box>
-              )}
+              <Box minW={0}>
+                <HITLReviewDetail detail={detail} onNavigate={onClose} onResponded={onClose} />
+              </Box>
             </Drawer.Body>
           </Drawer.Content>
         </Drawer.Positioner>
