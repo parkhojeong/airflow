@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, useDisclosure } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { LuUserRoundPen } from "react-icons/lu";
+import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
 import type { HITLDetailCollection } from "openapi/requests/types.gen";
-import { HITLReviewModal, ViewAllHITLReviewsButton } from "src/components/HITLReview/HITLReviewModal.tsx";
+import { HITLReviewModal } from "src/components/HITLReview/HITLReviewModal.tsx";
 import { useHITLReviewRouteModalSync } from "src/components/HITLReview/useHITLReviewModal";
 import { useAutoRefresh } from "src/utils/query";
 
@@ -126,6 +127,18 @@ const NeedsReviewButtonCard = ({
       />
     </Box>
   ) : undefined;
+};
+
+const ViewAllHITLReviewsButton = ({ onClick }: { readonly onClick: () => void }) => {
+  const { t: translate } = useTranslation("hitl");
+
+  return (
+    <Button asChild size="sm" variant="outline">
+      <Link onClick={onClick} to="/required_actions?response_received=false">
+        {translate("review.viewAll")}
+      </Link>
+    </Button>
+  );
 };
 
 export const NeedsReviewButton = ({

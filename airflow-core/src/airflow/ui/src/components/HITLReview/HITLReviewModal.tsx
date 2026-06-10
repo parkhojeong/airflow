@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Button, Heading, HStack, VStack } from "@chakra-ui/react";
+import { Box, Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 import type { HITLDetailCollection } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
@@ -31,22 +30,8 @@ import { Dialog } from "src/components/ui/Dialog";
 import { HITLReviewListSection } from "./HITLReviewListSection.tsx";
 import { useHITLSelection } from "./useHITLSelection.ts";
 
-const REQUIRED_ACTIONS_LINK = "/required_actions?response_received=false";
-
 const getSectionLabel = (label: string, count?: number) =>
   count === undefined ? label : `${label} (${count})`;
-
-export const ViewAllHITLReviewsButton = ({ onClick }: { readonly onClick: () => void }) => {
-  const { t: translate } = useTranslation("hitl");
-
-  return (
-    <Button asChild size="sm" variant="outline">
-      <Link onClick={onClick} to={REQUIRED_ACTIONS_LINK}>
-        {translate("review.viewAll")}
-      </Link>
-    </Button>
-  );
-};
 
 export const HITLReviewModal = ({
   headerAction,
