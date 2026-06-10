@@ -32,8 +32,8 @@ export const HITLReviewDetail = ({
   onResponded,
 }: {
   readonly detail?: HITLDetail;
-  readonly onNavigate?: () => void;
-  readonly onResponded?: () => void;
+  readonly onNavigate: () => void;
+  readonly onResponded: () => void;
 }) => {
   const { t: translate } = useTranslation("hitl");
 
