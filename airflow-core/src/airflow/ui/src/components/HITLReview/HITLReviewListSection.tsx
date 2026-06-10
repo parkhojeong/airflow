@@ -27,7 +27,6 @@ const LOADING_HITL_LABEL = "Loading HITL actions...";
 
 export const HITLReviewListSection = ({
   details,
-  emptyLabel,
   heading,
   isError = false,
   isLoading = false,
@@ -35,7 +34,6 @@ export const HITLReviewListSection = ({
   selectedKey,
 }: {
   readonly details?: Array<HITLDetail>;
-  readonly emptyLabel: string;
   readonly heading: string;
   readonly isError?: boolean;
   readonly isLoading?: boolean;
@@ -66,12 +64,7 @@ export const HITLReviewListSection = ({
           {LOAD_HITL_ERROR_LABEL}
         </Text>
       ) : (
-        <HITLReviewList
-          details={details ?? []}
-          emptyLabel={emptyLabel}
-          onSelect={onSelect}
-          selectedKey={selectedKey}
-        />
+        <HITLReviewList details={details ?? []} onSelect={onSelect} selectedKey={selectedKey} />
       )}
     </VStack>
   </VStack>

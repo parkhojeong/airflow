@@ -26,8 +26,6 @@
   },
   "review": {
     "completedHitl": "Completed HITL",
-    "emptyCompletedHitl": "No completed HITL actions",
-    "emptyRequiredActions": "No required actions",
     "fields": {
       "assignee": "Assignee",
       "assignees": "Assignees",

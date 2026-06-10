@@ -129,7 +129,6 @@ export const HITLReviewModal = ({
               <VStack alignItems="stretch" gap={4} width="100%">
                 <HITLReviewListSection
                   details={pendingHitlDetails}
-                  emptyLabel={translate("review.emptyRequiredActions")}
                   heading={`${translate("review.pendingHitl")} (${pendingHitlDetails.length})`}
                   onSelect={onSelect}
                   selectedKey={selectedKey}
@@ -137,7 +136,6 @@ export const HITLReviewModal = ({
                 {showAllActions ? (
                   <HITLReviewListSection
                     details={completedHitlDetails}
-                    emptyLabel={translate("review.emptyCompletedHitl")}
                     heading={`${translate("review.completedHitl")} (${completedHitlDetails.length})`}
                     onSelect={onSelect}
                     selectedKey={selectedKey}

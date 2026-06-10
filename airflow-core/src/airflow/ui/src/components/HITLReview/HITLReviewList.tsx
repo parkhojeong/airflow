@@ -43,16 +43,6 @@ const TableColumnHeader = ({ children, width }: { readonly children: string; rea
   </Table.ColumnHeader>
 );
 
-const EmptyRow = ({ colSpan, label }: { readonly colSpan: number; readonly label: string }) => (
-  <Table.Row>
-    <Table.Cell colSpan={colSpan} px={2} py={3} textAlign="center">
-      <Text color="fg.muted" fontSize="xs">
-        {label}
-      </Text>
-    </Table.Cell>
-  </Table.Row>
-);
-
 const getHitlGroupIndices = (details: Array<HITLDetail>) =>
   details.reduce<Array<number>>((indices, detail, index) => {
     const previous = details[index - 1];
@@ -69,12 +59,10 @@ const getHitlGroupIndices = (details: Array<HITLDetail>) =>
 
 export const HITLReviewList = ({
   details,
-  emptyLabel,
   onSelect,
   selectedKey,
 }: {
   readonly details: Array<HITLDetail>;
-  readonly emptyLabel: string;
   readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => {
@@ -94,67 +82,65 @@ export const HITLReviewList = ({
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {details.length === 0 ? (
-          <EmptyRow colSpan={5} label={emptyLabel} />
-        ) : (
-          details.map((detail, index) => {
-            const key = detail.task_instance.id;
-            const selected = selectedKey === key;
-            const ti = detail.task_instance;
-            const mappedIndex =
-              ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
-            const groupColor = ["green.500", "purple.500"][(groupIndices[index] ?? 0) % 2];
+        {details.length === 0
+          ? null
+          : details.map((detail, index) => {
+              const key = detail.task_instance.id;
+              const selected = selectedKey === key;
+              const ti = detail.task_instance;
+              const mappedIndex =
+                ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
+              const groupColor = ["green.500", "purple.500"][(groupIndices[index] ?? 0) % 2];
 
-            return (
-              <Table.Row
-                _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-                aria-pressed={selected}
-                bg={selected ? "bg.muted" : undefined}
-                cursor="pointer"
-                key={key}
-                onClick={() => onSelect(detail)}
-              >
-                <Table.Cell
-                  borderLeftColor={groupColor}
-                  borderLeftWidth={3}
-                  overflow="hidden"
-                  px={2}
-                  py={1.5}
+              return (
+                <Table.Row
+                  _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
+                  aria-pressed={selected}
+                  bg={selected ? "bg.muted" : undefined}
+                  cursor="pointer"
+                  key={key}
+                  onClick={() => onSelect(detail)}
                 >
-                  <Text fontSize="xs" truncate>
-                    {ti.dag_id}
-                  </Text>
-                </Table.Cell>
-                <Table.Cell px={2} py={1.5}>
-                  <Text fontSize="xs">
-                    <Time
-                      datetime={ti.run_after}
-                      format={getHitlReviewListDateFormat(ti.run_after, true, selectedTimezone)}
-                    />
-                  </Text>
-                </Table.Cell>
-                <Table.Cell px={2} py={1.5}>
-                  <Text color="fg.muted" fontSize="xs">
-                    {mappedIndex}
-                  </Text>
-                </Table.Cell>
-                <Table.Cell overflow="hidden" px={2} py={1.5}>
-                  <Text fontSize="xs" truncate>
-                    {ti.task_id}
-                  </Text>
-                </Table.Cell>
-                <Table.Cell px={2} py={1.5}>
-                  <Text fontSize="xs">
-                    <Time
-                      datetime={detail.created_at}
-                      format={getHitlReviewListDateFormat(detail.created_at, false, selectedTimezone)}
-                    />
-                  </Text>
-                </Table.Cell>
-              </Table.Row>
-            );
-          })
-        )}
+                  <Table.Cell
+                    borderLeftColor={groupColor}
+                    borderLeftWidth={3}
+                    overflow="hidden"
+                    px={2}
+                    py={1.5}
+                  >
+                    <Text fontSize="xs" truncate>
+                      {ti.dag_id}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell px={2} py={1.5}>
+                    <Text fontSize="xs">
+                      <Time
+                        datetime={ti.run_after}
+                        format={getHitlReviewListDateFormat(ti.run_after, true, selectedTimezone)}
+                      />
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell px={2} py={1.5}>
+                    <Text color="fg.muted" fontSize="xs">
+                      {mappedIndex}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell overflow="hidden" px={2} py={1.5}>
+                    <Text fontSize="xs" truncate>
+                      {ti.task_id}
+                    </Text>
+                  </Table.Cell>
+                  <Table.Cell px={2} py={1.5}>
+                    <Text fontSize="xs">
+                      <Time
+                        datetime={detail.created_at}
+                        format={getHitlReviewListDateFormat(detail.created_at, false, selectedTimezone)}
+                      />
+                    </Text>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
       </Table.Body>
     </Table.Root>
   );
