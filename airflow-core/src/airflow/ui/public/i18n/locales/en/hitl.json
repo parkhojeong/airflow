@@ -26,21 +26,12 @@
   },
   "review": {
     "completedHitl": "Completed HITL",
-    "fields": {
-      "assignee": "Assignee",
-      "assignees": "Assignees",
-      "attempt": "Attempt",
-      "createdAt": "Created at",
-      "dagId": "Dag ID",
-      "dagRun": "Dag Run",
-      "dagRunId": "Dag Run ID",
-      "mapIndex": "Map index",
-      "taskId": "Task ID"
-    },
     "filter": {
       "all": "All",
       "pending": "Pending"
     },
+    "loadError": "Unable to load HITL actions",
+    "loadingActions": "Loading HITL actions...",
     "loadingResponseForm": "Loading response form...",
     "navigation": {
       "next": "Next",

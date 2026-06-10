@@ -55,7 +55,7 @@ const HITLReviewRow = ({ label, value }: { readonly label: string; readonly valu
 );
 
 export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetail }) => {
-  const { t: translate } = useTranslation("hitl");
+  const { t: translate } = useTranslation(["hitl", "common"]);
   const { selectedTimezone } = useTimezone();
   const ti = detail.task_instance;
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
@@ -63,12 +63,12 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
       <Table.Body>
-        <HITLReviewRow label={translate("review.fields.dagId")} value={<Text truncate>{ti.dag_id}</Text>} />
-        <HITLReviewRow label={translate("review.fields.dagRunId")} value={<Text>{ti.dag_run_id}</Text>} />
-        <HITLReviewRow label={translate("review.fields.mapIndex")} value={<Text>{mappedIndex}</Text>} />
-        <HITLReviewRow label={translate("review.fields.taskId")} value={<Text truncate>{ti.task_id}</Text>} />
+        <HITLReviewRow label={translate("common:dagId")} value={<Text truncate>{ti.dag_id}</Text>} />
+        <HITLReviewRow label={translate("common:dagRunId")} value={<Text>{ti.dag_run_id}</Text>} />
+        <HITLReviewRow label={translate("common:mapIndex")} value={<Text>{mappedIndex}</Text>} />
+        <HITLReviewRow label={translate("common:taskId")} value={<Text truncate>{ti.task_id}</Text>} />
         <HITLReviewRow
-          label={translate("review.fields.createdAt")}
+          label={translate("common:table.createdAt")}
           value={
             <Text>
               <Time
@@ -79,7 +79,7 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
             </Text>
           }
         />
-        <HITLReviewRow label={translate("review.fields.attempt")} value={<Text>{ti.try_number}</Text>} />
+        <HITLReviewRow label={translate("common:tryNumber")} value={<Text>{ti.try_number}</Text>} />
       </Table.Body>
     </Table.Root>
   );

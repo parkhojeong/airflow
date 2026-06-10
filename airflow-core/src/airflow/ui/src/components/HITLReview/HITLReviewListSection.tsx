@@ -17,13 +17,11 @@
  * under the License.
  */
 import { Heading, Text, VStack } from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 
 import { HITLReviewList } from "./HITLReviewList.tsx";
-
-const LOAD_HITL_ERROR_LABEL = "Unable to load HITL actions";
-const LOADING_HITL_LABEL = "Loading HITL actions...";
 
 export const HITLReviewListSection = ({
   details,
@@ -39,33 +37,37 @@ export const HITLReviewListSection = ({
   readonly isLoading?: boolean;
   readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
-}) => (
-  <VStack alignItems="stretch" gap={2} minW={0} width="100%">
-    <Heading px={2} size="sm">
-      {heading}
-    </Heading>
-    <VStack
-      alignItems="stretch"
-      bg="bg"
-      borderColor="border"
-      borderRadius="md"
-      borderWidth={1}
-      gap={0}
-      minW={0}
-      overflow="hidden"
-      width="100%"
-    >
-      {isLoading ? (
-        <Text color="fg.error" fontSize="sm" px={3} py={2}>
-          {LOADING_HITL_LABEL}
-        </Text>
-      ) : isError ? (
-        <Text color="fg.error" fontSize="sm" px={3} py={2}>
-          {LOAD_HITL_ERROR_LABEL}
-        </Text>
-      ) : (
-        <HITLReviewList details={details ?? []} onSelect={onSelect} selectedKey={selectedKey} />
-      )}
+}) => {
+  const { t: translate } = useTranslation("hitl");
+
+  return (
+    <VStack alignItems="stretch" gap={2} minW={0} width="100%">
+      <Heading px={2} size="sm">
+        {heading}
+      </Heading>
+      <VStack
+        alignItems="stretch"
+        bg="bg"
+        borderColor="border"
+        borderRadius="md"
+        borderWidth={1}
+        gap={0}
+        minW={0}
+        overflow="hidden"
+        width="100%"
+      >
+        {isLoading ? (
+          <Text color="fg.muted" fontSize="sm" px={3} py={2}>
+            {translate("review.loadingActions")}
+          </Text>
+        ) : isError ? (
+          <Text color="fg.error" fontSize="sm" px={3} py={2}>
+            {translate("review.loadError")}
+          </Text>
+        ) : (
+          <HITLReviewList details={details ?? []} onSelect={onSelect} selectedKey={selectedKey} />
+        )}
+      </VStack>
     </VStack>
-  </VStack>
-);
+  );
+};

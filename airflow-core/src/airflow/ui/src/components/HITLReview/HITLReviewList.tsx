@@ -73,18 +73,18 @@ export const HITLReviewList = ({
   readonly onSelect: (selection: HITLDetail) => void;
   readonly selectedKey?: string;
 }) => {
-  const { t: translate } = useTranslation("hitl");
+  const { t: translate } = useTranslation(["hitl", "common"]);
   const { selectedTimezone } = useTimezone();
 
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
       <Table.Header>
         <Table.Row>
-          <TableColumnHeader width="30%">{translate("review.fields.dagId")}</TableColumnHeader>
-          <TableColumnHeader width="76px">{translate("review.fields.dagRun")}</TableColumnHeader>
-          <TableColumnHeader width="76px">{translate("review.fields.mapIndex")}</TableColumnHeader>
-          <TableColumnHeader>{translate("review.fields.taskId")}</TableColumnHeader>
-          <TableColumnHeader width="88px">{translate("review.fields.createdAt")}</TableColumnHeader>
+          <TableColumnHeader width="30%">{translate("common:dagId")}</TableColumnHeader>
+          <TableColumnHeader width="76px">{translate("common:dagRun_one")}</TableColumnHeader>
+          <TableColumnHeader width="76px">{translate("common:mapIndex")}</TableColumnHeader>
+          <TableColumnHeader>{translate("common:taskId")}</TableColumnHeader>
+          <TableColumnHeader width="88px">{translate("common:table.createdAt")}</TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
