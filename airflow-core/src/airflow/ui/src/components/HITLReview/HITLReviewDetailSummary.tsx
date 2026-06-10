@@ -65,7 +65,7 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
       <Table.Body>
         <HITLReviewRow label={translate("common:dagId")} value={<Text truncate>{ti.dag_id}</Text>} />
         <HITLReviewRow label={translate("common:dagRunId")} value={<Text>{ti.dag_run_id}</Text>} />
-        <HITLReviewRow label={translate("common:mapIndex")} value={<Text>{mappedIndex}</Text>} />
+        <HITLReviewRow label={translate("common:mapIndex")} value={<Text>{mappedIndex ?? "-"}</Text>} />
         <HITLReviewRow label={translate("common:taskId")} value={<Text truncate>{ti.task_id}</Text>} />
         <HITLReviewRow
           label={translate("common:table.createdAt")}

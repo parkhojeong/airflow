@@ -107,7 +107,6 @@ const NeedsReviewButtonCard = ({
         isLoading={isLoading}
         isRTL={isRTL}
         label={translate("requiredAction_other")}
-        link="required_actions?response_received=false"
         onClick={onClick}
       />
     </Box>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Heading, Text, VStack } from "@chakra-ui/react";
+import { Box, Heading, Text, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
@@ -65,7 +65,9 @@ export const HITLReviewListSection = ({
             {translate("review.loadError")}
           </Text>
         ) : (
-          <HITLReviewList details={details ?? []} onSelect={onSelect} selectedKey={selectedKey} />
+          <Box overflowX="auto" width="100%">
+            <HITLReviewList details={details ?? []} onSelect={onSelect} selectedKey={selectedKey} />
+          </Box>
         )}
       </VStack>
     </VStack>

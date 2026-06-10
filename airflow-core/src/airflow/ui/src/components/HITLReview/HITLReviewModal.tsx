@@ -77,13 +77,7 @@ export const HITLReviewModal = ({
       scrollBehavior="inside"
       size="xl"
     >
-      <Dialog.Content
-        backdrop
-        height={{ base: "92vh", lg: "960px" }}
-        maxW="1440px"
-        p={4}
-        width={{ base: "96vw", lg: "90vw" }}
-      >
+      <Dialog.Content backdrop maxW="1440px" p={4}>
         <Dialog.Header>
           <HStack justifyContent="space-between" pr={8} width="100%">
             <Heading flexShrink={0} size="md">
@@ -127,15 +121,14 @@ export const HITLReviewModal = ({
             width="100%"
           >
             <Box
-              flexShrink={0}
-              height={{ base: "42%", lg: "100%" }}
+              flex={{ base: 1, lg: 2 }}
+              minW={0}
               overflowX="hidden"
               overflowY="auto"
               pl={2}
               position="relative"
-              pr={{ base: 2, lg: 8 }}
+              pr={{ base: 2, lg: 4 }}
               py={2}
-              width={{ base: "100%", lg: "770px", xl: "836px" }}
               zIndex={2}
             >
               <VStack alignItems="stretch" gap={4} width="100%">
@@ -161,7 +154,6 @@ export const HITLReviewModal = ({
               borderRadius="md"
               borderWidth={1}
               flex={1}
-              height={{ base: "58%", lg: "100%" }}
               minW={0}
               overflowY="auto"
               p={3}

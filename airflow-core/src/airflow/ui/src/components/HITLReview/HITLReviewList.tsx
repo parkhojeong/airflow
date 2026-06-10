@@ -43,7 +43,7 @@ const TableColumnHeader = ({ children, width }: { readonly children: string; rea
   </Table.ColumnHeader>
 );
 
-const HITL_GROUP_COLORS = ["green.500", "purple.500"] as const;
+const HITL_GROUP_COLORS = ["green.solid", "purple.solid"] as const;
 
 const getHitlGroupColor = (details: Array<HITLDetail>, index: number) => {
   let groupIndex = 0;
@@ -77,7 +77,7 @@ export const HITLReviewList = ({
   const { selectedTimezone } = useTimezone();
 
   return (
-    <Table.Root size="sm" tableLayout="fixed" width="100%">
+    <Table.Root minW="640px" size="sm" tableLayout="fixed" width="100%">
       <Table.Header>
         <Table.Row>
           <TableColumnHeader width="30%">{translate("common:dagId")}</TableColumnHeader>
