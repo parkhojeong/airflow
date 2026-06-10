@@ -61,9 +61,22 @@ export const HITLReviewModal = ({
       hitlDetails: visibleHitls,
       open,
     });
+  const handleClose = () => {
+    setSelectedFilter("pending");
+    onClose();
+  };
 
   return (
-    <Dialog.Root onOpenChange={onClose} open={open} scrollBehavior="inside" size="xl">
+    <Dialog.Root
+      onOpenChange={(event) => {
+        if (!event.open) {
+          handleClose();
+        }
+      }}
+      open={open}
+      scrollBehavior="inside"
+      size="xl"
+    >
       <Dialog.Content
         backdrop
         height={{ base: "92vh", lg: "960px" }}
@@ -155,7 +168,7 @@ export const HITLReviewModal = ({
               position="relative"
               zIndex={1}
             >
-              <HITLReviewDetail detail={selectedDetail} onNavigate={onClose} onResponded={onNext} />
+              <HITLReviewDetail detail={selectedDetail} onNavigate={handleClose} onResponded={onNext} />
             </Box>
           </HStack>
         </Dialog.Body>
