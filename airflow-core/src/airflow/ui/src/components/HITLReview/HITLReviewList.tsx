@@ -43,19 +43,26 @@ const TableColumnHeader = ({ children, width }: { readonly children: string; rea
   </Table.ColumnHeader>
 );
 
-const getHitlGroupIndices = (details: Array<HITLDetail>) =>
-  details.reduce<Array<number>>((indices, detail, index) => {
-    const previous = details[index - 1];
-    const previousGroupIndex = indices.at(-1) ?? 0;
+const HITL_GROUP_COLORS = ["green.500", "purple.500"] as const;
 
-    indices.push(
-      previous === undefined || detail.task_instance.dag_id === previous.task_instance.dag_id
-        ? previousGroupIndex
-        : previousGroupIndex + 1,
-    );
+const getHitlGroupColor = (details: Array<HITLDetail>, index: number) => {
+  let groupIndex = 0;
 
-    return indices;
-  }, []);
+  for (let currentIndex = 0; currentIndex <= index; currentIndex += 1) {
+    const detail = details[currentIndex];
+    const previous = details[currentIndex - 1];
+
+    if (
+      detail !== undefined &&
+      previous !== undefined &&
+      detail.task_instance.dag_id !== previous.task_instance.dag_id
+    ) {
+      groupIndex += 1;
+    }
+  }
+
+  return HITL_GROUP_COLORS[groupIndex % HITL_GROUP_COLORS.length] ?? HITL_GROUP_COLORS[0];
+};
 
 export const HITLReviewList = ({
   details,
@@ -68,7 +75,6 @@ export const HITLReviewList = ({
 }) => {
   const { t: translate } = useTranslation("hitl");
   const { selectedTimezone } = useTimezone();
-  const groupIndices = getHitlGroupIndices(details);
 
   return (
     <Table.Root size="sm" tableLayout="fixed" width="100%">
@@ -90,7 +96,6 @@ export const HITLReviewList = ({
               const ti = detail.task_instance;
               const mappedIndex =
                 ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
-              const groupColor = ["green.500", "purple.500"][(groupIndices[index] ?? 0) % 2];
 
               return (
                 <Table.Row
@@ -102,7 +107,7 @@ export const HITLReviewList = ({
                   onClick={() => onSelect(detail)}
                 >
                   <Table.Cell
-                    borderLeftColor={groupColor}
+                    borderLeftColor={getHitlGroupColor(details, index)}
                     borderLeftWidth={3}
                     overflow="hidden"
                     px={2}
