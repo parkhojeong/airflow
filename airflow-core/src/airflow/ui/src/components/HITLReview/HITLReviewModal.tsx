@@ -20,10 +20,11 @@ import { Box, Heading, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
-import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
+import { IconButton } from "src/components/ui";
 import { ButtonGroupToggle } from "src/components/ui/ButtonGroupToggle";
 import { Dialog } from "src/components/ui/Dialog";
 
@@ -89,12 +90,18 @@ export const HITLReviewModal = ({
                   value={selectedFilter}
                 />
               ) : undefined}
-              <HITLReviewNavigation
-                hasNext={hasNext}
-                hasPrevious={hasPrevious}
-                onNext={onNext}
-                onPrevious={onPrevious}
-              />
+              <HStack gap={1}>
+                <IconButton
+                  disabled={!hasPrevious}
+                  label={translate("review.navigation.previous")}
+                  onClick={onPrevious}
+                >
+                  <FiChevronLeft />
+                </IconButton>
+                <IconButton disabled={!hasNext} label={translate("review.navigation.next")} onClick={onNext}>
+                  <FiChevronRight />
+                </IconButton>
+              </HStack>
             </HStack>
           </HStack>
         </Dialog.Header>
