@@ -91,19 +91,16 @@ export const HITLReviewList = ({
         {details.length === 0
           ? null
           : details.map((detail, index) => {
-              const key = detail.task_instance.id;
-              const selected = selectedKey === key;
+              const isSelected = selectedKey === detail.task_instance.id;
               const ti = detail.task_instance;
-              const mappedIndex =
-                ti.rendered_map_index ?? (ti.map_index >= 0 ? String(ti.map_index) : undefined);
 
               return (
                 <Table.Row
-                  _hover={{ bg: selected ? "bg.muted" : "bg.subtle" }}
-                  aria-pressed={selected}
-                  bg={selected ? "bg.muted" : undefined}
+                  _hover={{ bg: isSelected ? "bg.muted" : "bg.subtle" }}
+                  aria-pressed={isSelected}
+                  bg={isSelected ? "bg.muted" : undefined}
                   cursor="pointer"
-                  key={key}
+                  key={detail.task_instance.id}
                   onClick={() => onSelect(detail)}
                 >
                   <Table.Cell
@@ -127,7 +124,7 @@ export const HITLReviewList = ({
                   </Table.Cell>
                   <Table.Cell px={2} py={1.5}>
                     <Text color="fg.muted" fontSize="xs">
-                      {mappedIndex}
+                      {ti.rendered_map_index ?? (ti.map_index === -1 ? undefined : String(ti.map_index))}
                     </Text>
                   </Table.Cell>
                   <Table.Cell overflow="hidden" px={2} py={1.5}>
