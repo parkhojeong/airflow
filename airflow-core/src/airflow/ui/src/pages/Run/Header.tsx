@@ -74,7 +74,7 @@ export const Header = ({ dagRun }: { readonly dagRun: DAGRunResponse }) => {
       <HeaderCard
         actions={
           <>
-            <NeedsReviewButtonWithModal dagId={dagId} runId={dagRunId} />
+            <NeedsReviewButtonWithModal dagId={dagId} runId={dagRunId} seeCompletedHitl />
             <EditableMarkdownButton
               header={translate("note.dagRun")}
               isPending={isPending}

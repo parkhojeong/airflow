@@ -21,7 +21,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import type { HITLDetailCollection } from "openapi/requests/types.gen.ts";
+import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
 import HITLReviewFilter, { HITLReviewFilterMode } from "src/components/HITLReview/HITLReviewFilter.tsx";
 import { HITLReviewNavigation } from "src/components/HITLReview/HITLReviewNavigation.tsx";
@@ -35,18 +35,17 @@ const getSectionLabel = (label: string, count?: number) =>
 
 export const HITLReviewModal = ({
   headerAction,
-  hitlData,
+  hitlDetails,
   onClose,
   open,
 }: {
   readonly headerAction?: ReactNode;
-  readonly hitlData?: HITLDetailCollection;
+  readonly hitlDetails: Array<HITLDetail>;
   readonly onClose: () => void;
   readonly open: boolean;
 }) => {
   const { t: translate } = useTranslation("hitl");
   const [selectedFilter, setSelectedFilter] = useState<HITLReviewFilterMode>(HITLReviewFilterMode.PENDING);
-  const hitlDetails = hitlData?.hitl_details ?? [];
   const completedHitlDetails = hitlDetails.filter((detail) => detail.response_received);
   const pendingHitlDetails = hitlDetails.filter((detail) => !detail.response_received);
   const enabledFilter = completedHitlDetails.length > 0;

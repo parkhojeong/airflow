@@ -22,7 +22,6 @@ import { LuUserRoundPen } from "react-icons/lu";
 import { Link } from "react-router-dom";
 
 import { useTaskInstanceServiceGetHitlDetails } from "openapi/queries";
-import type { HITLDetailCollection } from "openapi/requests/types.gen";
 import { HITLReviewModal } from "src/components/HITLReview/HITLReviewModal.tsx";
 import { useHITLReviewRouteModalSync } from "src/components/HITLReview/useHITLReviewModal";
 import { useAutoRefresh } from "src/utils/query";
@@ -86,20 +85,6 @@ const useCompletedHitl = ({
   return { completedHitlData };
 };
 
-const getCombinedHitlData = ({
-  completedHitlData,
-  pendingHitlData,
-}: {
-  readonly completedHitlData?: HITLDetailCollection;
-  readonly pendingHitlData?: HITLDetailCollection;
-}): HITLDetailCollection | undefined =>
-  pendingHitlData === undefined && completedHitlData === undefined
-    ? undefined
-    : {
-        hitl_details: [...(pendingHitlData?.hitl_details ?? []), ...(completedHitlData?.hitl_details ?? [])],
-        total_entries: (pendingHitlData?.total_entries ?? 0) + (completedHitlData?.total_entries ?? 0),
-      };
-
 const NeedsReviewButtonCard = ({
   hitlTIsCount,
   isLoading,
@@ -159,25 +144,22 @@ export const NeedsReviewButton = ({
 export const NeedsReviewButtonWithModal = ({
   dagId,
   runId,
+  seeCompletedHitl = false,
 }: {
   readonly dagId?: string;
   readonly runId?: string;
+  readonly seeCompletedHitl?: boolean;
 }) => {
   const { onClose, onOpen, open } = useDisclosure();
   const { onCloseHITLReview } = useHITLReviewRouteModalSync({
     onClose,
     onOpen,
   });
-  const shouldFetchCompletedHitl = dagId !== undefined && runId === undefined;
   const { isLoading, pendingHitlData } = usePendingHitl({ dagId, runId });
   const { completedHitlData } = useCompletedHitl({
     dagId,
-    enabled: open && shouldFetchCompletedHitl,
+    enabled: open && seeCompletedHitl,
     runId,
-  });
-  const hitlData = getCombinedHitlData({
-    completedHitlData: shouldFetchCompletedHitl ? completedHitlData : undefined,
-    pendingHitlData,
   });
   const hitlTIsCount = pendingHitlData?.hitl_details.length ?? 0;
 
@@ -188,7 +170,7 @@ export const NeedsReviewButtonWithModal = ({
         headerAction={
           dagId === undefined ? <ViewAllHITLReviewsButton onClick={onCloseHITLReview} /> : undefined
         }
-        hitlData={hitlData}
+        hitlDetails={[...(pendingHitlData?.hitl_details ?? []), ...(completedHitlData?.hitl_details ?? [])]}
         onClose={onCloseHITLReview}
         open={open}
       />
