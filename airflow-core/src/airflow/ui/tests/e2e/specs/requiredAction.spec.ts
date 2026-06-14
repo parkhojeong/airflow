@@ -60,14 +60,14 @@ test.describe("Verify Required Action page", () => {
   }) => {
     await requiredActionsPage.navigateToRequiredActionsPage();
 
-    const cell = requiredActionsPage.actionsTable
+    const row = requiredActionsPage.actionsTable
       .getByRole("row")
       .filter({ has: page.getByRole("cell", { name: "wait_for_input" }) })
       .first();
 
     // Row mouse clicks can hit nested task links, so use keyboard activation to exercise the row handler.
-    await cell.focus();
-    await cell.press("Enter");
+    await row.focus();
+    await row.press("Enter");
 
     await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });

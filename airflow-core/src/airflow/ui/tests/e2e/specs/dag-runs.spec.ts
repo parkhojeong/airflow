@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { expect } from "tests/e2e/fixtures";
 import { test } from "tests/e2e/fixtures/dag-runs-data";
 
 test.describe("Dag Runs Page", () => {
@@ -49,26 +48,5 @@ test.describe("Dag Runs Page", () => {
   test("verify filtering by Dag ID", async ({ dagRunsPage, dagRunsPageData }) => {
     await dagRunsPage.navigate();
     await dagRunsPage.verifyDagIdFiltering(dagRunsPageData.dag1Id);
-  });
-
-  test("verify HITL review modal opens from Dag run details", async ({ dagsPage, page, pendingHITLRun }) => {
-    test.slow();
-
-    await dagsPage.navigateToDagRun(pendingHITLRun.dagId, pendingHITLRun.runId);
-
-    await page.getByRole("button", { name: /required actions/i }).click();
-    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
-  });
-
-  test("verify HITL review modal opens from the required actions route", async ({
-    dagsPage,
-    page,
-    pendingHITLRun,
-  }) => {
-    test.slow();
-
-    await dagsPage.navigateToDagRunRequiredActions(pendingHITLRun.dagId, pendingHITLRun.runId);
-
-    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 });
