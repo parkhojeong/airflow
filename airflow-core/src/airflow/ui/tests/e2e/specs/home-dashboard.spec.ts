@@ -19,7 +19,8 @@
 import { testConfig } from "playwright.config";
 import { expect } from "tests/e2e/fixtures";
 import { test } from "tests/e2e/fixtures/dashboard-data";
-import { safeCleanupDagRun, setupPendingHITLFlowViaAPI } from "tests/e2e/utils/test-helpers";
+import { safeCleanupDagRun } from "tests/e2e/utils/api/dag-runs";
+import { setupPendingHITLFlowViaAPI } from "tests/e2e/utils/api/hitl";
 
 test.describe("Dashboard Metrics Display", () => {
   test("should display dashboard stats section with Dag metrics", async ({ homePage }) => {

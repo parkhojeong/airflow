@@ -19,7 +19,8 @@
 import { testConfig } from "playwright.config";
 import { expect } from "tests/e2e/fixtures";
 import { test } from "tests/e2e/fixtures/dag-runs-data";
-import { safeCleanupDagRun, setupPendingHITLFlowViaAPI } from "tests/e2e/utils/test-helpers";
+import { safeCleanupDagRun } from "tests/e2e/utils/api/dag-runs";
+import { setupPendingHITLFlowViaAPI } from "tests/e2e/utils/api/hitl";
 
 test.describe("Dag Runs Page", () => {
   test.setTimeout(60_000);

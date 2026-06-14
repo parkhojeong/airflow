@@ -18,7 +18,8 @@
  */
 import { testConfig } from "playwright.config";
 import { expect, test } from "tests/e2e/fixtures";
-import { safeCleanupDagRun, setupPendingHITLFlowViaAPI } from "tests/e2e/utils/test-helpers";
+import { safeCleanupDagRun } from "tests/e2e/utils/api/dag-runs";
+import { setupPendingHITLFlowViaAPI } from "tests/e2e/utils/api/hitl";
 
 test.describe("Dag Detail Page", () => {
   test("verify HITL review modal opens from Dag detail", async ({ authenticatedRequest, dagsPage, page }) => {
