@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Heading, HStack, VStack } from "@chakra-ui/react";
+import { Box, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -92,9 +92,7 @@ export const HITLReviewModal = ({
       <Dialog.Content backdrop maxW="1440px" p={4}>
         <Dialog.Header>
           <HStack justifyContent="space-between" pr={8} width="100%">
-            <Heading flexShrink={0} size="md">
-              {translate("requiredAction_other")}
-            </Heading>
+            <Dialog.Title>{translate("requiredAction_other")}</Dialog.Title>
             <HStack gap={2}>
               {headerAction}
               {shouldShowCompletedHitl ? (

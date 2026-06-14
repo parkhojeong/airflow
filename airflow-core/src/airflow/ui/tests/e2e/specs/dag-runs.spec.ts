@@ -16,7 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { testConfig } from "playwright.config";
+import { expect } from "tests/e2e/fixtures";
 import { test } from "tests/e2e/fixtures/dag-runs-data";
+import { safeCleanupDagRun, setupPendingHITLFlowViaAPI } from "tests/e2e/utils/test-helpers";
 
 test.describe("Dag Runs Page", () => {
   test.setTimeout(60_000);
@@ -48,5 +51,47 @@ test.describe("Dag Runs Page", () => {
   test("verify filtering by Dag ID", async ({ dagRunsPage, dagRunsPageData }) => {
     await dagRunsPage.navigate();
     await dagRunsPage.verifyDagIdFiltering(dagRunsPageData.dag1Id);
+  });
+
+  test("verify HITL review modal opens from Dag run details", async ({ authenticatedRequest, page }) => {
+    test.slow();
+
+    const hitlDagId = testConfig.testDag.hitlId;
+    let dagRunId: string | undefined;
+
+    try {
+      dagRunId = await setupPendingHITLFlowViaAPI(authenticatedRequest, hitlDagId);
+
+      await page.goto(`/dags/${hitlDagId}/runs/${dagRunId}`);
+
+      await page.getByRole("button", { name: /required actions/i }).click();
+      await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
+    } finally {
+      if (dagRunId !== undefined) {
+        await safeCleanupDagRun(authenticatedRequest, hitlDagId, dagRunId);
+      }
+    }
+  });
+
+  test("verify HITL review modal opens from the required actions route", async ({
+    authenticatedRequest,
+    page,
+  }) => {
+    test.slow();
+
+    const hitlDagId = testConfig.testDag.hitlId;
+    let dagRunId: string | undefined;
+
+    try {
+      dagRunId = await setupPendingHITLFlowViaAPI(authenticatedRequest, hitlDagId);
+
+      await page.goto(`/dags/${hitlDagId}/runs/${dagRunId}/required_actions`);
+
+      await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
+    } finally {
+      if (dagRunId !== undefined) {
+        await safeCleanupDagRun(authenticatedRequest, hitlDagId, dagRunId);
+      }
+    }
   });
 });

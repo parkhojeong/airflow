@@ -343,6 +343,31 @@ export async function apiRespondToHITL(
 }
 
 /**
+ * Trigger the example HITL Dag and stop once a pending review action exists.
+ */
+export async function setupPendingHITLFlowViaAPI(source: RequestLike, dagId: string): Promise<string> {
+  const request = getRequestContext(source);
+
+  await waitForDagReady(request, dagId);
+  const response = await request.patch(`${baseUrl}/api/v2/dags/${dagId}`, { data: { is_paused: false } });
+
+  if (!response.ok()) {
+    throw new Error(`HITL response failed (${response.status()})`);
+  }
+
+  const { dagRunId } = await apiTriggerDagRun(request, dagId);
+
+  await waitForTaskInstanceState(request, {
+    dagId,
+    expectedState: "awaiting_input",
+    runId: dagRunId,
+    taskId: "wait_for_input",
+  });
+
+  return dagRunId;
+}
+
+/**
  * Run the full HITL flow entirely via API — no browser needed.
  *
  * The example_hitl_operator Dag has 4 parallel HITL tasks, then an approval

@@ -41,7 +41,7 @@ test.describe("Verify Required Action page", () => {
     }
   });
 
-  test("Verify the actions table displays with expected columns", async ({ page, requiredActionsPage }) => {
+  test("verify the actions table displays with expected columns", async ({ page, requiredActionsPage }) => {
     await requiredActionsPage.navigateToRequiredActionsPage();
 
     await expect(requiredActionsPage.actionsTable).toBeVisible();
@@ -51,5 +51,23 @@ test.describe("Verify Required Action page", () => {
     await expect(page.locator("th").filter({ hasText: "Dag Run ID" })).toBeVisible();
     await expect(page.locator("th").filter({ hasText: "Response created at" })).toBeVisible();
     await expect(page.locator("th").filter({ hasText: "Response received at" })).toBeVisible();
+  });
+
+  test("verify HITL Review drawer opens from keyboard row activation", async ({
+    page,
+    requiredActionsPage,
+  }) => {
+    await requiredActionsPage.navigateToRequiredActionsPage();
+
+    const cell = requiredActionsPage.actionsTable
+      .getByRole("row")
+      .filter({ has: page.getByRole("cell", { name: "wait_for_input" }) })
+      .first();
+
+    // Row mouse clicks can hit nested task links, so use keyboard activation to exercise the row handler.
+    await cell.focus();
+    await cell.press("Enter");
+
+    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 });

@@ -74,6 +74,12 @@ const renderModal = ({ withCompleted = false }: { readonly withCompleted?: boole
   );
 
 describe("HITLReviewModal", () => {
+  it("renders the required actions dialog", () => {
+    renderModal();
+
+    expect(screen.getByRole("dialog", { name: "requiredAction_other" })).toBeInTheDocument();
+  });
+
   it("does not render the completed filter when completed HITL data is not provided", () => {
     renderModal();
 
