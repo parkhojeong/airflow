@@ -45,7 +45,13 @@ export const DagCard = ({ dag }: Props) => {
   const refetchInterval = useAutoRefresh({});
 
   return (
-    <Box borderColor="border.emphasized" borderRadius={8} borderWidth={1} overflow="hidden">
+    <Box
+      borderColor="border.emphasized"
+      borderRadius={8}
+      borderWidth={1}
+      data-testid="dag-card"
+      overflow="hidden"
+    >
       <Flex alignItems="center" bg="bg.muted" justifyContent="space-between" px={3} py={1}>
         <HStack>
           <Tooltip content={dag.description} disabled={!Boolean(dag.description)}>

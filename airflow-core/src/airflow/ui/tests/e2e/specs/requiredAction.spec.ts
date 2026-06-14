@@ -54,21 +54,50 @@ test.describe("Verify Required Action page", () => {
     await expect(page.locator("th").filter({ hasText: "Response received at" })).toBeVisible();
   });
 
-  test("verify HITL Review drawer opens from keyboard row activation", async ({
+  test("verify HITL Review drawer opens from clicking a non-link row cell", async ({
     page,
+    pendingHITLRun,
     requiredActionsPage,
   }) => {
     await requiredActionsPage.navigateToRequiredActionsPage();
 
     const row = requiredActionsPage.actionsTable
       .getByRole("row")
+      .filter({ has: page.getByRole("cell", { name: pendingHITLRun.runId }) })
       .filter({ has: page.getByRole("cell", { name: "wait_for_input" }) })
       .first();
 
-    // Row mouse clicks can hit nested task links, so use keyboard activation to exercise the row handler.
+    const stateCell = row.getByTestId("table-cell-task_instance_state");
+
+    await expect(stateCell).toBeVisible({ timeout: 30_000 });
+    await stateCell.click();
+
+    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible({ timeout: 30_000 });
+    await expect(requiredActionsPage.hitlReviewDrawer).toContainText(pendingHITLRun.dagId, {
+      timeout: 30_000,
+    });
+  });
+
+  test("verify HITL Review drawer opens from keyboard row activation", async ({
+    page,
+    pendingHITLRun,
+    requiredActionsPage,
+  }) => {
+    await requiredActionsPage.navigateToRequiredActionsPage();
+
+    const row = requiredActionsPage.actionsTable
+      .getByRole("row")
+      .filter({ has: page.getByRole("cell", { name: pendingHITLRun.runId }) })
+      .filter({ has: page.getByRole("cell", { name: "wait_for_input" }) })
+      .first();
+
+    await expect(row).toBeVisible({ timeout: 30_000 });
     await row.focus();
     await row.press("Enter");
 
-    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible();
+    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible({ timeout: 30_000 });
+    await expect(requiredActionsPage.hitlReviewDrawer).toContainText(pendingHITLRun.dagId, {
+      timeout: 30_000,
+    });
   });
 });

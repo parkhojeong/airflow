@@ -76,15 +76,19 @@ test.describe("Dashboard Metrics Display", () => {
 
   test("verify HITL review modal opens from the Required Actions button", async ({
     homePage,
-    pendingHITLRun: _pendingHITLRun,
+    pendingHITLRun,
   }) => {
     test.slow();
 
     await homePage.navigate();
     await homePage.waitForDashboardLoad();
 
+    await expect(homePage.requiredActionsButton).toBeVisible({ timeout: 30_000 });
     await homePage.requiredActionsButton.click();
-    await expect(homePage.hitlReviewModal).toBeVisible();
+    await expect(homePage.hitlReviewModal).toBeVisible({ timeout: 30_000 });
+    await expect(homePage.hitlReviewModal).toContainText(pendingHITLRun.dagId, {
+      timeout: 30_000,
+    });
   });
 
   test("should update metrics when Dag is triggered", async ({ dagRunCleanup, dagsPage, homePage }) => {
