@@ -51,19 +51,23 @@ test.describe("Dag Runs Page", () => {
     await dagRunsPage.verifyDagIdFiltering(dagRunsPageData.dag1Id);
   });
 
-  test("verify HITL review modal opens from Dag run details", async ({ page, pendingHITLRun }) => {
+  test("verify HITL review modal opens from Dag run details", async ({ dagsPage, page, pendingHITLRun }) => {
     test.slow();
 
-    await page.goto(`/dags/${pendingHITLRun.dagId}/runs/${pendingHITLRun.runId}`);
+    await dagsPage.navigateToDagRun(pendingHITLRun.dagId, pendingHITLRun.runId);
 
     await page.getByRole("button", { name: /required actions/i }).click();
     await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 
-  test("verify HITL review modal opens from the required actions route", async ({ page, pendingHITLRun }) => {
+  test("verify HITL review modal opens from the required actions route", async ({
+    dagsPage,
+    page,
+    pendingHITLRun,
+  }) => {
     test.slow();
 
-    await page.goto(`/dags/${pendingHITLRun.dagId}/runs/${pendingHITLRun.runId}/required_actions`);
+    await dagsPage.navigateToDagRunRequiredActions(pendingHITLRun.dagId, pendingHITLRun.runId);
 
     await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });

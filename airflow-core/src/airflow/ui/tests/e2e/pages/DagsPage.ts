@@ -69,12 +69,24 @@ export class DagsPage extends BasePage {
     this.needsReviewFilter = page.getByTestId("dags-needs-review-filter");
   }
 
+  public static getDagDetailRequiredActionsUrl(dagName: string): string {
+    return `/dags/${dagName}/required_actions`;
+  }
+
   public static getDagDetailUrl(dagName: string): string {
     return `/dags/${dagName}`;
   }
 
   public static getDagRunDetailsUrl(dagName: string, dagRunId: string): string {
     return `/dags/${dagName}/runs/${dagRunId}/details`;
+  }
+
+  public static getDagRunRequiredActionsUrl(dagName: string, dagRunId: string): string {
+    return `/dags/${dagName}/runs/${dagRunId}/required_actions`;
+  }
+
+  public static getDagRunUrl(dagName: string, dagRunId: string): string {
+    return `/dags/${dagName}/runs/${dagRunId}`;
   }
 
   /**
@@ -279,6 +291,10 @@ export class DagsPage extends BasePage {
     }).toPass({ intervals: [2000], timeout: 60_000 });
   }
 
+  public async navigateToDagDetailRequiredActions(dagName: string): Promise<void> {
+    await this.navigateTo(DagsPage.getDagDetailRequiredActionsUrl(dagName));
+  }
+
   /**
    * Navigate to details tab and wait for heading to appear
    */
@@ -287,6 +303,14 @@ export class DagsPage extends BasePage {
       await this.page.goto(`/dags/${dagName}/details`, { waitUntil: "domcontentloaded" });
       await expect(this.page.getByRole("heading", { name: dagName })).toBeVisible({ timeout: 30_000 });
     }).toPass({ intervals: [2000], timeout: 60_000 });
+  }
+
+  public async navigateToDagRun(dagName: string, dagRunId: string): Promise<void> {
+    await this.navigateTo(DagsPage.getDagRunUrl(dagName, dagRunId));
+  }
+
+  public async navigateToDagRunRequiredActions(dagName: string, dagRunId: string): Promise<void> {
+    await this.navigateTo(DagsPage.getDagRunRequiredActionsUrl(dagName, dagRunId));
   }
 
   public async navigateToDagTasks(dagId: string): Promise<void> {

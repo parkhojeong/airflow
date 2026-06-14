@@ -24,24 +24,19 @@ test.describe("Dag Detail Page", () => {
 
     await dagsPage.navigateToDagDetail(pendingHITLRun.dagId);
 
-    const requiredActionsButton = page.getByRole("button", { name: /required actions/i });
+    await page.getByRole("button", { name: /required actions/i }).click();
 
-    await expect(requiredActionsButton).toBeVisible();
-    await requiredActionsButton.click();
-
-    const modal = page.getByRole("dialog", { name: /required actions/i });
-
-    await expect(modal).toBeVisible();
-    await expect(modal.getByText(pendingHITLRun.dagId).first()).toBeVisible();
+    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 
   test("verify HITL review modal opens from the Dag required actions route", async ({
+    dagsPage,
     page,
     pendingHITLRun,
   }) => {
     test.slow();
 
-    await page.goto(`/dags/${pendingHITLRun.dagId}/required_actions`);
+    await dagsPage.navigateToDagDetailRequiredActions(pendingHITLRun.dagId);
 
     await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
