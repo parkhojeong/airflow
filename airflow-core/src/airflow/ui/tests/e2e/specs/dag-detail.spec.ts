@@ -24,9 +24,9 @@ test.describe("Dag Detail Page", () => {
 
     await dagsPage.navigateToDagDetail(pendingHITLRun.dagId);
 
-    await page.getByRole("button", { name: /required actions/i }).click();
+    await page.getByRole("button", { name: "Required Actions" }).click();
 
-    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
   });
 
   test("verify HITL review modal opens from the Dag required actions route", async ({
@@ -38,6 +38,6 @@ test.describe("Dag Detail Page", () => {
 
     await dagsPage.navigateToDagDetailRequiredActions(pendingHITLRun.dagId);
 
-    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
+    await expect(page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
   });
 });
