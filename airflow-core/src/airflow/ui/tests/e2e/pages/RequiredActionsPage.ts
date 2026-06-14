@@ -25,6 +25,7 @@ import { BasePage } from "./BasePage";
 export class RequiredActionsPage extends BasePage {
   public readonly actionsTable: Locator;
   public readonly emptyStateMessage: Locator;
+  public readonly hitlReviewDrawer: Locator;
   public readonly pageHeading: Locator;
 
   // Standalone API context — page.request degrades after many navigations in WebKit.
@@ -36,6 +37,7 @@ export class RequiredActionsPage extends BasePage {
     this.pageHeading = page.getByRole("heading").filter({ hasText: /required action/i });
     this.actionsTable = page.getByTestId("table-list");
     this.emptyStateMessage = page.getByText(/no required actions found/i);
+    this.hitlReviewDrawer = page.getByRole("dialog", { name: "Required Actions" });
   }
 
   public static getRequiredActionsUrl(): string {

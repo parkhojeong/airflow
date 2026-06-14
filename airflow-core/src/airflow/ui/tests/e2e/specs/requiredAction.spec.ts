@@ -69,6 +69,6 @@ test.describe("Verify Required Action page", () => {
     await row.focus();
     await row.press("Enter");
 
-    await expect(page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
+    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible();
   });
 });

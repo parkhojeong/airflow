@@ -83,8 +83,8 @@ test.describe("Dashboard Metrics Display", () => {
     await homePage.navigate();
     await homePage.waitForDashboardLoad();
 
-    await homePage.page.getByRole("button", { name: "Required Actions" }).click();
-    await expect(homePage.page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
+    await homePage.requiredActionsButton.click();
+    await expect(homePage.hitlReviewModal).toBeVisible();
   });
 
   test("should update metrics when Dag is triggered", async ({ dagRunCleanup, dagsPage, homePage }) => {

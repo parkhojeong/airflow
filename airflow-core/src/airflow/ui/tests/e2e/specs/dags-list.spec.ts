@@ -100,20 +100,17 @@ test.describe("Dags List Display", () => {
     await expect(dagsPage.getDagLink(testDagId)).toBeVisible();
   });
 
-  test("verify HITL review modal opens from the needs review badge", async ({
-    dagsPage,
-    page,
-    pendingHITLRun: _pendingHITLRun,
-  }) => {
+  test("verify HITL review modal opens from the needs review badge", async ({ dagsPage, pendingHITLRun }) => {
     test.slow();
 
     await dagsPage.navigate();
     await dagsPage.waitForDagList();
 
-    await page.getByRole("button", { name: "Required Actions" }).click();
+    await dagsPage.needsReviewFilter.click();
 
-    await page.getByTestId("needs-review-badge").click();
-    await expect(page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
+    await expect(dagsPage.getDagLink(pendingHITLRun.dagId)).toBeVisible();
+    await dagsPage.needsReviewBadges.first().click();
+    await expect(dagsPage.hitlReviewModal).toBeVisible();
   });
 });
 

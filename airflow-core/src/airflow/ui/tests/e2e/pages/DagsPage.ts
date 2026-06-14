@@ -32,6 +32,8 @@ export class DagsPage extends BasePage {
   public readonly cardViewButton: Locator;
   public readonly confirmButton: Locator;
   public readonly failedFilter: Locator;
+  public readonly hitlReviewModal: Locator;
+  public readonly needsReviewBadges: Locator;
   public readonly needsReviewFilter: Locator;
   public readonly operatorFilter: Locator;
   public readonly queuedFilter: Locator;
@@ -63,14 +65,12 @@ export class DagsPage extends BasePage {
     this.tableViewButton = page.getByRole("button", { name: "Show table view" });
     this.successFilter = page.getByRole("button", { name: "Success" });
     this.failedFilter = page.getByRole("button", { name: "Failed" });
+    this.hitlReviewModal = page.getByRole("dialog", { name: "Required Actions" });
+    this.needsReviewBadges = page.getByTestId("needs-review-badge");
     this.runningFilter = page.getByRole("button", { name: "Running" });
     this.queuedFilter = page.getByRole("button", { name: "Queued" });
     // Uses testId because this button's text is driven by an i18n key.
     this.needsReviewFilter = page.getByTestId("dags-needs-review-filter");
-  }
-
-  public static getDagDetailRequiredActionsUrl(dagName: string): string {
-    return `/dags/${dagName}/required_actions`;
   }
 
   public static getDagDetailUrl(dagName: string): string {
@@ -79,14 +79,6 @@ export class DagsPage extends BasePage {
 
   public static getDagRunDetailsUrl(dagName: string, dagRunId: string): string {
     return `/dags/${dagName}/runs/${dagRunId}/details`;
-  }
-
-  public static getDagRunRequiredActionsUrl(dagName: string, dagRunId: string): string {
-    return `/dags/${dagName}/runs/${dagRunId}/required_actions`;
-  }
-
-  public static getDagRunUrl(dagName: string, dagRunId: string): string {
-    return `/dags/${dagName}/runs/${dagRunId}`;
   }
 
   /**
@@ -291,10 +283,6 @@ export class DagsPage extends BasePage {
     }).toPass({ intervals: [2000], timeout: 60_000 });
   }
 
-  public async navigateToDagDetailRequiredActions(dagName: string): Promise<void> {
-    await this.navigateTo(DagsPage.getDagDetailRequiredActionsUrl(dagName));
-  }
-
   /**
    * Navigate to details tab and wait for heading to appear
    */
@@ -303,14 +291,6 @@ export class DagsPage extends BasePage {
       await this.page.goto(`/dags/${dagName}/details`, { waitUntil: "domcontentloaded" });
       await expect(this.page.getByRole("heading", { name: dagName })).toBeVisible({ timeout: 30_000 });
     }).toPass({ intervals: [2000], timeout: 60_000 });
-  }
-
-  public async navigateToDagRun(dagName: string, dagRunId: string): Promise<void> {
-    await this.navigateTo(DagsPage.getDagRunUrl(dagName, dagRunId));
-  }
-
-  public async navigateToDagRunRequiredActions(dagName: string, dagRunId: string): Promise<void> {
-    await this.navigateTo(DagsPage.getDagRunRequiredActionsUrl(dagName, dagRunId));
   }
 
   public async navigateToDagTasks(dagId: string): Promise<void> {

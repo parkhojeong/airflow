@@ -19,24 +19,23 @@
 import { expect, test } from "tests/e2e/fixtures";
 
 test.describe("Dag Run Page", () => {
-  test("verify HITL review modal opens from Dag run details", async ({ dagsPage, page, pendingHITLRun }) => {
+  test("verify HITL review modal opens from Dag run details", async ({ dagRunPage, pendingHITLRun }) => {
     test.slow();
 
-    await dagsPage.navigateToDagRun(pendingHITLRun.dagId, pendingHITLRun.runId);
+    await dagRunPage.navigateToDagRun(pendingHITLRun.dagId, pendingHITLRun.runId);
 
-    await page.getByRole("button", { name: "Required Actions" }).click();
-    await expect(page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
+    await dagRunPage.requiredActionsButton.click();
+    await expect(dagRunPage.hitlReviewModal).toBeVisible();
   });
 
   test("verify HITL review modal opens from the required actions route", async ({
-    dagsPage,
-    page,
+    dagRunPage,
     pendingHITLRun,
   }) => {
     test.slow();
 
-    await dagsPage.navigateToDagRunRequiredActions(pendingHITLRun.dagId, pendingHITLRun.runId);
+    await dagRunPage.navigateToDagRunRequiredActions(pendingHITLRun.dagId, pendingHITLRun.runId);
 
-    await expect(page.getByRole("dialog", { name: "Required Actions" })).toBeVisible();
+    await expect(dagRunPage.hitlReviewModal).toBeVisible();
   });
 });
