@@ -18,8 +18,7 @@
  */
 import { testConfig } from "playwright.config";
 import { expect, test } from "tests/e2e/fixtures";
-import { apiDeleteDagRun, safeCleanupDagRun, waitForDagRunStatus } from "tests/e2e/utils/api/dag-runs";
-import { setupPendingHITLFlowViaAPI } from "tests/e2e/utils/api/hitl";
+import { apiDeleteDagRun, waitForDagRunStatus } from "tests/e2e/utils/api/dag-runs";
 
 test.describe("Dag Trigger Workflow", () => {
   const testDagId = testConfig.testDag.id;
@@ -102,30 +101,19 @@ test.describe("Dags List Display", () => {
   });
 
   test("verify HITL review modal opens from the needs review badge", async ({
-    authenticatedRequest,
     dagsPage,
     page,
+    pendingHITLRun: _pendingHITLRun,
   }) => {
     test.slow();
 
-    const hitlDagId = testConfig.testDag.hitlId;
-    let dagRunId: string | undefined;
+    await dagsPage.navigate();
+    await dagsPage.waitForDagList();
 
-    try {
-      dagRunId = await setupPendingHITLFlowViaAPI(authenticatedRequest, hitlDagId);
+    await page.getByRole("button", { name: "Required Actions" }).click();
 
-      await dagsPage.navigate();
-      await dagsPage.waitForDagList();
-
-      await page.getByRole("button", { name: "Required Actions" }).click();
-
-      await page.getByTestId("needs-review-badge").click();
-      await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
-    } finally {
-      if (dagRunId !== undefined) {
-        await safeCleanupDagRun(authenticatedRequest, hitlDagId, dagRunId);
-      }
-    }
+    await page.getByTestId("needs-review-badge").click();
+    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 });
 

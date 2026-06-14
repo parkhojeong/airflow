@@ -16,58 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { testConfig } from "playwright.config";
 import { expect, test } from "tests/e2e/fixtures";
-import { safeCleanupDagRun } from "tests/e2e/utils/api/dag-runs";
-import { setupPendingHITLFlowViaAPI } from "tests/e2e/utils/api/hitl";
 
 test.describe("Dag Detail Page", () => {
-  test("verify HITL review modal opens from Dag detail", async ({ authenticatedRequest, dagsPage, page }) => {
+  test("verify HITL review modal opens from Dag detail", async ({ dagsPage, page, pendingHITLRun }) => {
     test.slow();
 
-    const hitlDagId = testConfig.testDag.hitlId;
-    let dagRunId: string | undefined;
+    await dagsPage.navigateToDagDetail(pendingHITLRun.dagId);
 
-    try {
-      dagRunId = await setupPendingHITLFlowViaAPI(authenticatedRequest, hitlDagId);
+    const requiredActionsButton = page.getByRole("button", { name: /required actions/i });
 
-      await dagsPage.navigateToDagDetail(hitlDagId);
+    await expect(requiredActionsButton).toBeVisible();
+    await requiredActionsButton.click();
 
-      const requiredActionsButton = page.getByRole("button", { name: /required actions/i });
+    const modal = page.getByRole("dialog", { name: /required actions/i });
 
-      await expect(requiredActionsButton).toBeVisible();
-      await requiredActionsButton.click();
-
-      const modal = page.getByRole("dialog", { name: /required actions/i });
-
-      await expect(modal).toBeVisible();
-      await expect(modal.getByText(hitlDagId).first()).toBeVisible();
-    } finally {
-      if (dagRunId !== undefined) {
-        await safeCleanupDagRun(authenticatedRequest, hitlDagId, dagRunId);
-      }
-    }
+    await expect(modal).toBeVisible();
+    await expect(modal.getByText(pendingHITLRun.dagId).first()).toBeVisible();
   });
 
   test("verify HITL review modal opens from the Dag required actions route", async ({
-    authenticatedRequest,
     page,
+    pendingHITLRun,
   }) => {
     test.slow();
 
-    const hitlDagId = testConfig.testDag.hitlId;
-    let dagRunId: string | undefined;
+    await page.goto(`/dags/${pendingHITLRun.dagId}/required_actions`);
 
-    try {
-      dagRunId = await setupPendingHITLFlowViaAPI(authenticatedRequest, hitlDagId);
-
-      await page.goto(`/dags/${hitlDagId}/required_actions`);
-
-      await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
-    } finally {
-      if (dagRunId !== undefined) {
-        await safeCleanupDagRun(authenticatedRequest, hitlDagId, dagRunId);
-      }
-    }
+    await expect(page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 });

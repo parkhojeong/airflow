@@ -19,8 +19,6 @@
 import { testConfig } from "playwright.config";
 import { expect } from "tests/e2e/fixtures";
 import { test } from "tests/e2e/fixtures/dashboard-data";
-import { safeCleanupDagRun } from "tests/e2e/utils/api/dag-runs";
-import { setupPendingHITLFlowViaAPI } from "tests/e2e/utils/api/hitl";
 
 test.describe("Dashboard Metrics Display", () => {
   test("should display dashboard stats section with Dag metrics", async ({ homePage }) => {
@@ -77,27 +75,16 @@ test.describe("Dashboard Metrics Display", () => {
   });
 
   test("verify HITL review modal opens from the Required Actions button", async ({
-    authenticatedRequest,
     homePage,
+    pendingHITLRun: _pendingHITLRun,
   }) => {
     test.slow();
 
-    const hitlDagId = testConfig.testDag.hitlId;
-    let dagRunId: string | undefined;
+    await homePage.navigate();
+    await homePage.waitForDashboardLoad();
 
-    try {
-      dagRunId = await setupPendingHITLFlowViaAPI(authenticatedRequest, hitlDagId);
-
-      await homePage.navigate();
-      await homePage.waitForDashboardLoad();
-
-      await homePage.page.getByRole("button", { name: /required actions/i }).click();
-      await expect(homePage.page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
-    } finally {
-      if (dagRunId !== undefined) {
-        await safeCleanupDagRun(authenticatedRequest, hitlDagId, dagRunId);
-      }
-    }
+    await homePage.page.getByRole("button", { name: /required actions/i }).click();
+    await expect(homePage.page.getByRole("dialog", { name: /required actions/i })).toBeVisible();
   });
 
   test("should update metrics when Dag is triggered", async ({ dagRunCleanup, dagsPage, homePage }) => {
