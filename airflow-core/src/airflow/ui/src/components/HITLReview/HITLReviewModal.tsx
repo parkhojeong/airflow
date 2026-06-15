@@ -86,14 +86,13 @@ export const HITLReviewModal = ({
       }}
       open={open}
       scrollBehavior="inside"
-      size="xl"
       unmountOnExit
     >
-      <Dialog.Content backdrop maxW="1440px" p={4}>
+      <Dialog.Content maxW="1440px" p={4}>
         <Dialog.Header>
-          <HStack justifyContent="space-between" pr={8} width="100%">
+          <HStack justifyContent="space-between" width="100%">
             <Dialog.Title>{translate("requiredAction_other")}</Dialog.Title>
-            <HStack gap={2}>
+            <HStack gap={3}>
               {headerAction}
               {shouldShowCompletedHitl ? (
                 <ButtonGroupToggle<HITLReviewFilterMode>
@@ -102,11 +101,10 @@ export const HITLReviewModal = ({
                     label: translate(option.labelKey),
                     value: option.value,
                   }))}
-                  size="xs"
                   value={selectedFilter}
                 />
               ) : undefined}
-              <HStack gap={1}>
+              <HStack>
                 <IconButton
                   disabled={!hasPrevious}
                   label={translate("review.navigation.previous")}
@@ -123,25 +121,9 @@ export const HITLReviewModal = ({
         </Dialog.Header>
         <Dialog.CloseTrigger />
         <Dialog.Body>
-          <HStack
-            alignItems="stretch"
-            flexDirection={{ base: "column", lg: "row" }}
-            gap={{ base: 3, lg: 0 }}
-            height="100%"
-            width="100%"
-          >
-            <Box
-              flex={{ base: 1, lg: 2 }}
-              minW={0}
-              overflowX="hidden"
-              overflowY="auto"
-              pl={2}
-              position="relative"
-              pr={{ base: 2, lg: 4 }}
-              py={2}
-              zIndex={2}
-            >
-              <VStack alignItems="stretch" gap={4} width="100%">
+          <HStack alignItems="stretch" flexDirection={{ base: "column", lg: "row" }} gap={5}>
+            <Box flex="2">
+              <VStack alignItems="stretch">
                 <HITLReviewListSection
                   details={pendingHitl.data}
                   heading={translate("review.list.pendingRequiredActions", {
@@ -166,18 +148,7 @@ export const HITLReviewModal = ({
                 ) : null}
               </VStack>
             </Box>
-            <Box
-              bg="bg"
-              borderColor="border"
-              borderRadius="md"
-              borderWidth={1}
-              flex={1}
-              minW={0}
-              overflowY="auto"
-              p={3}
-              position="relative"
-              zIndex={1}
-            >
+            <Box borderRadius="md" borderWidth={1} flex="1" p={3}>
               <HITLReviewDetail detail={selectedDetail} onOpenTask={handleClose} onResponded={onNext} />
             </Box>
           </HStack>

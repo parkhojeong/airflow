@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Table, Text } from "@chakra-ui/react";
+import { Table } from "@chakra-ui/react";
 import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
@@ -38,9 +38,7 @@ const getHitlReviewListDateFormat = (datetime: string, timezone: string, showSec
 };
 
 const TableColumnHeader = ({ children, width }: { readonly children: string; readonly width?: string }) => (
-  <Table.ColumnHeader color="fg.muted" fontSize="xs" fontWeight="medium" px={2} py={1.5} w={width}>
-    {children}
-  </Table.ColumnHeader>
+  <Table.ColumnHeader w={width}>{children}</Table.ColumnHeader>
 );
 
 const HITL_GROUP_COLORS = ["green.solid", "purple.solid"] as const;
@@ -77,14 +75,14 @@ export const HITLReviewList = ({
   const { selectedTimezone } = useTimezone();
 
   return (
-    <Table.Root minW="640px" size="sm" tableLayout="fixed" width="100%">
+    <Table.Root>
       <Table.Header>
         <Table.Row>
           <TableColumnHeader width="30%">{translate("common:dagId")}</TableColumnHeader>
-          <TableColumnHeader width="120px">{translate("common:dagRun_one")}</TableColumnHeader>
-          <TableColumnHeader width="76px">{translate("common:mapIndex")}</TableColumnHeader>
+          <TableColumnHeader width="130px">{translate("common:dagRun_one")}</TableColumnHeader>
+          <TableColumnHeader width="90px">{translate("common:mapIndex")}</TableColumnHeader>
           <TableColumnHeader>{translate("common:taskId")}</TableColumnHeader>
-          <TableColumnHeader width="100px">{translate("common:table.createdAt")}</TableColumnHeader>
+          <TableColumnHeader width="120px">{translate("common:table.createdAt")}</TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -110,42 +108,24 @@ export const HITLReviewList = ({
                   }}
                   tabIndex={0}
                 >
-                  <Table.Cell
-                    borderLeftColor={getHitlGroupColor(details, index)}
-                    borderLeftWidth={3}
-                    overflow="hidden"
-                    px={2}
-                    py={1.5}
-                  >
-                    <Text fontSize="xs" truncate>
-                      {ti.dag_id}
-                    </Text>
+                  <Table.Cell borderLeftColor={getHitlGroupColor(details, index)} borderLeftWidth={3}>
+                    {ti.dag_id}
                   </Table.Cell>
-                  <Table.Cell px={2} py={1.5}>
-                    <Text fontSize="xs">
-                      <Time
-                        datetime={ti.run_after}
-                        format={getHitlReviewListDateFormat(ti.run_after, selectedTimezone, true)}
-                      />
-                    </Text>
+                  <Table.Cell>
+                    <Time
+                      datetime={ti.run_after}
+                      format={getHitlReviewListDateFormat(ti.run_after, selectedTimezone, true)}
+                    />
                   </Table.Cell>
-                  <Table.Cell px={2} py={1.5}>
-                    <Text color="fg.muted" fontSize="xs">
-                      {ti.rendered_map_index ?? (ti.map_index === -1 ? undefined : String(ti.map_index))}
-                    </Text>
+                  <Table.Cell>
+                    {ti.rendered_map_index ?? (ti.map_index === -1 ? undefined : String(ti.map_index))}
                   </Table.Cell>
-                  <Table.Cell overflow="hidden" px={2} py={1.5}>
-                    <Text fontSize="xs" truncate>
-                      {ti.task_id}
-                    </Text>
-                  </Table.Cell>
-                  <Table.Cell px={2} py={1.5}>
-                    <Text fontSize="xs">
-                      <Time
-                        datetime={detail.created_at}
-                        format={getHitlReviewListDateFormat(detail.created_at, selectedTimezone)}
-                      />
-                    </Text>
+                  <Table.Cell>{ti.task_id}</Table.Cell>
+                  <Table.Cell>
+                    <Time
+                      datetime={detail.created_at}
+                      format={getHitlReviewListDateFormat(detail.created_at, selectedTimezone)}
+                    />
                   </Table.Cell>
                 </Table.Row>
               );

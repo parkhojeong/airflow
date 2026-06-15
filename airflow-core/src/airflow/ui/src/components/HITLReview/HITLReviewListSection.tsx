@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { Box, Heading, Text, VStack } from "@chakra-ui/react";
+import { Heading, Text, VStack } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
@@ -41,33 +41,15 @@ export const HITLReviewListSection = ({
   const { t: translate } = useTranslation("hitl");
 
   return (
-    <VStack alignItems="stretch" gap={2} minW={0} width="100%">
-      <Heading px={2} size="sm">
-        {heading}
-      </Heading>
-      <VStack
-        alignItems="stretch"
-        bg="bg"
-        borderColor="border"
-        borderRadius="md"
-        borderWidth={1}
-        gap={0}
-        minW={0}
-        overflow="hidden"
-        width="100%"
-      >
+    <VStack alignItems="stretch">
+      <Heading size="md">{heading}</Heading>
+      <VStack alignItems="stretch" borderRadius="md" borderWidth={1} overflow="hidden">
         {isLoading ? (
-          <Text color="fg.muted" fontSize="sm" px={3} py={2}>
-            {translate("review.list.loadingActions")}
-          </Text>
+          <Text color="fg.muted">{translate("review.list.loadingActions")}</Text>
         ) : isError ? (
-          <Text color="fg.error" fontSize="sm" px={3} py={2}>
-            {translate("review.list.loadError")}
-          </Text>
+          <Text color="fg.error">{translate("review.list.loadError")}</Text>
         ) : (
-          <Box overflowX="auto" width="100%">
-            <HITLReviewList details={details ?? []} onSelect={onSelect} selectedDetail={selectedDetail} />
-          </Box>
+          <HITLReviewList details={details ?? []} onSelect={onSelect} selectedDetail={selectedDetail} />
         )}
       </VStack>
     </VStack>

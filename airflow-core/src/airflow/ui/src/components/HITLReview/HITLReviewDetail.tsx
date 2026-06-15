@@ -39,10 +39,8 @@ export const HITLReviewDetail = ({
 
   if (detail === undefined) {
     return (
-      <VStack alignItems="center" gap={2} justifyContent="center" minH="240px" width="100%">
-        <Text color="fg.muted" fontSize="sm">
-          {translate("review.detail.selectRequiredAction")}
-        </Text>
+      <VStack py={20}>
+        <Text color="fg.muted">{translate("review.detail.selectRequiredAction")}</Text>
       </VStack>
     );
   }
@@ -51,10 +49,10 @@ export const HITLReviewDetail = ({
   const taskLink = `${getTaskInstanceLink(ti)}/required_actions`;
 
   return (
-    <VStack alignItems="stretch" gap={4} width="100%">
+    <VStack alignItems="stretch" gap={4}>
       <HITLReviewDetailSummary detail={detail} />
 
-      <Button alignSelf="flex-end" asChild size="sm" variant="outline">
+      <Button alignSelf="flex-end" asChild variant="outline">
         <Link onClick={onOpenTask} to={taskLink}>
           {translate("review.detail.openTask")}
         </Link>

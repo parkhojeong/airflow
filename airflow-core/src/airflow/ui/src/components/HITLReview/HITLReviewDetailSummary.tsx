@@ -36,21 +36,8 @@ const getHitlReviewDetailDateFormat = (datetime: string, timezone: string) =>
 
 const HITLReviewRow = ({ label, value }: { readonly label: string; readonly value: ReactNode }) => (
   <Table.Row>
-    <Table.Cell
-      as="th"
-      color="fg.subtle"
-      fontSize="xs"
-      fontWeight="normal"
-      px={2}
-      py={1.5}
-      scope="row"
-      w="30%"
-    >
-      {label}
-    </Table.Cell>
-    <Table.Cell fontSize="xs" px={2} py={1.5}>
-      {value}
-    </Table.Cell>
+    <Table.Cell w="30%">{label}</Table.Cell>
+    <Table.Cell>{value}</Table.Cell>
   </Table.Row>
 );
 
@@ -61,12 +48,12 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
   const mappedIndex = ti.rendered_map_index ?? (ti.map_index >= 0 ? ti.map_index : undefined);
 
   return (
-    <Table.Root size="sm" tableLayout="fixed" width="100%">
+    <Table.Root>
       <Table.Body>
-        <HITLReviewRow label={translate("common:dagId")} value={<Text truncate>{ti.dag_id}</Text>} />
-        <HITLReviewRow label={translate("common:dagRunId")} value={<Text>{ti.dag_run_id}</Text>} />
-        <HITLReviewRow label={translate("common:mapIndex")} value={<Text>{mappedIndex ?? "-"}</Text>} />
-        <HITLReviewRow label={translate("common:taskId")} value={<Text truncate>{ti.task_id}</Text>} />
+        <HITLReviewRow label={translate("common:dagId")} value={ti.dag_id} />
+        <HITLReviewRow label={translate("common:dagRunId")} value={ti.dag_run_id} />
+        <HITLReviewRow label={translate("common:mapIndex")} value={mappedIndex ?? "-"} />
+        <HITLReviewRow label={translate("common:taskId")} value={ti.task_id} />
         <HITLReviewRow
           label={translate("common:table.createdAt")}
           value={
@@ -79,7 +66,7 @@ export const HITLReviewDetailSummary = ({ detail }: { readonly detail: HITLDetai
             </Text>
           }
         />
-        <HITLReviewRow label={translate("common:tryNumber")} value={<Text>{ti.try_number}</Text>} />
+        <HITLReviewRow label={translate("common:tryNumber")} value={ti.try_number} />
       </Table.Body>
     </Table.Root>
   );
