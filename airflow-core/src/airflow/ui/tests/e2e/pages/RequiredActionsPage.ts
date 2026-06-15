@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { expect, type APIRequestContext, type Locator, type Page } from "@playwright/test";
+import { type APIRequestContext, expect, type Locator, type Page } from "@playwright/test";
 import { testConfig } from "playwright.config";
 import { HITLReviewDrawer } from "tests/e2e/components/HITLReviewDrawer";
 import { apiTriggerDagRun, waitForDagReady } from "tests/e2e/utils/api/dag-runs";
@@ -41,12 +41,36 @@ export class RequiredActionsPage extends BasePage {
     this.hitlReviewDrawer = new HITLReviewDrawer(page);
   }
 
+  public static getPendingRequiredActionsUrl(): string {
+    return `${this.getRequiredActionsUrl()}?response_received=false`;
+  }
+
   public static getRequiredActionsUrl(): string {
     return "/required_actions";
   }
 
+  public async clickActionRow(dagId: string): Promise<void> {
+    const actionRow = this.getActionRow(dagId);
+    const stateCell = actionRow.getByTestId("table-cell-task_instance_state");
+
+    await expect(stateCell).toBeVisible({ timeout: 30_000 });
+    await stateCell.click();
+  }
+
+  public getActionRow(dagId: string): Locator {
+    return this.actionsTable
+      .getByRole("row")
+      .filter({ has: this.page.getByRole("cell", { name: dagId }) })
+      .first();
+  }
+
   public async isEmptyStateDisplayed(): Promise<boolean> {
     return this.emptyStateMessage.isVisible();
+  }
+
+  public async navigateToPendingRequiredActionsPage(): Promise<void> {
+    await this.navigateTo(RequiredActionsPage.getPendingRequiredActionsUrl());
+    await expect(this.pageHeading).toBeVisible({ timeout: 30_000 });
   }
 
   public async navigateToRequiredActionsPage(): Promise<void> {

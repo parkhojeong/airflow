@@ -200,6 +200,22 @@ export class DagsPage extends BasePage {
     return texts.map((text) => text.trim()).filter((text) => text !== "");
   }
 
+  public async getDagNeedsReviewBadgeOnCard(dagId: string): Promise<Locator> {
+    const dagCard = this.page.getByTestId("dag-card").filter({ hasText: dagId });
+
+    await expect(dagCard).toBeVisible({ timeout: 60_000 });
+
+    return dagCard.getByTestId("needs-review-badge");
+  }
+
+  public async getDagNeedsReviewBadgeOnTable(dagId: string): Promise<Locator> {
+    const dagRow = this.page.getByTestId("table-list").getByRole("row").filter({ hasText: dagId });
+
+    await expect(dagRow).toBeVisible({ timeout: 60_000 });
+
+    return dagRow.getByTestId("needs-review-badge");
+  }
+
   /**
    * Get count of Dags on current page
    */

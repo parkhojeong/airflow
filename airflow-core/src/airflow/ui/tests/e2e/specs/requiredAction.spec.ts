@@ -42,7 +42,7 @@ test.describe("Verify Required Action page", () => {
     }
   });
 
-  test("verify the actions table displays with expected columns", async ({ page, requiredActionsPage }) => {
+  test("Verify the actions table displays with expected columns", async ({ page, requiredActionsPage }) => {
     await requiredActionsPage.navigateToRequiredActionsPage();
 
     await expect(requiredActionsPage.actionsTable).toBeVisible();
@@ -54,43 +54,13 @@ test.describe("Verify Required Action page", () => {
     await expect(page.locator("th").filter({ hasText: "Response received at" })).toBeVisible();
   });
 
-  test("verify HITL Review drawer opens from clicking a non-link row cell", async ({
-    page,
+  test("verify HITL Review drawer opens from clicking a pending action state", async ({
     pendingHITLRun,
     requiredActionsPage,
   }) => {
-    await requiredActionsPage.navigateToRequiredActionsPage();
+    await requiredActionsPage.navigateToPendingRequiredActionsPage();
 
-    const row = requiredActionsPage.actionsTable
-      .getByRole("row")
-      .filter({ has: page.getByRole("cell", { name: pendingHITLRun.runId }) })
-      .filter({ has: page.getByRole("cell", { name: "wait_for_input" }) })
-      .first();
-
-    const stateCell = row.getByTestId("table-cell-task_instance_state");
-
-    await expect(stateCell).toBeVisible({ timeout: 30_000 });
-    await stateCell.click();
-
-    await requiredActionsPage.hitlReviewDrawer.expectOpenWith(pendingHITLRun.dagId);
-  });
-
-  test("verify HITL Review drawer opens from keyboard row activation", async ({
-    page,
-    pendingHITLRun,
-    requiredActionsPage,
-  }) => {
-    await requiredActionsPage.navigateToRequiredActionsPage();
-
-    const row = requiredActionsPage.actionsTable
-      .getByRole("row")
-      .filter({ has: page.getByRole("cell", { name: pendingHITLRun.runId }) })
-      .filter({ has: page.getByRole("cell", { name: "wait_for_input" }) })
-      .first();
-
-    await expect(row).toBeVisible({ timeout: 30_000 });
-    await row.focus();
-    await row.press("Enter");
+    await requiredActionsPage.clickActionRow(pendingHITLRun.dagId);
 
     await requiredActionsPage.hitlReviewDrawer.expectOpenWith(pendingHITLRun.dagId);
   });

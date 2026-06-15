@@ -102,23 +102,18 @@ test.describe("Dags List Display", () => {
 
   test("verify HITL review modal opens from the needs review badge in table view", async ({
     dagsPage,
-    page,
     pendingHITLRun,
   }) => {
     test.slow();
 
     await dagsPage.navigate();
     await dagsPage.waitForDagList();
+    await dagsPage.switchToTableView();
 
     await expect(dagsPage.needsReviewFilter).toBeVisible({ timeout: 30_000 });
     await dagsPage.needsReviewFilter.click();
-    await dagsPage.switchToTableView();
 
-    const dagRow = page.getByRole("row").filter({ hasText: pendingHITLRun.dagId });
-
-    await expect(dagRow).toBeVisible({ timeout: 30_000 });
-
-    const needsReviewBadge = dagRow.getByTestId("needs-review-badge");
+    const needsReviewBadge = await dagsPage.getDagNeedsReviewBadgeOnTable(pendingHITLRun.dagId);
 
     await expect(needsReviewBadge).toBeVisible({ timeout: 30_000 });
     await needsReviewBadge.click();
@@ -128,23 +123,18 @@ test.describe("Dags List Display", () => {
 
   test("verify HITL review modal opens from the needs review badge in card view", async ({
     dagsPage,
-    page,
     pendingHITLRun,
   }) => {
     test.slow();
 
     await dagsPage.navigate();
     await dagsPage.waitForDagList();
+    await dagsPage.switchToCardView();
 
     await expect(dagsPage.needsReviewFilter).toBeVisible({ timeout: 30_000 });
     await dagsPage.needsReviewFilter.click();
-    await dagsPage.switchToCardView();
 
-    const dagCard = page.getByTestId("dag-card").filter({ has: dagsPage.getDagLink(pendingHITLRun.dagId) });
-
-    await expect(dagCard).toBeVisible({ timeout: 60_000 });
-
-    const needsReviewBadge = dagCard.getByTestId("needs-review-badge");
+    const needsReviewBadge = await dagsPage.getDagNeedsReviewBadgeOnCard(pendingHITLRun.dagId);
 
     await expect(needsReviewBadge).toBeVisible({ timeout: 30_000 });
     await needsReviewBadge.click();
