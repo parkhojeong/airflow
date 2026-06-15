@@ -17,6 +17,7 @@
  * under the License.
  */
 import { expect, type Locator, type Page } from "@playwright/test";
+import { HITLReviewModal } from "tests/e2e/components/HITLReviewModal";
 import { BasePage } from "tests/e2e/pages/BasePage";
 
 /**
@@ -35,7 +36,7 @@ export class HomePage extends BasePage {
 
   public readonly healthSection: Locator;
   public readonly historicalMetricsSection: Locator;
-  public readonly hitlReviewModal: Locator;
+  public readonly hitlReviewModal: HITLReviewModal;
   public readonly metaDatabaseHealth: Locator;
   public readonly poolSummarySection: Locator;
   public readonly requiredActionsButton: Locator;
@@ -62,7 +63,7 @@ export class HomePage extends BasePage {
     // Navigate to parent via ".." since there are no ARIA landmark/region roles on these sections.
     this.statsSection = page.getByRole("heading", { name: "Stats" }).locator("..");
     this.healthSection = page.getByRole("heading", { name: "Health" }).locator("..");
-    this.hitlReviewModal = page.getByRole("dialog", { name: "Required Actions" });
+    this.hitlReviewModal = new HITLReviewModal(page);
     this.metaDatabaseHealth = page.getByText("Metadatabase").first();
     this.schedulerHealth = page.getByText("Scheduler").first();
     this.triggererHealth = page.getByText("Triggerer").first();

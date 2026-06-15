@@ -18,6 +18,7 @@
  */
 import { expect, type APIRequestContext, type Locator, type Page } from "@playwright/test";
 import { testConfig } from "playwright.config";
+import { HITLReviewDrawer } from "tests/e2e/components/HITLReviewDrawer";
 import { apiTriggerDagRun, waitForDagReady } from "tests/e2e/utils/api/dag-runs";
 
 import { BasePage } from "./BasePage";
@@ -25,7 +26,7 @@ import { BasePage } from "./BasePage";
 export class RequiredActionsPage extends BasePage {
   public readonly actionsTable: Locator;
   public readonly emptyStateMessage: Locator;
-  public readonly hitlReviewDrawer: Locator;
+  public readonly hitlReviewDrawer: HITLReviewDrawer;
   public readonly pageHeading: Locator;
 
   // Standalone API context — page.request degrades after many navigations in WebKit.
@@ -37,7 +38,7 @@ export class RequiredActionsPage extends BasePage {
     this.pageHeading = page.getByRole("heading").filter({ hasText: /required action/i });
     this.actionsTable = page.getByTestId("table-list");
     this.emptyStateMessage = page.getByText(/no required actions found/i);
-    this.hitlReviewDrawer = page.getByRole("dialog", { name: "Required Actions" });
+    this.hitlReviewDrawer = new HITLReviewDrawer(page);
   }
 
   public static getRequiredActionsUrl(): string {

@@ -123,8 +123,7 @@ test.describe("Dags List Display", () => {
     await expect(needsReviewBadge).toBeVisible({ timeout: 30_000 });
     await needsReviewBadge.click();
 
-    await expect(dagsPage.hitlReviewModal).toBeVisible();
-    await expect(dagsPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 60_000 });
+    await dagsPage.hitlReviewModal.expectOpenWith(pendingHITLRun.dagId);
   });
 
   test("verify HITL review modal opens from the needs review badge in card view", async ({
@@ -150,8 +149,7 @@ test.describe("Dags List Display", () => {
     await expect(needsReviewBadge).toBeVisible({ timeout: 30_000 });
     await needsReviewBadge.click();
 
-    await expect(dagsPage.hitlReviewModal).toBeVisible();
-    await expect(dagsPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 60_000 });
+    await dagsPage.hitlReviewModal.expectOpenWith(pendingHITLRun.dagId);
   });
 });
 

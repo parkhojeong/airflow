@@ -27,10 +27,7 @@ test.describe("Dag Detail Page", () => {
     await expect(dagDetailPage.requiredActionsButton).toBeVisible({ timeout: 60_000 });
     await dagDetailPage.requiredActionsButton.click();
 
-    await expect(dagDetailPage.hitlReviewModal).toBeVisible();
-    await expect(dagDetailPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, {
-      timeout: 60_000,
-    });
+    await dagDetailPage.hitlReviewModal.expectOpenWith(pendingHITLRun.dagId);
   });
 
   test("verify HITL review modal opens from the Dag required actions route", async ({
@@ -41,9 +38,6 @@ test.describe("Dag Detail Page", () => {
 
     await dagDetailPage.navigateToDagDetailRequiredActions(pendingHITLRun.dagId);
 
-    await expect(dagDetailPage.hitlReviewModal).toBeVisible();
-    await expect(dagDetailPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, {
-      timeout: 60_000,
-    });
+    await dagDetailPage.hitlReviewModal.expectOpenWith(pendingHITLRun.dagId);
   });
 });

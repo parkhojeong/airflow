@@ -17,15 +17,16 @@
  * under the License.
  */
 import type { Locator, Page } from "@playwright/test";
+import { HITLReviewModal } from "tests/e2e/components/HITLReviewModal";
 import { BasePage } from "tests/e2e/pages/BasePage";
 
 export class DagRunPage extends BasePage {
-  public readonly hitlReviewModal: Locator;
+  public readonly hitlReviewModal: HITLReviewModal;
   public readonly requiredActionsButton: Locator;
 
   public constructor(page: Page) {
     super(page);
-    this.hitlReviewModal = page.getByRole("dialog", { name: "Required Actions" });
+    this.hitlReviewModal = new HITLReviewModal(page);
     this.requiredActionsButton = page.getByRole("button", { name: "Required Actions" });
   }
 

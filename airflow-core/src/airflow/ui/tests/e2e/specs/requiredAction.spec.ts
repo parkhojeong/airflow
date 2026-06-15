@@ -72,10 +72,7 @@ test.describe("Verify Required Action page", () => {
     await expect(stateCell).toBeVisible({ timeout: 30_000 });
     await stateCell.click();
 
-    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible({ timeout: 30_000 });
-    await expect(requiredActionsPage.hitlReviewDrawer).toContainText(pendingHITLRun.dagId, {
-      timeout: 60_000,
-    });
+    await requiredActionsPage.hitlReviewDrawer.expectOpenWith(pendingHITLRun.dagId);
   });
 
   test("verify HITL Review drawer opens from keyboard row activation", async ({
@@ -95,9 +92,6 @@ test.describe("Verify Required Action page", () => {
     await row.focus();
     await row.press("Enter");
 
-    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible();
-    await expect(requiredActionsPage.hitlReviewDrawer).toContainText(pendingHITLRun.dagId, {
-      timeout: 60_000,
-    });
+    await requiredActionsPage.hitlReviewDrawer.expectOpenWith(pendingHITLRun.dagId);
   });
 });

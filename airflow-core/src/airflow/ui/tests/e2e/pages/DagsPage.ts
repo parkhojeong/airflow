@@ -17,6 +17,7 @@
  * under the License.
  */
 import { expect, type Locator, type Page, type Response } from "@playwright/test";
+import { HITLReviewModal } from "tests/e2e/components/HITLReviewModal";
 import { BasePage } from "tests/e2e/pages/BasePage";
 
 import type { DAGRunResponse } from "openapi/requests/types.gen";
@@ -32,7 +33,7 @@ export class DagsPage extends BasePage {
   public readonly cardViewButton: Locator;
   public readonly confirmButton: Locator;
   public readonly failedFilter: Locator;
-  public readonly hitlReviewModal: Locator;
+  public readonly hitlReviewModal: HITLReviewModal;
   public readonly needsReviewBadges: Locator;
   public readonly needsReviewFilter: Locator;
   public readonly operatorFilter: Locator;
@@ -65,7 +66,7 @@ export class DagsPage extends BasePage {
     this.tableViewButton = page.getByRole("button", { name: "Show table view" });
     this.successFilter = page.getByRole("button", { name: "Success" });
     this.failedFilter = page.getByRole("button", { name: "Failed" });
-    this.hitlReviewModal = page.getByRole("dialog", { name: "Required Actions" });
+    this.hitlReviewModal = new HITLReviewModal(page);
     this.needsReviewBadges = page.getByTestId("needs-review-badge");
     this.runningFilter = page.getByRole("button", { name: "Running" });
     this.queuedFilter = page.getByRole("button", { name: "Queued" });
