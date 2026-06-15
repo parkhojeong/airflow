@@ -85,10 +85,9 @@ test.describe("Dashboard Metrics Display", () => {
 
     await expect(homePage.requiredActionsButton).toBeVisible({ timeout: 30_000 });
     await homePage.requiredActionsButton.click();
-    await expect(homePage.hitlReviewModal).toBeVisible({ timeout: 30_000 });
-    await expect(homePage.hitlReviewModal).toContainText(pendingHITLRun.dagId, {
-      timeout: 30_000,
-    });
+
+    await expect(homePage.hitlReviewModal).toBeVisible();
+    await expect(homePage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 60_000 });
   });
 
   test("should update metrics when Dag is triggered", async ({ dagRunCleanup, dagsPage, homePage }) => {

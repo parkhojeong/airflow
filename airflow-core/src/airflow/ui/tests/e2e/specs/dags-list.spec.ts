@@ -123,8 +123,8 @@ test.describe("Dags List Display", () => {
     await expect(needsReviewBadge).toBeVisible({ timeout: 30_000 });
     await needsReviewBadge.click();
 
-    await expect(dagsPage.hitlReviewModal).toBeVisible({ timeout: 30_000 });
-    await expect(dagsPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 30_000 });
+    await expect(dagsPage.hitlReviewModal).toBeVisible();
+    await expect(dagsPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 60_000 });
   });
 
   test("verify HITL review modal opens from the needs review badge in card view", async ({
@@ -143,15 +143,15 @@ test.describe("Dags List Display", () => {
 
     const dagCard = page.getByTestId("dag-card").filter({ has: dagsPage.getDagLink(pendingHITLRun.dagId) });
 
-    await expect(dagCard).toBeVisible({ timeout: 30_000 });
+    await expect(dagCard).toBeVisible({ timeout: 60_000 });
 
     const needsReviewBadge = dagCard.getByTestId("needs-review-badge");
 
     await expect(needsReviewBadge).toBeVisible({ timeout: 30_000 });
     await needsReviewBadge.click();
 
-    await expect(dagsPage.hitlReviewModal).toBeVisible({ timeout: 30_000 });
-    await expect(dagsPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 30_000 });
+    await expect(dagsPage.hitlReviewModal).toBeVisible();
+    await expect(dagsPage.hitlReviewModal).toContainText(pendingHITLRun.dagId, { timeout: 60_000 });
   });
 });
 

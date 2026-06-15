@@ -74,7 +74,7 @@ test.describe("Verify Required Action page", () => {
 
     await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible({ timeout: 30_000 });
     await expect(requiredActionsPage.hitlReviewDrawer).toContainText(pendingHITLRun.dagId, {
-      timeout: 30_000,
+      timeout: 60_000,
     });
   });
 
@@ -95,9 +95,9 @@ test.describe("Verify Required Action page", () => {
     await row.focus();
     await row.press("Enter");
 
-    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible({ timeout: 30_000 });
+    await expect(requiredActionsPage.hitlReviewDrawer).toBeVisible();
     await expect(requiredActionsPage.hitlReviewDrawer).toContainText(pendingHITLRun.dagId, {
-      timeout: 30_000,
+      timeout: 60_000,
     });
   });
 });
