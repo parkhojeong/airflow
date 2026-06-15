@@ -106,6 +106,7 @@ export const HITLReviewList = ({
                       onSelect(detail);
                     }
                   }}
+                  py={2}
                   tabIndex={0}
                 >
                   <Table.Cell borderLeftColor={getHitlGroupColor(details, index)} borderLeftWidth={3}>

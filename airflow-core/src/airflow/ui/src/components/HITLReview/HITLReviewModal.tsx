@@ -121,9 +121,9 @@ export const HITLReviewModal = ({
         </Dialog.Header>
         <Dialog.CloseTrigger />
         <Dialog.Body>
-          <HStack alignItems="stretch" flexDirection={{ base: "column", lg: "row" }} gap={5}>
+          <HStack alignItems="stretch" flexDirection={{ base: "column", lg: "row" }} gap={6}>
             <Box flex="2">
-              <VStack alignItems="stretch">
+              <VStack alignItems="stretch" gap={4}>
                 <HITLReviewListSection
                   details={pendingHitl.data}
                   heading={translate("review.list.pendingRequiredActions", {
