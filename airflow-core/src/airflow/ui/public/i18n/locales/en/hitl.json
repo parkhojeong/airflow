@@ -35,10 +35,6 @@
       "loadingActions": "Loading required actions...",
       "pendingRequiredActions": "Pending required actions ({{count}})"
     },
-    "navigation": {
-      "next": "Next",
-      "previous": "Previous"
-    },
     "openReviewDrawer": "Open Review Drawer",
     "viewAll": "View all required actions"
   },

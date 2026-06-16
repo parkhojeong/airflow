@@ -20,11 +20,9 @@ import { Box, HStack, VStack } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import { HITLReviewDetail } from "src/components/HITLReview/HITLReviewDetail.tsx";
-import { IconButton } from "src/components/ui";
 import { ButtonGroupToggle } from "src/components/ui/ButtonGroupToggle";
 import { Dialog } from "src/components/ui/Dialog";
 
@@ -68,7 +66,7 @@ export const HITLReviewModal = ({
       ? [...pendingHitl.data, ...completedHitl.data]
       : pendingHitl.data;
 
-  const { hasNext, hasPrevious, onNext, onPrevious, onSelect, selectedDetail } = useHITLReviewModalSelection({
+  const { onNext, onSelect, selectedDetail } = useHITLReviewModalSelection({
     hitlDetails: visibleHitls,
   });
   const handleClose = () => {
@@ -104,18 +102,6 @@ export const HITLReviewModal = ({
                   value={selectedFilter}
                 />
               ) : undefined}
-              <HStack>
-                <IconButton
-                  disabled={!hasPrevious}
-                  label={translate("review.navigation.previous")}
-                  onClick={onPrevious}
-                >
-                  <FiChevronLeft />
-                </IconButton>
-                <IconButton disabled={!hasNext} label={translate("review.navigation.next")} onClick={onNext}>
-                  <FiChevronRight />
-                </IconButton>
-              </HStack>
             </HStack>
           </HStack>
         </Dialog.Header>
