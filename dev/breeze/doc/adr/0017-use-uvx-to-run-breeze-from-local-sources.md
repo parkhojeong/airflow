@@ -115,7 +115,7 @@ else
     exit 1
 fi
 exec env AIRFLOW_ROOT_PATH="${breeze_root}" SKIP_BREEZE_SELF_UPGRADE_CHECK=1 \
-    uvx --from "${breeze_root}/dev/breeze" --quiet breeze "$@"
+    uvx --from "${breeze_root}/dev/breeze" --with-editable "${breeze_root}/dev/breeze" --quiet breeze "$@"
 ```
 
 ``scripts/tools/setup_breeze`` writes this file (replacing any previous
@@ -128,7 +128,7 @@ The user-facing command stays the same — they still type ``breeze`` — but ea
 invocation:
 
 * resolves ``$(git rev-parse --show-toplevel)`` from the current working directory,
-* dispatches to ``uvx --from <that-worktree>/dev/breeze breeze``,
+* dispatches to ``uvx --from <that-worktree>/dev/breeze --with-editable <that-worktree>/dev/breeze breeze``,
 * and therefore always runs the breeze code that belongs to that worktree.
 
 Because the shim is a real file on ``PATH`` (not a shell function), it is also

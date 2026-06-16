@@ -58,6 +58,7 @@ from airflow_breeze.commands.common_options import (
     option_install_airflow_with_constraints,
     option_keep_env_variables,
     option_mount_sources,
+    option_mount_ui_dist,
     option_mysql_version,
     option_no_db_cleanup,
     option_parallelism,
@@ -111,7 +112,12 @@ from airflow_breeze.utils.parallel import (
     check_async_run_results,
     run_with_pool,
 )
-from airflow_breeze.utils.path_utils import AIRFLOW_CTL_ROOT_PATH, FILES_PATH, cleanup_python_generated_files
+from airflow_breeze.utils.path_utils import (
+    AIRFLOW_CTL_ROOT_PATH,
+    AIRFLOW_ROOT_PATH,
+    FILES_PATH,
+    cleanup_python_generated_files,
+)
 from airflow_breeze.utils.run_tests import (
     TASK_SDK_INTEGRATION_TESTS_ROOT_PATH,
     are_all_test_paths_excluded,
@@ -1498,6 +1504,7 @@ def airflow_e2e_tests(
 @option_e2e_workers
 @option_force_reinstall_deps
 @option_headed
+@option_mount_ui_dist
 @option_test_admin_password
 @option_test_admin_username
 @option_test_pattern
@@ -1516,6 +1523,7 @@ def ui_e2e_tests(
     workers: int,
     force_reinstall_deps: bool,
     headed: bool,
+    mount_ui_dist: bool,
     test_admin_password: str,
     test_admin_username: str,
     test_pattern: str,
@@ -1530,13 +1538,13 @@ def ui_e2e_tests(
 
     from airflow_breeze.params.build_prod_params import BuildProdParams
     from airflow_breeze.utils.console import console_print
-    from airflow_breeze.utils.run_utils import check_pnpm_installed, run_command
+    from airflow_breeze.utils.run_utils import check_pnpm_installed, run_command, run_compile_ui_assets
     from airflow_breeze.utils.shared_options import get_dry_run, get_verbose
 
     perform_environment_checks()
     check_pnpm_installed()
 
-    airflow_root = Path(__file__).resolve().parents[5]
+    airflow_root = AIRFLOW_ROOT_PATH
     ui_dir = airflow_root / "airflow-core" / "src" / "airflow" / "ui"
     docker_compose_source = (
         airflow_root / "airflow-core" / "docs" / "howto" / "docker-compose" / "docker-compose.yaml"
@@ -1573,10 +1581,32 @@ def ui_e2e_tests(
             "AIRFLOW_IMAGE_NAME": image_name,
         }
 
+        if mount_ui_dist:
+            console_print("[info]Compiling local UI assets to mount into the e2e apiserver...[/]")
+            compile_result = run_compile_ui_assets(
+                dev=False, run_in_background=False, force_clean=False, additional_ui_hooks=[]
+            )
+            if compile_result.returncode != 0:
+                console_print("[error]Failed to compile local UI assets[/]")
+                sys.exit(compile_result.returncode)
+
+        def mount_local_ui_dist(compose_config: dict, _: Path) -> dict:
+            airflow_apiserver = compose_config["services"]["airflow-apiserver"]
+            volumes = airflow_apiserver.setdefault("volumes", [])
+            volumes.extend(
+                [
+                    f"{ui_dir / 'dist'}:/opt/airflow/airflow-core/src/airflow/ui/dist:cached",
+                    f"{airflow_root / 'airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/dist'}:"
+                    "/opt/airflow/airflow-core/src/airflow/api_fastapi/auth/managers/simple/ui/dist:cached",
+                ]
+            )
+            return compose_config
+
         tmp_dir, dot_env = setup_airflow_docker_compose_environment(
             docker_compose_source=docker_compose_source,
             tmp_dir=tmp_dir,
             env_vars=env_vars,
+            docker_compose_modifications=mount_local_ui_dist if mount_ui_dist else None,
         )
 
         result = start_docker_compose_and_wait_for_health(tmp_dir, airflow_base_url=airflow_ui_base_url)

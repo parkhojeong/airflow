@@ -84,7 +84,7 @@ else
     exit 1
 fi
 exec env AIRFLOW_ROOT_PATH="${breeze_root}" SKIP_BREEZE_SELF_UPGRADE_CHECK=1 \
-    uvx --from "${breeze_root}/dev/breeze" --quiet breeze "$@"
+    uvx --from "${breeze_root}/dev/breeze" --with-editable "${breeze_root}/dev/breeze" --quiet breeze "$@"
 ```
 
 Then `breeze` invoked from any Airflow checkout uses that checkout's source, and from

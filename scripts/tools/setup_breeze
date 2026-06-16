@@ -41,7 +41,7 @@ SHIM_MARKER="# Apache Airflow breeze shim — managed by scripts/tools/setup_bre
 # into the installed shim; if the installed shim is older it warns the user to
 # re-run this script. See warn_if_shim_outdated() in
 # dev/breeze/src/airflow_breeze/utils/path_utils.py.
-SHIM_VERSION="1"
+SHIM_VERSION="2"
 
 # The shim itself. Runs breeze via 'uvx' against the dev/breeze folder of the
 # *current* git worktree, so multiple checkouts / agentic worktrees never
@@ -83,7 +83,7 @@ else
     exit 1
 fi
 exec env AIRFLOW_ROOT_PATH="\${breeze_root}" SKIP_BREEZE_SELF_UPGRADE_CHECK=1 \\
-    uvx --from "\${breeze_root}/dev/breeze" --quiet breeze "\$@"
+    uvx --from "\${breeze_root}/dev/breeze" --with-editable "\${breeze_root}/dev/breeze" --quiet breeze "\$@"
 BREEZE_SHIM
 
 function manual_instructions() {

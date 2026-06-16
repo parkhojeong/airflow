@@ -300,7 +300,7 @@ marks it executable. To do it manually, write this file to ``~/.local/bin/breeze
         exit 1
     fi
     exec env AIRFLOW_ROOT_PATH="${repo_root}" SKIP_BREEZE_SELF_UPGRADE_CHECK=1 \
-        uvx --from "${repo_root}/dev/breeze" --quiet breeze "$@"
+        uvx --from "${repo_root}/dev/breeze" --with-editable "${repo_root}/dev/breeze" --quiet breeze "$@"
 
 Then ``breeze`` invoked from any Airflow checkout uses that checkout's source. The first call in
 a fresh worktree pays a one-time ``uvx`` resolve/install; subsequent calls hit the cache.

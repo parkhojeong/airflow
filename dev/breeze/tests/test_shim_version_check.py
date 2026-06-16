@@ -61,7 +61,7 @@ def test_parse_shim_version(version_line, expected):
 def test_get_expected_shim_version_reads_real_setup_script():
     # The real setup_breeze in the sources is the source of truth — keep this test in sync
     # with the SHIM_VERSION it declares.
-    assert get_expected_shim_version(ACTUAL_AIRFLOW_SOURCES) == 1
+    assert get_expected_shim_version(ACTUAL_AIRFLOW_SOURCES) == 2
 
 
 def test_get_expected_shim_version_from_fake_sources(tmp_path):
