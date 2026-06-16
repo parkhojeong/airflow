@@ -17,25 +17,10 @@
  * under the License.
  */
 import { Table } from "@chakra-ui/react";
-import dayjs from "dayjs";
-import tz from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
 import { useTranslation } from "react-i18next";
 
 import type { HITLDetail } from "openapi/requests/types.gen.ts";
 import Time from "src/components/Time.tsx";
-import { useTimezone } from "src/context/timezone";
-
-dayjs.extend(utc);
-dayjs.extend(tz);
-
-const getHitlReviewListDateFormat = (datetime: string, timezone: string, showSeconds: boolean = false) => {
-  if (dayjs(datetime).tz(timezone).isSame(dayjs().tz(timezone), "day")) {
-    return `HH:mm${showSeconds ? ":ss" : ""}`;
-  }
-
-  return `MMM D, HH:mm${showSeconds ? ":ss" : ""}`;
-};
 
 const TableColumnHeader = ({ children, width }: { readonly children: string; readonly width?: string }) => (
   <Table.ColumnHeader w={width}>{children}</Table.ColumnHeader>
@@ -72,17 +57,16 @@ export const HITLReviewList = ({
   readonly selectedDetail?: HITLDetail;
 }) => {
   const { t: translate } = useTranslation(["hitl", "common"]);
-  const { selectedTimezone } = useTimezone();
 
   return (
     <Table.Root>
       <Table.Header>
         <Table.Row>
           <TableColumnHeader width="30%">{translate("common:dagId")}</TableColumnHeader>
-          <TableColumnHeader width="130px">{translate("common:dagRun_one")}</TableColumnHeader>
+          <TableColumnHeader width="170px">{translate("common:dagRun_one")}</TableColumnHeader>
           <TableColumnHeader width="90px">{translate("common:mapIndex")}</TableColumnHeader>
           <TableColumnHeader>{translate("common:taskId")}</TableColumnHeader>
-          <TableColumnHeader width="120px">{translate("common:table.createdAt")}</TableColumnHeader>
+          <TableColumnHeader width="170px">{translate("common:table.createdAt")}</TableColumnHeader>
         </Table.Row>
       </Table.Header>
       <Table.Body>
@@ -113,20 +97,14 @@ export const HITLReviewList = ({
                     {ti.dag_id}
                   </Table.Cell>
                   <Table.Cell>
-                    <Time
-                      datetime={ti.run_after}
-                      format={getHitlReviewListDateFormat(ti.run_after, selectedTimezone, true)}
-                    />
+                    <Time datetime={ti.run_after} />
                   </Table.Cell>
                   <Table.Cell>
                     {ti.rendered_map_index ?? (ti.map_index === -1 ? undefined : String(ti.map_index))}
                   </Table.Cell>
                   <Table.Cell>{ti.task_id}</Table.Cell>
                   <Table.Cell>
-                    <Time
-                      datetime={detail.created_at}
-                      format={getHitlReviewListDateFormat(detail.created_at, selectedTimezone)}
-                    />
+                    <Time datetime={detail.created_at} />
                   </Table.Cell>
                 </Table.Row>
               );
