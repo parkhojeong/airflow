@@ -49,12 +49,12 @@ export class RequiredActionsPage extends BasePage {
     return "/required_actions";
   }
 
-  public async clickActionRow(dagId: string): Promise<void> {
+  public async clickReviewDrawerButton(dagId: string): Promise<void> {
     const actionRow = this.getActionRow(dagId);
-    const stateCell = actionRow.getByTestId("table-cell-task_instance_state");
+    const reviewDrawerButton = actionRow.getByRole("button", { name: "Open Review Drawer" });
 
-    await expect(stateCell).toBeVisible({ timeout: 30_000 });
-    await stateCell.click();
+    await expect(reviewDrawerButton).toBeVisible({ timeout: 30_000 });
+    await reviewDrawerButton.click();
   }
 
   public getActionRow(dagId: string): Locator {

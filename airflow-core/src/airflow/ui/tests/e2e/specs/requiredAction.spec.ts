@@ -60,7 +60,7 @@ test.describe("Verify Required Action page", () => {
   }) => {
     await requiredActionsPage.navigateToPendingRequiredActionsPage();
 
-    await requiredActionsPage.clickActionRow(pendingHITLRun.dagId);
+    await requiredActionsPage.clickReviewDrawerButton(pendingHITLRun.dagId);
 
     await requiredActionsPage.hitlReviewDrawer.expectOpenWith(pendingHITLRun.dagId);
   });

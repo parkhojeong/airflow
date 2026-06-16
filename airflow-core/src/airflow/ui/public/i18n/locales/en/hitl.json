@@ -39,6 +39,7 @@
       "next": "Next",
       "previous": "Previous"
     },
+    "openReviewDrawer": "Open Review Drawer",
     "viewAll": "View all required actions"
   },
   "state": {
